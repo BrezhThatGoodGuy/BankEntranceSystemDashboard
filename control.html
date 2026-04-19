@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 
 
@@ -151,3 +152,105 @@
 </body>
 </html>
 
+=======
+<!DOCTYPE html>
+
+
+
+<head>
+
+    <title>Man-Trap Control</title>
+    <link rel = "stylesheet" href = "style.css">
+    <script src ="script.js" ></script> 
+
+</head>
+
+
+
+
+<body class = "simulation-background">
+
+
+
+    <div class = "whole-header">
+        
+        
+        <div class = "main-navigation-bar">
+
+            <div class = "monitor-page-link" class = "simulate-page-link-selected" onclick="openMonitorPage()">MONITOR</div>                          
+            <div class = "command-page-link" class = "simulate-page-link-selected" onclick="openControlPage()">CONTROL</div>
+            <div class = "faults-page-link" class = "simulate-page-link-selected" onclick="openFaultsPage()">FAULTS</div>
+            <div class = "ai-page-link" class = "simulate-page-link-selected" onclick="openAiControlPage()">AI CONTROL</div> 
+            
+        </div>
+        
+        
+        <div class = "user-header">
+            
+            <button class = "evacuate"> EVACUATE! </button>
+            <div class = js-navigation-menu ><img class="navigation-menu" onclick="showSideNavigationBar()" src="images/navigation-menu.png" alt="nav logo"></div>
+            <div class = "user-pic"> <div class ="user-name">B</div> </div>
+
+        </div>
+                
+    </div> 
+   
+    
+    <div class ="js-side-navigation-bar">
+        <div class = "hidden-side-navigation-bar">
+        </div>
+
+
+    </div>
+
+    <div class="card">
+  <div class="card-header">
+    <h2>Operation Mode</h2>
+  </div>
+
+  <form>
+    <input type="radio" name="mode" id="evacuate">
+    <div class="mode-row">
+      <div class="mode-info">
+        <p>ALL DOORS WILL BE UNLOCKED</p>
+      </div>
+      <label for="evacuate" class="mode-btn btn-evacuate">Evacuate</label>
+    </div>
+
+    <input type="radio" name="mode" id="normal" checked>
+    <div class="mode-row">
+      <div class="mode-info">
+        <p> ENTRANCE AND EXIT WILL BE ALLOWED AND CONTROLLED</p>
+      </div>
+      <label for="normal" class="mode-btn btn-normal">Normal-Traffic</label>
+    </div>
+
+    <input type="radio" name="mode" id="exit">
+    <div class="mode-row">
+      <div class="mode-info">
+        <p>NO ENTRANCE WILL BE ALLOWED, EXIT ONLY</p>
+      </div>
+      <label for="exit" class="mode-btn btn-exit">Exit-Only</label>
+    </div>
+
+    <input type="radio" name="mode" id="entrance">
+    <div class="mode-row">
+      <div class="mode-info">
+        <p>EXIT IS DISALLOWED, ENTRANCE ONLY</p>
+      </div>
+      <label for="entrance" class="mode-btn btn-entrance">Entrance-Only</label>
+    </div>
+
+    <input type="radio" name="mode" id="lock">
+    <div class="mode-row">
+      <div class="mode-info">
+        <p>ALL DOORS WILL BE LOCKED</p>
+      </div>
+      <label for="lock" class="mode-btn btn-lock">Lock-All</label>
+    </div>
+  </form>
+</div>
+</body>
+</html>
+
+>>>>>>> ac123f916a67311117b81f1135567daa9b0c4e5a
