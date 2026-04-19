@@ -351,3 +351,78 @@ background-color: red;
     background-color: rgba(32, 32, 129, 0.338);
 
 }
+
+.card {
+    position: absolute;
+    left : 120px;
+    bottom: 10%;
+    background: #c5d2db7d;
+    width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #19191a;
+
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid #19191a;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #20034f;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  
+}
+.mode-row {
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.3s ease;
+  }
+
+
+.mode-row:last-child { border-bottom: none; }
+
+  .mode-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+input[type="radio"] { display: none; }
+
+.mode-btn {
+    display: block;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border: 2px solid transparent;
+  }
+
+.btn-evacuate, .btn-normal, .btn-exit, .btn-entrance, .btn-lock { 
+    background-color: #73c0ed; 
+    border-color:#3189bb; 
+}
+  .btn-normal:hover, .btn-exit:hover, .btn-entrance:hover, .btn-lock:hover { 
+    background: #00a2ff; 
+}
+  #evacuate:checked + .mode-row .btn-evacuate, #exit:checked + .mode-row .btn-exit, #lock:checked + .mode-row .btn-lock, #entrance:checked + .mode-row .btn-entrance, #normal:checked + .mode-row .btn-normal{ 
+    
+    background-color: #1d3557; 
+}
+
+
+
