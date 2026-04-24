@@ -1,0 +1,41 @@
+{
+  "doors": [
+    {
+      "id": 1,
+      "name": "ENT.D1",
+      "label": "Entrance Door 1",
+      "state": "closed",
+      "locked": true,
+      "position": "entrance",
+      "lastChanged": "2026-04-24T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "ENT.D2",
+      "label": "Entrance Door 2",
+      "state": "closed",
+      "locked": true,
+      "position": "entrance",
+      "lastChanged": "2026-04-24T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "EXT.D3",
+      "label": "Exit Door 3",
+      "state": "closed",
+      "locked": true,
+      "position": "exit",
+      "lastChanged": "2026-04-24T08:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "EXT.D4",
+      "label": "Exit Door 4",
+      "state": "closed",
+      "locked": true,
+      "position": "exit",
+      "lastChanged": "2026-04-24T08:00:00Z"
+    }
+  ],
+  "timestamp": "2026-04-24T08:00:00Z"
+}

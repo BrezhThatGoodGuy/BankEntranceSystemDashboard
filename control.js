@@ -1,46 +1,51 @@
+// filepath: control.js
+// Bank Entrance System - Control Page with API Integration
+// Operation mode control and door management
+
+// Navigation functions (shared across pages)
 function openMonitorPage(){
-                    window.location.href = "monitor.html";
-                    const pageSelector = document.querySelector('.monitor-link-page');
-                    
-                }
+    window.location.href = "monitor.html";
+}
 
 function openControlPage(){
-                    window.location.href = "control.html";
-                }
+    window.location.href = "control.html";
+}
+
 function openFaultsPage(){
-                    window.location.href = "faults.html";
-                }
+    window.location.href = "faults.html";
+}
+
 function openAiControlPage(){
-                    window.location.href = "aicontrol.html";
-                }
+    window.location.href = "aicontrol.html";
+}
 
 function hideSideNavigationBar(){
-                   
-                    const hiddensidebar = '<div class = "hidden-side-navigation-bar"></div>';
-                    document.querySelector('.js-side-navigation-bar').innerHTML = hiddensidebar;
-                    const clickedmenu = '<img class="navigation-menu" onclick="showSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
-                    document.querySelector('.js-navigation-menu').innerHTML = clickedmenu;
+    const hiddensidebar = '<div class = "hidden-side-navigation-bar"></div>';
+    document.querySelector('.js-side-navigation-bar').innerHTML = hiddensidebar;
+    const clickedmenu = '<img class="navigation-menu" onclick="showSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
+    document.querySelector('.js-navigation-menu').innerHTML = clickedmenu;
 }
 
 function showSideNavigationBar(){
-                   
-                    const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div>Log Out</div></div>';
-                    document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
-                    const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
-                    document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
-}// AI Control Page JavaScript
-// filepath: BankEntranceSystemDashboard/combined_script.js
-// Bank Entrance System - Door Control Client-side JavaScript
+    const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div>Log Out</div></div>';
+    document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
+    const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
+    document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
+}
 
-// Configuration - Update this to your ESP32 server IP
-const ESP32_SERVER = 'http://192.168.1.100'; // Change to your ESP32 IP
+// ============================================
+// Door Control Configuration
+// ============================================
+
+// ESP32 Server Configuration (for hardware integration)
+const ESP32_SERVER = 'http://192.168.1.100';
 const ACTION_ENDPOINT = ESP32_SERVER + '/action';
 const LOG_ENDPOINT = ESP32_SERVER + '/log';
 
-// Store for door actions (synced with server)
+// Store for door actions
 let doorActions = [];
 
-// FIXED: Only declare doorStates once
+// Door states storage
 let doorStates = {
     1: 'closed',
     2: 'closed',
@@ -48,14 +53,28 @@ let doorStates = {
     4: 'closed'
 };
 
+// Current operation mode
+let currentMode = 'normal';
+
+// Mode labels for display
+const modeLabels = {
+    'evacuate': 'Evacuate',
+    'normal': 'Normal-Traffic',
+    'exit': 'Exit-Only',
+    'entrance': 'Entrance-Only',
+    'lock': 'Lock-All'
+};
+
 // Initialize when DOM is ready
-// FIXED: Combined the multiple DOMContentLoaded listeners into one
 document.addEventListener('DOMContentLoaded', function() {
     initializeDoorButtons();
-    initializeRefreshButton();
-    loadLogData();
+    initializeModeButtons();
+    initializeApiPolling();
 });
 
+/**
+ * Initialize door control buttons
+ */
 function initializeDoorButtons() {
     const doorButtons = document.querySelectorAll('.door-btn');
     
@@ -67,12 +86,28 @@ function initializeDoorButtons() {
     });
 }
 
-// Toggle door state between closed, open, and uncontrolled
+/**
+ * Initialize operation mode radio buttons
+ */
+function initializeModeButtons() {
+    const modeRadios = document.querySelectorAll('input[name="mode"]');
+    
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                setOperationMode(this.id);
+            }
+        });
+    });
+}
+
+/**
+ * Toggle door state between closed, open, and uncontrolled
+ * @param {string} doorId - Door ID
+ */
 function toggleDoor(doorId) {
-    // Get the current state (default to 'closed' if it doesn't exist yet)
     const currentState = doorStates[doorId] || 'closed';
     
-    // Determine the next state in the cycle
     let nextState;
     if (currentState === 'closed') {
         nextState = 'open';
@@ -82,42 +117,53 @@ function toggleDoor(doorId) {
         nextState = 'closed';
     }
     
-    // Save the new state
     doorStates[doorId] = nextState;
     
     // Update the button appearance
     const button = document.querySelector(`.door-btn[data-id="${doorId}"]`);
     
     if (button) {
-        // Clean up by removing all possible state classes first
         button.classList.remove('closed', 'open', 'auto-controlled');
         
-        // Add the appropriate class and update the text based on the new state
         if (nextState === 'open') {
             button.classList.add('open');
-            button.querySelector('.door-status').textContent = 'OPEN';
-        } 
-        else if (nextState === 'closed') {
+            const statusEl = button.querySelector('.door-status');
+            if (statusEl) statusEl.textContent = 'OPEN';
+        } else if (nextState === 'closed') {
             button.classList.add('closed');
-            button.querySelector('.door-status').textContent = 'CLOSED';
-        } 
-        else if (nextState === 'auto-controlled') {
+            const statusEl = button.querySelector('.door-status');
+            if (statusEl) statusEl.textContent = 'CLOSED';
+        } else if (nextState === 'auto-controlled') {
             button.classList.add('auto-controlled');
-            button.querySelector('.door-status').textContent = 'AUTO-CONTROLLED';
+            const statusEl = button.querySelector('.door-status');
+            if (statusEl) statusEl.textContent = 'AUTO-CONTROLLED';
         }
     }
 
-    // FIXED: The fetch logic and console logs are now properly INSIDE the function
     console.log('Door toggled:', doorId, nextState);
     
-    // Create action data
+    // Log the action
     const actionData = {
-        Clicked: doorId,
-        Time: new Date().toISOString(),
-        WebClient: '' // Will be filled by server
+        door: doorId,
+        action: 'TOGGLE',
+        state: nextState,
+        time: new Date().toISOString()
     };
     
-    // Send to server
+    // Try to send to ESP32 server
+    sendDoorAction(actionData);
+    
+    // Also log locally
+    if (typeof window.API !== 'undefined') {
+        window.API.addLogEntry(`Door ${doorId}`, 'TOGGLE', nextState);
+    }
+}
+
+/**
+ * Send door action to ESP32 server
+ * @param {object} actionData - Action data
+ */
+function sendDoorAction(actionData) {
     fetch(ACTION_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -128,53 +174,89 @@ function toggleDoor(doorId) {
     .then(response => response.json())
     .then(data => {
         console.log('Server response:', data);
-        
         if (data.status === 'logged') {
-            const state = doorStates[doorId];
-            const stateCapitalized = state.charAt(0).toUpperCase() + state.slice(1);
-            showNotification(`Door ${doorId} ${stateCapitalized}!`, 'success');
-            // Refresh log after successful logging
-            setTimeout(loadLogData, 500);
-        } else if (data.status === 'ignored') {
-            console.log('Action not logged');
-        } else {
-            showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
+            showNotification(`Door ${actionData.door} ${actionData.state.toUpperCase()}!`, 'success');
         }
     })
     .catch(error => {
-        console.error('Error sending action:', error);
-        showNotification('Failed to communicate with server', 'error');
+        console.log('ESP32 not available, using local mode');
     });
-} // <--- FIXED: This closing bracket was originally in the wrong place
+}
 
-// Initialize refresh button
-function initializeRefreshButton() {
-    const refreshBtn = document.getElementById('refreshBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadLogData);
+/**
+ * Set operation mode
+ * @param {string} modeId - Mode ID
+ */
+function setOperationMode(modeId) {
+    currentMode = modeId;
+    
+    console.log('Operation mode changed to:', modeId);
+    
+    // Update API (for future backend integration)
+    if (typeof window.API !== 'undefined') {
+        window.API.addLogEntry('System', 'MODE_CHANGE', modeLabels[modeId] || modeId);
+    }
+    
+    // Show notification
+    showNotification(`Mode changed to: ${modeLabels[modeId] || modeId}`, 'success');
+}
+
+// ============================================
+// API Integration for Real-time Updates
+// ============================================
+
+/**
+ * Initialize API polling
+ */
+function initializeApiPolling() {
+    if (typeof window.API !== 'undefined') {
+        // Poll mode every 5 seconds
+        window.API.startPolling('MODE', updateModeFromAPI, 5000);
+        
+        // Poll doors every 3 seconds
+        window.API.startPolling('DOORS', updateDoorsFromAPI, 3000);
+        
+        console.log('[Control] API polling initialized');
+    } else {
+        console.warn('[Control] API client not loaded');
     }
 }
 
-// Load log data from server
-function loadLogData() {
-    fetch(LOG_ENDPOINT)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+/**
+ * Update mode from API data
+ * @param {object} data - Mode data from API
+ */
+function updateModeFromAPI(data) {
+    if (!data || !data.mode) return;
+    
+    if (data.mode !== currentMode) {
+        currentMode = data.mode;
+        
+        // Update radio button
+        const radio = document.getElementById(data.mode);
+        if (radio) {
+            radio.checked = true;
         }
-        return response.json();
-    })
-    .then(data => {
-        doorActions = data;
-        displayLog();
-    })
-    .catch(error => {
-        console.error('Error loading log:', error);
-        showLogError();
+    }
+}
+
+/**
+ * Update doors from API data
+ * @param {object} data - Door data from API
+ */
+function updateDoorsFromAPI(data) {
+    if (!data || !data.doors) return;
+    
+    data.doors.forEach(door => {
+        const doorId = door.id;
+        doorStates[doorId] = door.state;
     });
 }
 
-// Display log in container - newest at top
+// ============================================
+// Log Display Functions
+// ============================================
+
 function displayLog() {
     const container = document.getElementById('logContainer');
     
@@ -185,10 +267,8 @@ function displayLog() {
         return;
     }
     
-    // Build log entries HTML - newest first
     let logHTML = '';
     
-    // Display in reverse order (newest first)
     for (let i = doorActions.length - 1; i >= 0; i--) {
         const action = doorActions[i];
         logHTML += `
@@ -203,104 +283,48 @@ function displayLog() {
     container.innerHTML = logHTML;
 }
 
-// Format timestamp for display
-function formatTime(timestamp) {
-    if (!timestamp) return '-';
-    
-    // If it's a millisecond timestamp (number)
-    if (typeof timestamp === 'number') {
-        const date = new Date(timestamp);
-        return date.toLocaleString();
-    }
-    
-    // If it's an ISO string
-    if (typeof timestamp === 'string') {
-        const date = new Date(timestamp);
-        if (!isNaN(date.getTime())) {
-            return date.toLocaleString();
+function loadLogData() {
+    fetch(LOG_ENDPOINT)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-        return timestamp;
-    }
-    
-    return String(timestamp);
+        return response.json();
+    })
+    .then(data => {
+        doorActions = data;
+        displayLog();
+    })
+    .catch(error => {
+        console.log('ESP32 log endpoint not available');
+    });
 }
 
-// Show notification message
-function showNotification(message, type) {
-    // Remove existing notification if any
-    const existing = document.querySelector('.notification');
-    if (existing) {
-        existing.remove();
-    }
-    
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    // Add styles dynamically
-    notification.style.cssText = `
-        position: fixed;
-        top: 60px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 5px;
-        color: white;
-        font-weight: 600;
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-        background: ${type === 'success' ? 'rgb(46, 204, 113)' : 'rgb(231, 76, 60)'};
-        font-size: 0.8rem;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// Show log error
 function showLogError() {
     const container = document.getElementById('logContainer');
     if (container) {
-        container.innerHTML = '<p class="empty-log">Error loading log data. Make sure ESP32 is connected.</p>';
+        container.innerHTML = '<p class="empty-log">Unable to load log data.</p>';
     }
 }
 
-// Add animation keyframes
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
+function showNotification(message, type) {
+    // Simple notification - can be enhanced with toast notifications
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    alert(message);
+}
 
-// Export for debugging
-window.bankEntranceSystem = {
-    doorActions: doorActions,
-    doorStates: doorStates,
-    loadLogData: loadLogData,
-    toggleDoor: toggleDoor
-};
+function formatTime(isoString) {
+    if (!isoString) return '--:--:--';
+    
+    try {
+        const date = new Date(isoString);
+        return date.toLocaleTimeString('en-US', { 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+    } catch {
+        return '--:--:--';
+    }
+}
