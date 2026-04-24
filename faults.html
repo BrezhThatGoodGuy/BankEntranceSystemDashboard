@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Man-Trap Control - Faults</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="faults.css"> 
+</head>
+<body class="simulation-background">
+
+    <div class="whole-header">
+        <div class="main-navigation-bar">
+            
+            <div class = "monitor-page-link" class = "simulate-page-link-selected" onclick="openMonitorPage()">MONITOR</div>                          
+            <div class = "command-page-link" class = "simulate-page-link-selected" onclick="openControlPage()">CONTROL</div>
+            <div class = "faults-page-link" class = "simulate-page-link-selected" onclick="openFaultsPage()">FAULTS</div>
+            <div class = "ai-page-link" class = "simulate-page-link-selected" onclick="openAiControlPage()">AI CONTROL</div> 
+        
+        </div>
+        
+        <div class="user-header">
+            <button class="evacuate">EVACUATE!</button>
+            <div class="js-navigation-menu"><img class="navigation-menu" src="navigation-menu.png" alt="nav logo"></div>
+            <div class="user-pic"><div class="user-name">B</div></div>
+        </div>
+    </div> 
+
+    <div class="faults-container">
+        <div class="faults-card">
+            <div class="card-header">
+                <h2>System Diagnostics & Faults</h2>
+            </div>
+            
+            <!-- LOCK Faults Grid -->
+            <div class="fault-section">
+                <h3 class="section-title">DOOR LOCKS</h3>
+                <div class="fault-grid lock-grid">
+                    <div class="fault-box">
+                        <div class="fault-label">EXT.D4 LOCK</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('EXT.D4 LOCK')">REPORT</button>
+                    </div>
+                    <div class="fault-box">
+                        <div class="fault-label">ENT.D1 LOCK</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('ENT.D1 LOCK')">REPORT</button>
+                    </div>
+                    <div class="fault-box">
+                        <div class="fault-label">EXT.D3 LOCK</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('EXT.D3 LOCK')">REPORT</button>
+                    </div>
+                    <div class="fault-box">
+                        <div class="fault-label">ENT.D2 LOCK</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('ENT.D2 LOCK')">REPORT</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motion Controller Faults Grid -->
+            <div class="fault-section">
+                <h3 class="section-title">MOTION CONTROLLERS</h3>
+                <div class="fault-grid mc-grid">
+                     <div class="fault-box">
+                        <div class="fault-label">EXT.D4 mc</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('EXT.D4 mc')">REPORT</button>
+                    </div>
+                    <div class="fault-box">
+                        <div class="fault-label">ENT.D1 mc</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('ENT.D1 mc')">REPORT</button>
+                    </div>
+                      <div class="fault-box">
+                        <div class="fault-label">EXT.D3 mc</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('EXT.D3 mc')">REPORT</button>
+                    </div>
+                    <div class="fault-box">
+                        <div class="fault-label">ENT.D2 mc</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('ENT.D2 mc')">REPORT</button>
+                    </div>
+                  
+                   
+                </div>
+            </div>
+
+            <!-- PIR Sensors -->
+            <div class="fault-section">
+                <h3 class="section-title">PIR SENSORS</h3>
+                <div class="fault-grid pir-grid">
+                    <div class="fault-box">
+                        <div class="fault-label">BOOTH 1 PIR</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('BOOTH 1 PIR')">REPORT</button>
+                    </div>
+                    <div class="fault-box">
+                        <div class="fault-label">BOOTH 2 PIR</div>
+                        <div class="fault-status status-normal">NORMAL</div>
+                        <button class="report-btn" onclick="openReportModal('BOOTH 2 PIR')">REPORT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Card -->
+        <div class="logs-card">
+            <div class="card-header">
+                <h2>Fault Logs</h2>
+            </div>
+            
+            <!-- Summary Stats -->
+            <div class="logs-stats">
+                <div class="stat-box">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Current Faults</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Total Recorded</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+
+            <!-- Fault Log Table Header -->
+            <div class="logs-table-header">
+                <span>ID</span>
+                <span>Time</span>
+                <span>Reported</span>
+                <span>Status</span>
+            </div>
+
+            <!-- Fault Log Rows -->
+            <div class="logs-list">
+                <div class="log-row">
+                    <span class="log-id">--</span>
+                    <span class="log-time">--</span>
+                    <span class="log-reported">--</span>
+                    <span class="log-status">--</span>
+                </div>
+                <div class="log-row">
+                    <span class="log-id">--</span>
+                    <span class="log-time">--</span>
+                    <span class="log-reported">--</span>
+                    <span class="log-status">--</span>
+                </div>
+                <div class="log-row">
+                    <span class="log-id">--</span>
+                    <span class="log-time">--</span>
+                    <span class="log-reported">--</span>
+                    <span class="log-status">--</span>
+                </div>
+                <div class="log-row">
+                    <span class="log-id">--</span>
+                    <span class="log-time">--</span>
+                    <span class="log-reported">--</span>
+                    <span class="log-status">--</span>
+                </div>
+                <div class="log-row">
+                    <span class="log-id">--</span>
+                    <span class="log-time">--</span>
+                    <span class="log-reported">--</span>
+                    <span class="log-status">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reportModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">Report Fault</h3>
+            <div class="modal-body">
+                <label for="faultEmail">Admin Email:</label>
+                <input type="email" id="faultEmail" value="brezhnevndlovu02@gmail.com">
+                
+                <label for="faultDesc">Issue Details:</label>
+                <textarea id="faultDesc" rows="4">Fault description and urgency...</textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">CANCEL</button>
+                <button class="btn-send" onclick="sendReport()">SEND</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="faults.js"></script>
+</body>
+</html>
