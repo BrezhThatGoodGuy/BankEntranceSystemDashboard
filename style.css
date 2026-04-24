@@ -367,17 +367,30 @@ background-color: red;
 
 }
 
-.card {
-    position: absolute;
-    left : 120px;
-    bottom: 4%;
+
+.main-container {
+    position :fixed;
+    left: 6%;
+    top: 10%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 80px 20px 20px 20px;
+    min-height: calc(100vh - 100px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Card - Operation Mode */
+.operation-mode-card {
+    position: relative;
     background: #c5d2db7d;
-    width: 600px;
+    width: 100%;
+    max-width: 500px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     overflow: hidden;
     border: 1px solid #19191a;
-
 }
 
 .card-header {
@@ -440,10 +453,9 @@ input[type="radio"] { display: none; }
 }
 
 .settings-container {
-    position: absolute;
-    padding-left: 20px;
-    right: 5%;
-    bottom :4%;
+    position: relative;
+    width: 100%;
+    max-width: 400px;
 }
 .settings-card {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -482,6 +494,7 @@ input[type="radio"] { display: none; }
   font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
+  
 }
 
 .section-desc {
@@ -529,5 +542,223 @@ input[type="radio"] { display: none; }
   background-color: #1d3557;
   color: #0d111a;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+
+
+/* Left Panel - Door Controls */
+.quick-door-action {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 450px;
+    border-color: rgba(32, 32, 129, 0.338);
+    border-width: 0.2px;
+    border-style: solid;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 0 5px 0.1px rgba(0, 212, 255, 0.7);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.panel-header h2 {
+    padding-bottom: 6px;
+    font-size: 1rem;
+    color: rgb(255, 142, 3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-align: center;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 142, 3, 0.447);
+
+}
+
+/* Door Grid */
+.door-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.door-btn {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.2rem;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    background: rgba(32, 32, 129, 0.338);
+    border: 2px solid rgba(255, 142, 3, 0.447);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.door-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 142, 3, 0.3);
+}
+
+.door-btn.closed {
+    background: rgba(231, 76, 60, 0.3);
+    border-color: rgb(231, 76, 60);
+}
+
+.door-btn.open {
+    background: rgba(46, 204, 113, 0.3);
+    border-color: rgb(46, 204, 113);
+}
+
+.door-btn.uncontrolled {
+    background:  rgba(255, 255, 255, 0.05);
+    border-color: rgb(32, 32, 129);
+    
+}
+
+.door-num {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: rgb(255, 142, 3);
+}
+
+.door-status {
+    font-size: 0.65rem;
+    color: rgb(180, 180, 180);
+    margin-top: 5px;
+    text-transform: uppercase;
+}
+
+.door-btn.closed .door-status {
+    color: rgb(231, 76, 60);
+}
+
+.door-btn.open .door-status {
+    color: rgb(46, 204, 113);
+}
+
+.door-btn.uncontrolled .door-status {
+    color: rgba(233, 233, 240, 0.812);
+}
+
+/* Log Section */
+.log-section {
+    background: rgba(32, 32, 129, 0.2);
+    border: 1px solid rgba(255, 142, 3, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    flex: 1;
+    min-height: 200px;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.log-header h3 {
+    font-size: 0.8rem;
+    color: rgb(255, 142, 3);
+    text-transform: uppercase;
+}
+
+.refresh-btn {
+    width: 25px;
+    height: 25px;
+    border-radius: 12px;
+    background: rgba(255, 142, 3, 0.3);
+    border: 1px solid rgb(255, 142, 3);
+    color: rgb(255, 142, 3);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.2s;
+}
+
+.refresh-btn:hover {
+    background: rgb(255, 142, 3);
+    color: #1b1919;
+}
+
+#logContainer {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.empty-log {
+    color: rgb(150, 150, 150);
+    text-align: center;
+    font-size: 0.75rem;
+    padding: 20px;
+}
+
+/* Log Entry - Typewriter Style */
+.log-entry {
+    font-family: 'Courier New', Courier, monospace;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid rgba(255, 142, 3, 0.5);
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+}
+
+.log-entry:first-child {
+    border-left-color: rgb(46, 204, 113);
+}
+
+.log-time {
+    color: rgb(150, 150, 150);
+    font-size: 0.65rem;
+}
+
+.log-clicked {
+    color: rgb(255, 142, 3);
+    font-weight: bold;
+}
+
+.log-client {
+    color: rgb(120, 120, 120);
+    font-size: 0.65rem;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 80px 15px 15px 15px;
+    }
+}
+
+@media (max-width: 900px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .operation-mode-card, .settings-container, .quick-door-action {
+        max-width: 100%;
+    }
+    
+    .settings-card {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .main-container {
+        padding: 70px 10px 10px 10px;
+    }
+    
+    .operation-mode-card, .settings-container, .quick-door-action {
+        max-width: 100%;
+    }
+    
+    .door-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 

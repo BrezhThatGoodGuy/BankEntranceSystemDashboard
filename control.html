@@ -7,6 +7,8 @@
     <title>Man-Trap Control</title>
     <link rel = "stylesheet" href = "style.css">
     <script src ="script.js" ></script> 
+    <script src ="control.js" ></script> 
+
 
 </head>
 
@@ -48,7 +50,9 @@
 
     </div>
 
-    <div class="card">
+<div class="main-container">
+
+    <div class="operation-mode-card">
             <div class="card-header"><h2>Operation Mode</h2></div>
             <form>
                 <input type="radio" name="mode" id="evacuate">
@@ -95,7 +99,41 @@
 
     </div>
 
-<div class = "settings-container"><div class="settings-card">
+    <div class="quick-door-action" >
+            <div class="panel-header">
+                <h2>Door Controls</h2>
+            </div>
+            <div class="door-grid">
+                <button class="door-btn closed" data-id="1">
+                    <span class="door-num">EXT.D4</span>
+                    <span class="door-status">CLOSED</span>
+                </button>
+                <button class="door-btn closed" data-id="2">
+                    <span class="door-num">ENT.D1</span>
+                    <span class="door-status">CLOSED</span>
+                </button>
+                <button class="door-btn closed" data-id="3">
+                    <span class="door-num">EXT.D3</span>
+                    <span class="door-status">CLOSED</span>
+                </button>
+                <button class="door-btn closed" data-id="4">
+                    <span class="door-num">ENT.D2</span>
+                    <span class="door-status">CLOSED</span>
+                </button>
+            </div>
+            
+            <!-- Log Section -->
+            <div class="log-section">
+                <div class="log-header">
+                    <h3>Door Actions Log</h3>
+                    <button id="refreshBtn" class="refresh-btn">↻</button>
+                </div>
+                <div id="logContainer"><p class="empty-log">Error loading log data. Make sure ESP32 is connected.</p></div>
+            </div>
+        </div>
+
+<div class = "settings-container">
+  <div class="settings-card">
   <div class="settings-section">
     <div class="text-content">
       <h3 class="section-title">Traffic-Volume</h3>
@@ -139,14 +177,15 @@
       <label for="nav-unmute">Unmute</label>
     </div>
   </div>
-</div></div>
+</div>
+</div>
+
+
+</div>
 
 
 
-
-
-
-
+ 
 
 </body>
 </html>
