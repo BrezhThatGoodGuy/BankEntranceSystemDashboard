@@ -1,6 +1,6 @@
+
 function openMonitorPage(){
                     window.location.href = "monitor.html";
-                    const pageSelector = document.querySelector('.monitor-link-page');
                     
                 }
 
@@ -10,7 +10,7 @@ function openControlPage(){
 function openFaultsPage(){
                     window.location.href = "faults.html";
                 }
-function openAiPage(){
+function openAiControlPage(){
                     window.location.href = "aicontrol.html";
                 }
 

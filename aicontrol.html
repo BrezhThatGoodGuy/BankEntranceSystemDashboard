@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Man-Trap Control - AI Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="aicontrol.css">
+   
+</head>
+<body class="simulation-background">
+
+    <div class="whole-header">
+        <div class="main-navigation-bar">
+            <div class="monitor-page-link" onclick="openMonitorPage()">MONITOR</div>                          
+            <div class="command-page-link" onclick="openControlPage()">CONTROL</div>
+            <div class="faults-page-link" onclick="openFaultsPage()">FAULTS</div>
+            <div class="ai-page-link" style="background-color: rgb(204, 196, 196); border-color: rgb(255, 142, 3);">AI CONTROL</div> 
+        </div>
+        
+        <div class="user-header">
+            <button class="evacuate">EVACUATE!</button>
+            <div class="js-navigation-menu"><img class="navigation-menu" src="navigation-menu.png" alt="nav logo"></div>
+            <div class="user-pic"><div class="user-name">B</div></div>
+        </div>
+    </div> 
+
+    <div class="ai-container">
+        <!-- Main AI System Toggle -->
+        <div class="ai-main-toggle">
+            <div class="toggle-card">
+                <div class="toggle-header">
+                    <h2>AI Security System</h2>
+                    <label class="switch">
+                        <input type="checkbox" id="aiSystemToggle" onchange="toggleAiSystem()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <p class="toggle-status">System <span id="aiSystemStatus">OFF</span></p>
+            </div>
+        </div>
+
+        <!-- AI Configuration Toggles -->
+        <div class="ai-config-section">
+            <div class="config-card">
+                <div class="config-toggle">
+                    <span class="config-label">Masked Face Detection</span>
+                    <label class="switch small-switch">
+                        <input type="checkbox" id="maskedFaceToggle" onchange="toggleMaskedFace()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="config-toggle">
+                    <span class="config-label">Weapon Detection</span>
+                    <label class="switch small-switch">
+                        <input type="checkbox" id="weaponToggle" onchange="toggleWeapon()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="config-toggle">
+                    <span class="config-label">AI Controls Doors</span>
+                    <label class="switch small-switch">
+                        <input type="checkbox" id="aiDoorControlToggle" onchange="toggleAiDoorControl()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Cards -->
+        <div class="setup-cards-container">
+            <!-- On Weapon Detection Card -->
+            <div class="setup-card" id="weaponSetupCard">
+                <div class="setup-header">
+                    <h3>1. On Weapon Detection</h3>
+                </div>
+                <div class="door-grid">
+                    <div class="door-setup-box">
+                        <div class="door-label">ENT.D1</div>
+                        <button class="door-action-btn locked" data-door="1" data-type="weapon" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                    <div class="door-setup-box">
+                        <div class="door-label">ENT.D2</div>
+                        <button class="door-action-btn locked" data-door="2" data-type="weapon" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                    <div class="door-setup-box">
+                        <div class="door-label">EXT.D3</div>
+                        <button class="door-action-btn locked" data-door="3" data-type="weapon" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                    <div class="door-setup-box">
+                        <div class="door-label">EXT.D4</div>
+                        <button class="door-action-btn locked" data-door="4" data-type="weapon" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- On Masked Face Card -->
+            <div class="setup-card" id="maskedFaceSetupCard">
+                <div class="setup-header">
+                    <h3>2. On Masked Face</h3>
+                </div>
+                <div class="door-grid">
+                    <div class="door-setup-box">
+                        <div class="door-label">ENT.D1</div>
+                        <button class="door-action-btn locked" data-door="1" data-type="masked" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                    <div class="door-setup-box">
+                        <div class="door-label">ENT.D2</div>
+                        <button class="door-action-btn locked" data-door="2" data-type="masked" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                    <div class="door-setup-box">
+                        <div class="door-label">EXT.D3</div>
+                        <button class="door-action-btn locked" data-door="3" data-type="masked" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                    <div class="door-setup-box">
+                        <div class="door-label">EXT.D4</div>
+                        <button class="door-action-btn locked" data-door="4" data-type="masked" onclick="toggleDoorAction(this)">
+                            <span class="btn-text">LOCKED</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Feed Section -->
+        <div class="ai-feed-section">
+            <div class="feed-card">
+                <div class="feed-header">
+                    <h3>ESP32-CAM Live Feed</h3>
+                    <span class="feed-status">Connected</span>
+                </div>
+                <div class="feed-view">
+                    <img id="esp32Feed" src="http://192.168.1.100/stream" alt="ESP32 Camera Feed" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjIyIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1NTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4='">
+                </div>
+                <div class="feed-info">
+                    <span>Source: http://192.168.1.100/stream</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="faults.js"></script>
+     <script src="script.js"></script>
+    <script src="aicontrol.js"></script>
+</body>
+</html>
