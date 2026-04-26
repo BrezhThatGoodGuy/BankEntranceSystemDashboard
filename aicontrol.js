@@ -52,8 +52,44 @@ let aiConfig = {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize button states from current HTML classes
+    initializeDoorButtonStates();
     initializeApiPolling();
 });
+
+/**
+ * Initialize door button states from HTML classes
+ * This ensures buttons work even without API
+ */
+function initializeDoorButtonStates() {
+    const buttons = document.querySelectorAll('.door-action-btn');
+    buttons.forEach(button => {
+        const door = button.getAttribute('data-door');
+        const type = button.getAttribute('data-type');
+        
+        // Determine current state from class
+        if (button.classList.contains('locked')) {
+            if (type === 'weapon') {
+                aiConfig.doorActions.weapon[door] = 'locked';
+            } else if (type === 'masked') {
+                aiConfig.doorActions.masked[door] = 'locked';
+            }
+        } else if (button.classList.contains('open')) {
+            if (type === 'weapon') {
+                aiConfig.doorActions.weapon[door] = 'open';
+            } else if (type === 'masked') {
+                aiConfig.doorActions.masked[door] = 'open';
+            }
+        } else if (button.classList.contains('auto')) {
+            if (type === 'weapon') {
+                aiConfig.doorActions.weapon[door] = 'auto';
+            } else if (type === 'masked') {
+                aiConfig.doorActions.masked[door] = 'auto';
+            }
+        }
+    });
+    console.log('[AI Control] Door button states initialized:', aiConfig.doorActions);
+}
 
 // ============================================
 // API Integration for Real-time Updates

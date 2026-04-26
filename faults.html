@@ -6,7 +6,10 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="faults.css"> 
     <script src="js/api-client.js"></script>
+    <script src="js/bankSystem.js"></script>
     <script src="faults.js"></script>
+    <script src="script.js"></script>
+
 </head>
 <body class="simulation-background">
 
@@ -19,13 +22,22 @@
             <div class = "ai-page-link" class = "simulate-page-link-selected" onclick="openAiControlPage()">AI CONTROL</div> 
         
         </div>
-        
-        <div class="user-header">
-            <button class="evacuate">EVACUATE!</button>
-            <div class="js-navigation-menu"><img class="navigation-menu" src="navigation-menu.png" alt="nav logo"></div>
-            <div class="user-pic"><div class="user-name">B</div></div>
+                <div class = "user-header">
+            
+            <button class = "evacuate"> EVACUATE! </button>
+            <div class = js-navigation-menu ><img class="navigation-menu" onclick="showSideNavigationBar()" src="navigation-menu.png" alt="nav logo"></div>
+            <div class = "user-pic"> <div class ="user-name">B</div> </div>
+
         </div>
+
     </div> 
+
+     <div class ="js-side-navigation-bar">
+        <div class = "hidden-side-navigation-bar">
+        </div>
+
+
+    </div>
 
     <div class="faults-container">
         <div class="faults-card">

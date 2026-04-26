@@ -7,6 +7,7 @@
     <title>Man-Trap Control</title>
     <link rel = "stylesheet" href = "monitor.css">
     <script src = "js/api-client.js"></script>
+    <script src = "js/bankSystem.js"></script>
     <script src = "monitor.js"></script>
 
 </head>
@@ -93,10 +94,16 @@
    <div class="log-section">
             <div class="log-header">
                 <h3>Door State Logs</h3>
+                <div class="log-header-info">
+                    <span>Uptime: <span id="system-uptime">00:00:00</span></span>
+                    <span>Entries: <span id="total-entries">0</span></span>
+                    <span>Exits: <span id="total-exits">0</span></span>
+                    <span>Inside: <span id="clients-inside">0</span></span>
+                </div>
                 <button class="refresh-btn" onclick="clearLogs()">↻</button>
             </div>
         
-            <div id="logContainer">
+            <div id="logContainer" class="log-container">
                 <div class="empty-log">No recent door activity...</div>
             </div>
     </div>

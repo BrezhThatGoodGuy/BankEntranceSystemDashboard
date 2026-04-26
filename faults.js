@@ -189,7 +189,7 @@ function openReportModal(componentName) {
     modalTitle.innerText = `Report Fault: ${componentName}`;
     
     // Reset the default description text
-    faultDesc.value = "Fault description and urgency...";
+    faultDesc.value = "Type fault description...";
 
     // Show the modal
     modal.style.display = 'flex';

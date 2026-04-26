@@ -47,10 +47,10 @@ let doorActions = [];
 
 // Door states storage
 let doorStates = {
-    1: 'closed',
-    2: 'closed',
-    3: 'closed',
-    4: 'closed'
+    1: 'locked',
+    2: 'locked',
+    3: 'locked',
+    4: 'locked'
 };
 
 // Current operation mode
@@ -67,10 +67,35 @@ const modeLabels = {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize door button states from HTML classes
+    initializeDoorButtonStates();
     initializeDoorButtons();
     initializeModeButtons();
     initializeApiPolling();
 });
+
+/**
+ * Initialize door button states from HTML classes
+ * This ensures buttons work even without API
+ */
+function initializeDoorButtonStates() {
+    const buttons = document.querySelectorAll('.door-btn');
+    buttons.forEach(button => {
+        const doorId = button.getAttribute('data-id');
+        
+        // Determine current state from class
+        if (button.classList.contains('locked')) {
+            doorStates[doorId] = 'locked';
+        } else if (button.classList.contains('unlocked')) {
+            doorStates[doorId] = 'unlocked';
+        } else if (button.classList.contains('auto-controlled')) {
+            doorStates[doorId] = 'auto-controlled';
+        } else {
+            doorStates[doorId] = 'locked';
+        }
+    });
+    console.log('[Control] Door button states initialized:', doorStates);
+}
 
 /**
  * Initialize door control buttons
@@ -102,19 +127,19 @@ function initializeModeButtons() {
 }
 
 /**
- * Toggle door state between closed, open, and uncontrolled
+
  * @param {string} doorId - Door ID
  */
 function toggleDoor(doorId) {
-    const currentState = doorStates[doorId] || 'closed';
+    const currentState = doorStates[doorId] || 'locked';
     
     let nextState;
-    if (currentState === 'closed') {
-        nextState = 'open';
-    } else if (currentState === 'open') {
+    if (currentState === 'locked') {
+        nextState = 'unlocked';
+    } else if (currentState === 'unlocked') {
         nextState = 'auto-controlled';
     } else {
-        nextState = 'closed';
+        nextState = 'locked';
     }
     
     doorStates[doorId] = nextState;
@@ -123,16 +148,16 @@ function toggleDoor(doorId) {
     const button = document.querySelector(`.door-btn[data-id="${doorId}"]`);
     
     if (button) {
-        button.classList.remove('closed', 'open', 'auto-controlled');
+        button.classList.remove('locked', 'unlocked', 'auto-controlled');
         
-        if (nextState === 'open') {
-            button.classList.add('open');
+        if (nextState === 'unlocked') {
+            button.classList.add('unlocked');
             const statusEl = button.querySelector('.door-status');
-            if (statusEl) statusEl.textContent = 'OPEN';
-        } else if (nextState === 'closed') {
-            button.classList.add('closed');
+            if (statusEl) statusEl.textContent = 'UNLOCKED';
+        } else if (nextState === 'locked') {
+            button.classList.add('locked');
             const statusEl = button.querySelector('.door-status');
-            if (statusEl) statusEl.textContent = 'CLOSED';
+            if (statusEl) statusEl.textContent = 'LOCKED';
         } else if (nextState === 'auto-controlled') {
             button.classList.add('auto-controlled');
             const statusEl = button.querySelector('.door-status');
