@@ -72,7 +72,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDoorButtons();
     initializeModeButtons();
     initializeApiPolling();
+    // Initialize log refresh button
+    initializeRefreshButton();
+    // Load initial log data
+    loadLogData();
 });
+
+/**
+ * Initialize refresh button for logs
+ */
+function initializeRefreshButton() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            loadLogData();
+        });
+    }
+}
 
 /**
  * Initialize door button states from HTML classes
@@ -274,7 +290,24 @@ function updateDoorsFromAPI(data) {
     
     data.doors.forEach(door => {
         const doorId = door.id;
-        doorStates[doorId] = door.state;
+        const newState = door.state;
+        
+        // Only update if state changed
+        if (doorStates[doorId] !== newState) {
+            doorStates[doorId] = newState;
+            
+            // Update button appearance
+            const button = document.querySelector(`.door-btn[data-id="${doorId}"]`);
+            if (button) {
+                button.classList.remove('locked', 'unlocked', 'auto-controlled');
+                button.classList.add(newState);
+                
+                const statusEl = button.querySelector('.door-status');
+                if (statusEl) {
+                    statusEl.textContent = newState.toUpperCase();
+                }
+            }
+        }
     });
 }
 
@@ -287,7 +320,7 @@ function displayLog() {
     
     if (!container) return;
     
-    if (doorActions.length === 0) {
+    if (!doorActions || doorActions.length === 0) {
         container.innerHTML = '<p class="empty-log">No actions recorded yet.</p>';
         return;
     }
@@ -296,11 +329,17 @@ function displayLog() {
     
     for (let i = doorActions.length - 1; i >= 0; i--) {
         const action = doorActions[i];
+        // Handle both ESP32 format and local API format
+        const time = action.timestamp || action.time || action.Time || '--:--:--';
+        const door = action.door || action.message || action.doorId || '-';
+        const actionType = action.type || action.action || action.actionType || '-';
+        const status = action.status || action.state || '-';
+        
         logHTML += `
             <div class="log-entry">
-                <div class="log-time">${formatTime(action.Time)}</div>
-                <div class="log-clicked">Door ${action.Clicked || '-'}</div>
-                <div class="log-client">Client: ${action.WebClient || '-'}</div>
+                <div class="log-time">${formatTime(time)}</div>
+                <div class="log-clicked">Door: ${door}</div>
+                <div class="log-client">Action: ${actionType} - ${status}</div>
             </div>
         `;
     }
@@ -309,6 +348,7 @@ function displayLog() {
 }
 
 function loadLogData() {
+    // First try to fetch from ESP32 server
     fetch(LOG_ENDPOINT)
     .then(response => {
         if (!response.ok) {
@@ -321,8 +361,30 @@ function loadLogData() {
         displayLog();
     })
     .catch(error => {
-        console.log('ESP32 log endpoint not available');
+        // If ESP32 not available, try local API client
+        console.log('ESP32 log endpoint not available, trying local API');
+        loadLocalLogs();
     });
+}
+
+/**
+ * Load logs from local API client
+ */
+function loadLocalLogs() {
+    if (typeof window.API !== 'undefined') {
+        window.API.fetchLogs().then(data => {
+            if (data && data.logs) {
+                doorActions = data.logs;
+                displayLog();
+            } else {
+                showLogError();
+            }
+        }).catch(() => {
+            showLogError();
+        });
+    } else {
+        showLogError();
+    }
 }
 
 function showLogError() {
@@ -333,9 +395,55 @@ function showLogError() {
 }
 
 function showNotification(message, type) {
-    // Simple notification - can be enhanced with toast notifications
-    console.log(`[${type.toUpperCase()}] ${message}`);
-    alert(message);
+    // Create a toast notification instead of alert
+    const notification = document.createElement('div');
+    notification.className = `toast-notification toast-${type || 'info'}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${type === 'success' ? 'rgba(46, 204, 113, 0.9)' : 'rgba(231, 76, 60, 0.9)'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+    `;
+    
+    // Add animation keyframes dynamically
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+    
+    console.log(`[${type?.toUpperCase() || 'INFO'}] ${message}`);
 }
 
 function formatTime(isoString) {
