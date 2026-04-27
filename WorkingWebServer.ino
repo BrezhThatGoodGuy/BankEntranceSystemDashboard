@@ -130,8 +130,6 @@ void setup() {
 
   // Serve static files from SD card
   server.serveStatic("/", SD_MMC, "/data/").setDefaultFile("monitor.html");
-  server.serveStatic("/", SD_MMC, "/api/").setDefaultFile("monitor.html");
-  server.serveStatic("/", SD_MMC, "/").setDefaultFile("monitor.html");
 
   // Handle 404 Errors
   server.onNotFound([](AsyncWebServerRequest *request){
@@ -418,9 +416,25 @@ void setupAPIEndpoints() {
     String statusJson = "{\"ip\":\"" + WiFi.localIP().toString() + "\",\"uptime\":" + String(millis()/1000) + ",\"freeHeap\":" + String(ESP.getFreeHeap()) + "}";
     request->send(200, "application/json", statusJson);
   });
+
+  // ===== ACTION ENDPOINT (for client door control) =====
+  server.on("/action", HTTP_POST, [](AsyncWebServerRequest *request) {
+    if (request->hasParam("door", true) && request->hasParam("state", true)) {
+      int doorId = request->getParam("door", true)->value().toInt();
+      String state = request->getParam("state", true)->value();
+      updateDoorState(doorId, state);
+      request->send(200, "application/json", "{\"status\":\"logged\"}");
+    } else {
+      request->send(400, "application/json", "{\"status\":\"error\",\"message\":\"Missing parameters\"}");
+    }
+  });
+
+  // ===== LOG ENDPOINT (for client log retrieval) =====
+  server.on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String logsJson = readFileContent(SD_MMC, LOGS_FILE);
+    request->send(200, "application/json", logsJson);
+  });
 }
-
-
 
 // ========== DATA UPDATE FUNCTIONS ==========
 

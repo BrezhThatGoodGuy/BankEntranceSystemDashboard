@@ -1,7 +1,6 @@
 body {
     display: block;
-    background-color: rgb(27, 25, 25);
-     /* Changed from inline to block for proper structural flow */
+     background-color: rgba(9, 12, 27, 0.963);
     min-height: 100vh; /* Changed from fixed 5000px height to prevent massive scrollbars */
     font-family: Inter, sans-serif;
     font-weight: 700;
