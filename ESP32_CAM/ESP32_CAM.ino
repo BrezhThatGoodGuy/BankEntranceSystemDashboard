@@ -9,7 +9,6 @@ Added Persistent Monitoring, Control, Faults and AI Logs
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <WebServer.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include <eloquent_esp32cam.h>
@@ -26,7 +25,6 @@ const char* password = "brezhnev02";
 #define ATMEGA_BAUD   9600
 
 AsyncWebServer server(80);
-WebServer streamServer(81);
 
 unsigned long lastModeSwitchTime = 0;
 const unsigned long modeSwitchInterval = 20000;
@@ -46,6 +44,8 @@ const char* logFileNames[LOG_TYPE_COUNT] = {
     "/faults.log",
     "/ai.log"
 };
+
+const char* doorNames[4] = {"Door 1", "Door 2", "Door 3", "Door 4"};
 
 const int MAX_LOG_LINES = 100;
 String logBuffers[LOG_TYPE_COUNT][MAX_LOG_LINES];
@@ -242,13 +242,6 @@ void processActionPost(const String &body) {
     }
 }
 
-void handleStream() {
-    WiFiClient client = streamServer.client();
-    String response = "HTTP/1.1 200 OK\r\nContent-Type: multipart/x-mixed-replace; boundary=frame\r\n\r\n";
-    client.print(response);
-    Serial.println("Stream Client Disconnected");
-}
-
 void processAtmegaLine(const String &line) {
     if (line.startsWith("DOOR_")) {
         int doorId = line.charAt(5) - '0';
@@ -281,19 +274,19 @@ void setup() {
     Serial.println("\nWiFi Connected");
     loadAllLogFiles();
     server.serveStatic("/", LittleFS, "/").setDefaultFile("monitor.html");
-    server.on("/logs/monitoring.txt", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/logs/monitoring.txt", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(LittleFS, "/monitoring.log", "text/plain");
     });
-    server.on("/logs/control.txt", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/logs/control.txt", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(LittleFS, "/control.log", "text/plain");
     });
-    server.on("/logs/faults.txt", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/logs/faults.txt", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(LittleFS, "/faults.log", "text/plain");
     });
-    server.on("/logs/ai.txt", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/logs/ai.txt", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(LittleFS, "/ai.log", "text/plain");
     });
-    server.on("/log", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/log", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         String type = "control";
         if (request->hasParam("type")) {
             type = request->getParam("type")->value();
@@ -301,21 +294,21 @@ void setup() {
         int idx = resolveLogType(type);
         request->send(200, "application/json", buildLogResponse(idx));
     });
-    server.on("/log", HTTP_POST, [](AsyncWebServerRequest *request) {
+    server.on("/log", AsyncWebRequestMethod::HTTP_POST, [](AsyncWebServerRequest *request) {
         request->send(200, "application/json", "{\"status\":\"ok\"}");
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
         String body;
         for (size_t i = 0; i < len; i++) body += (char)data[i];
         processLogPost(body);
     });
-    server.on("/action", HTTP_POST, [](AsyncWebServerRequest *request) {
+    server.on("/action", AsyncWebRequestMethod::HTTP_POST, [](AsyncWebServerRequest *request) {
         request->send(200, "application/json", "{\"status\":\"ok\"}");
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
         String body;
         for (size_t i = 0; i < len; i++) body += (char)data[i];
         processActionPost(body);
     });
-    server.on("/status.json", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/status.json", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         String payload = "{";
         payload += "\"uptime\":\"" + formatTimestamp() + "\",";
         payload += "\"entries\":0,";
@@ -330,15 +323,15 @@ void setup() {
         request->send(200, "application/json", payload);
     });
     server.onNotFound([](AsyncWebServerRequest *request) { request->send(404, "text/plain", "404 Not Found"); });
+    server.on("/stream", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", "Stream endpoint pending implementation");
+    });
     server.begin();
-    streamServer.on("/stream", HTTP_GET, handleStream);
-    streamServer.begin();
     appendLogEntry(LOG_MONITORING, "========== SYSTEM START ==========");
     lastModeSwitchTime = millis();
 }
 
 void loop() {
-    streamServer.handleClient();
     if (Serial1.available()) {
         String incomingData = Serial1.readStringUntil('\n');
         incomingData.trim();
