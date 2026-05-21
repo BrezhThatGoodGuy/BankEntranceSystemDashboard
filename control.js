@@ -349,7 +349,7 @@ function displayLog() {
 
 function loadLogData() {
     // First try to fetch from ESP32 server
-    fetch(LOG_ENDPOINT)
+    fetch(`${LOG_ENDPOINT}?type=control`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -357,7 +357,7 @@ function loadLogData() {
         return response.json();
     })
     .then(data => {
-        doorActions = data;
+        doorActions = data && data.logs ? data.logs : [];
         displayLog();
     })
     .catch(error => {

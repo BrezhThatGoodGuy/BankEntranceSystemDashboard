@@ -446,7 +446,7 @@ async function sendLogToESP32(logType, logEntry) {
  * @param {string} logType - Type of log to download
  */
 function downloadLogs(logType) {
-    const url = `${ESP32_SERVER}/logs/${logType}.json`;
+    const url = `${ESP32_SERVER}/logs/${logType}.txt`;
     window.open(url, '_blank');
 }
 

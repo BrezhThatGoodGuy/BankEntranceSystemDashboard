@@ -32,7 +32,23 @@ function showSideNavigationBar(){
     const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
+const ESP32_SERVER = 'http://192.168.1.100';
 
+function pollESP32MonitoringLogs() {
+    fetch(`${ESP32_SERVER}/log?type=monitoring`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('ESP32 log fetch failed');
+            }
+            return response.json();
+        })
+        .then(updateLogsFromAPI)
+        .catch(() => {
+            if (typeof window.API !== 'undefined') {
+                window.API.fetchLogs().then(updateLogsFromAPI);
+            }
+        });
+}
 // Live CCTV image refresh
 const imgElement = document.querySelector('.live-view-template');
 
@@ -71,10 +87,8 @@ function initializeApiPolling() {
     // Poll door states every 3 seconds
     if (typeof window.API !== 'undefined') {
         window.API.startPolling('DOORS', updateDoorStatesFromAPI, 3000);
-        
-        // Poll logs every 3 seconds
-        window.API.startPolling('LOGS', updateLogsFromAPI, 3000);
-        
+        pollESP32MonitoringLogs();
+        setInterval(pollESP32MonitoringLogs, 3000);
         console.log('[Monitor] API polling initialized');
     } else {
         console.warn('[Monitor] API client not loaded, using fallback mode');
@@ -133,25 +147,24 @@ function updateDoorUI(doorId, door) {
  * @param {object} data - Logs data from API
  */
 function updateLogsFromAPI(data) {
-    if (!data || !data.logs || data.logs.length === 0) return;
+    if (!data || !Array.isArray(data.logs) || data.logs.length === 0) return;
     
     const logContainer = document.getElementById('logContainer');
     if (!logContainer) return;
     
-    // Remove empty log message
-    const emptyLog = document.querySelector('.empty-log');
-    if (emptyLog) {
-        emptyLog.remove();
-    }
-    
-    // Add new log entries
-    data.logs.forEach(log => {
-        // Check if log already exists
-        const existingLog = document.querySelector(`.log-entry[data-time="${log.time}"]`);
-        if (!existingLog) {
-            addLogEntryToUI(log);
-        }
+    const logs = data.logs.slice(-12).reverse();
+    let html = '';
+    logs.forEach(log => {
+        const time = log.timestamp || log.time || log.Time || '--:--:--';
+        const message = log.message || log.action || log.status || log.door || JSON.stringify(log);
+        html += `
+            <div class="log-entry">
+                <span class="log-time">[${time}]</span>
+                <span class="log-clicked">${message}</span>
+            </div>
+        `;
     });
+    logContainer.innerHTML = html;
 }
 
 /**

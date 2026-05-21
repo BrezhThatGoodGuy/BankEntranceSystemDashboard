@@ -33,6 +33,36 @@ function showSideNavigationBar(){
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
+const ESP32_SERVER = 'http://192.168.1.100';
+
+function getLogsEndpoint(logType) {
+    return `${ESP32_SERVER}/log?type=${encodeURIComponent(logType)}`;
+}
+
+function loadAiLogs() {
+    fetch(getLogsEndpoint('ai'))
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Unable to fetch AI logs');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || !Array.isArray(data.logs)) {
+                throw new Error('Malformed AI logs payload');
+            }
+            console.log('[AI] Loaded logs:', data.logs.slice(-12));
+            window.aiLogs = data.logs;
+        })
+        .catch(error => {
+            console.warn('[AI] AI log fetch failed:', error);
+        });
+}
+
+function pollAiLogs() {
+    loadAiLogs();
+}
+
 // ============================================
 // AI Configuration Storage
 // ============================================
@@ -55,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize button states from current HTML classes
     initializeDoorButtonStates();
     initializeApiPolling();
+    pollAiLogs();
+    setInterval(pollAiLogs, 5000);
 });
 
 /**

@@ -33,6 +33,64 @@ function showSideNavigationBar(){
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
+const ESP32_SERVER = 'http://192.168.1.100';
+
+function getLogsEndpoint(logType) {
+    return `${ESP32_SERVER}/log?type=${encodeURIComponent(logType)}`;
+}
+
+function loadFaultLogs() {
+    fetch(getLogsEndpoint('faults'))
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Unable to fetch fault logs');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || !Array.isArray(data.logs)) {
+                throw new Error('Malformed fault logs payload');
+            }
+            renderFaultLogs(data.logs.slice(-12).reverse());
+            updateFaultStats(data.logs.length);
+        })
+        .catch(error => {
+            console.warn('[Faults] Fault log fetch failed:', error);
+        });
+}
+
+function renderFaultLogs(logs) {
+    const logsList = document.querySelector('.logs-list');
+    if (!logsList) return;
+
+    if (logs.length === 0) {
+        logsList.innerHTML = '<div class="log-row"><span class="log-id">--</span><span class="log-time">--</span><span class="log-reported">No faults logged</span><span class="log-status">--</span></div>';
+        return;
+    }
+
+    logsList.innerHTML = logs.map((log, index) => {
+        const time = log.timestamp || log.time || '--:--:--';
+        const reported = log.message || log.action || log.door || 'Fault event';
+        const status = log.status || 'UNRESOLVED';
+        return `
+            <div class="log-row">
+                <span class="log-id">${index + 1}</span>
+                <span class="log-time">${time}</span>
+                <span class="log-reported">${reported}</span>
+                <span class="log-status">${status}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateFaultStats(totalLogs) {
+    const statBoxes = document.querySelectorAll('.logs-stats .stat-value');
+    if (!statBoxes || statBoxes.length < 3) return;
+    statBoxes[0].textContent = totalLogs > 0 ? String(Math.min(3, totalLogs)) : '0';
+    statBoxes[1].textContent = String(totalLogs);
+    statBoxes[2].textContent = '0';
+}
+
 // ============================================
 // Fault Status Storage
 // ============================================
@@ -46,6 +104,7 @@ let currentFaults = {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     initializeApiPolling();
+    loadFaultLogs();
 });
 
 // ============================================
