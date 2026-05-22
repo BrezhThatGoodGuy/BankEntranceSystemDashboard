@@ -1,4 +1,4 @@
-﻿/*
+/*
 ====================================================================
 ESP32-CAM WEB SERVER + LIVE CAMERA STREAM
 Optimized for Flash Longevity & Stability
@@ -25,10 +25,6 @@ const char* password = "brezhnev02";
 #define ATMEGA_BAUD   9600
 
 AsyncWebServer server(80);
-
-unsigned long lastModeSwitchTime = 0;
-const unsigned long modeSwitchInterval = 20000;
-int systemModeCounter = 0;
 
 enum LogType {
     LOG_MONITORING,
@@ -214,10 +210,14 @@ void processLogPost(const String &body) {
 }
 
 void processActionPost(const String &body) {
+    Serial.println("[ACTION] Received POST: " + body);
     String door = parseJsonString(body, "door");
     String action = parseJsonString(body, "action");
     String state = parseJsonString(body, "state");
     String mode = parseJsonString(body, "mode");
+    
+    Serial.println("[ACTION] Parsed - action: " + action + ", door: " + door + ", state: " + state + ", mode: " + mode);
+    
     if (action.equalsIgnoreCase("TOGGLE") && door.length() > 0) {
         String command = "DOOR_" + door + "_";
         if (state.equalsIgnoreCase("locked")) {
@@ -228,16 +228,18 @@ void processActionPost(const String &body) {
             command += "AUTO";
         }
         Serial1.println(command);
+        Serial.println("[ACTION] DOOR_TOGGLE: Door " + door + " to " + state + " -> " + command);
         appendLogEntry(LOG_CONTROL, "Door " + door + " set to " + state);
     } else if (action.equalsIgnoreCase("MODE_CHANGE") && mode.length() > 0) {
         String command = "SET_MODE_";
-        if (mode.equalsIgnoreCase("Evacuation")) command += "EVAC";
+        if (mode.equalsIgnoreCase("Evacuation") || mode.equalsIgnoreCase("Evacuate")) command += "EVAC";
         else if (mode.equalsIgnoreCase("Normal-Traffic") || mode.equalsIgnoreCase("Normal")) command += "NORMAL";
         else if (mode.equalsIgnoreCase("Exit-Only")) command += "CLOSED";
         else if (mode.equalsIgnoreCase("Entrance-Only")) command += "STAFF";
         else if (mode.equalsIgnoreCase("Lock-All") || mode.equalsIgnoreCase("Lockdown") || mode.equalsIgnoreCase("Lock-down")) command += "LOCK";
         else command += mode;
         Serial1.println(command);
+        Serial.println("[ACTION] MODE_CHANGE: " + mode + " -> " + command);
         appendLogEntry(LOG_CONTROL, "Operation mode changed to " + mode);
     }
 }
@@ -328,7 +330,6 @@ void setup() {
     });
     server.begin();
     appendLogEntry(LOG_MONITORING, "========== SYSTEM START ==========");
-    lastModeSwitchTime = millis();
 }
 
 void loop() {
@@ -338,36 +339,5 @@ void loop() {
         if (incomingData.length() > 0) {
             processAtmegaLine(incomingData);
         }
-    }
-    if (millis() - lastModeSwitchTime >= modeSwitchInterval) {
-        lastModeSwitchTime = millis();
-        String commandString;
-        String logLabel;
-        systemModeCounter = (systemModeCounter + 1) % 5;
-        switch (systemModeCounter) {
-            case 0:
-                commandString = "SET_MODE_NORMAL";
-                logLabel = "Normal Mode";
-                break;
-            case 1:
-                commandString = "SET_MODE_EVAC";
-                logLabel = "Evacuation";
-                break;
-            case 2:
-                commandString = "SET_MODE_LOCK";
-                logLabel = "Lock-down";
-                break;
-            case 3:
-                commandString = "SET_MODE_CLOSED";
-                logLabel = "Bank- Closed";
-                break;
-            case 4:
-                commandString = "SET_MODE_STAFF";
-                logLabel = "Staff Entry";
-                break;
-        }
-        Serial1.println(commandString);
-        Serial.print("[Mode Trigger Sent]: "); Serial.println(commandString);
-        appendLogEntry(LOG_CONTROL, "Mode changed to " + logLabel);
     }
 }

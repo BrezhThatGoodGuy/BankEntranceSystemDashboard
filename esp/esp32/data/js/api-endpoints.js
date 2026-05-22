@@ -36,7 +36,7 @@ const POLL_INTERVALS = {
     DOORS: 3000,      // 3 seconds for door states
     MODE: 5000,       // 5 seconds for mode
     FAULTS: 5000,    // 5 seconds for faults
-    AI_CONFIG: 5000, // 5 seconds for AI config
+    AI_CONFIG: 3000, // 3 seconds for AI config
     LOGS: 3000       // 3 seconds for logs
 };
 

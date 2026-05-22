@@ -5,41 +5,27 @@
     <title>Man-Trap Control - AI Control</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="aicontrol.css">
-   
+    <script src="js/api-client.js"></script>
+    <script src="js/bankSystem.js"></script>
+    <script src="aicontrol.js"></script>
    
 </head>
 <body class="simulation-background">
 
-    <div class = "whole-header">
-        
-        
+    <div class="whole-header">
         <div class="main-navigation-bar">
-
-            <div class="monitor-page-link simulate-page-link-selected" onclick="openMonitorPage()">MONITOR</div>
-            <div class="command-page-link simulate-page-link-selected" onclick="openControlPage()">CONTROL</div>
-            <div class="faults-page-link simulate-page-link-selected" onclick="openFaultsPage()">FAULTS</div>
-            <div class="ai-page-link simulate-page-link-selected">AI CONTROL</div>
-
+            <div class="monitor-page-link" onclick="openMonitorPage()">MONITOR</div>                          
+            <div class="command-page-link" onclick="openControlPage()">CONTROL</div>
+            <div class="faults-page-link" onclick="openFaultsPage()">FAULTS</div>
+            <div class="ai-page-link" style="background-color: rgb(204, 196, 196); border-color: rgb(255, 142, 3);">AI CONTROL</div> 
         </div>
-
-
+        
         <div class="user-header">
-
-            <button class="evacuate"> EVACUATE! </button>
-            <div class="js-navigation-menu"><img class="navigation-menu" onclick="showSideNavigationBar()" src="navigation-menu.png" alt="nav logo"></div>
-            <div class="user-pic"> <div class="user-name">B</div> </div>
-
+            <button class="evacuate">EVACUATE!</button>
+            <div class="js-navigation-menu"><img class="navigation-menu" src="navigation-menu.png" alt="nav logo"></div>
+            <div class="user-pic"><div class="user-name">B</div></div>
         </div>
-                
     </div> 
-   
-    
-    <div class ="js-side-navigation-bar">
-        <div class = "hidden-side-navigation-bar">
-        </div>
-
-
-    </div>
 
     <div class="ai-container">
         <div class="ai-layout">
@@ -164,7 +150,7 @@
                         <span class="feed-status">Connected</span>
                     </div>
                     <div class="feed-view">
-                        <img id="esp32Feed" alt="ESP32 Camera Feed" src="/third.png">
+                        <img id="esp32Feed" alt="ESP32 Camera Feed" src = "/third.png">
                     </div>
                     <div class="feed-info">
                         <span>Source: http://192.168.1.100/stream</span>
@@ -173,10 +159,9 @@
             </div>
         </div>
     </div>
-<script src="js/api-client.js"></script>
-<script src="js/bankSystem.js"></script>
-<script src="aicontrol.js"></script>
-<script src="script.js"></script>
 
+<script src="faults.js"></script>
+     <script src="script.js"></script>
+    <script src="aicontrol.js"></script>
 </body>
 </html>

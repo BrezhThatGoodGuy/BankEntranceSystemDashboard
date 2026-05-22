@@ -1,0 +1,21 @@
+{
+  "faults": {
+    "locks": [
+      { "id": "EXT.D4 LOCK", "name": "EXT.D4 LOCK", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "ENT.D1 LOCK", "name": "ENT.D1 LOCK", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "EXT.D3 LOCK", "name": "EXT.D3 LOCK", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "ENT.D2 LOCK", "name": "ENT.D2 LOCK", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" }
+    ],
+    "motionControllers": [
+      { "id": "EXT.D4 MC", "name": "EXT.D4 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "ENT.D1 MC", "name": "ENT.D1 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "EXT.D3 MC", "name": "EXT.D3 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "ENT.D2 MC", "name": "ENT.D2 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" }
+    ],
+    "pirSensors": [
+      { "id": "BOOTH 1 PIR", "name": "BOOTH 1 PIR", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
+      { "id": "BOOTH 2 PIR", "name": "BOOTH 2 PIR", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" }
+    ]
+  },
+  "timestamp": "2026-04-24T08:00:00Z"
+}

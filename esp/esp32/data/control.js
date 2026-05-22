@@ -15,7 +15,7 @@ function openFaultsPage(){
     window.location.href = "faults.html";
 }
 
-function openAiPage(){
+function openAiControlPage(){
     window.location.href = "aicontrol.html";
 }
 

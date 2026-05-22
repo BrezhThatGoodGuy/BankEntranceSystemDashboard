@@ -1,0 +1,23 @@
+{
+  "aiSystem": {
+    "enabled": false,
+    "maskedFaceDetection": false,
+    "weaponDetection": false,
+    "aiDoorControl": false
+  },
+  "doorActions": {
+    "weapon": {
+      "1": "locked",
+      "2": "locked",
+      "3": "locked",
+      "4": "locked"
+    },
+    "masked": {
+      "1": "locked",
+      "2": "locked",
+      "3": "locked",
+      "4": "locked"
+    }
+  },
+  "timestamp": "2026-04-24T08:00:00Z"
+}

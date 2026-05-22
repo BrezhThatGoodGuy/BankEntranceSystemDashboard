@@ -15,7 +15,7 @@ function openFaultsPage(){
     window.location.href = "faults.html";
 }
 
-function openAiPage(){
+function openAiControlPage(){
     window.location.href = "aicontrol.html";
 }
 
@@ -61,59 +61,6 @@ function loadAiLogs() {
 
 function pollAiLogs() {
     loadAiLogs();
-}
-
-/**
- * Show toast notification
- * @param {string} message - Notification message
- * @param {string} type - Notification type: 'success', 'error', 'info'
- */
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `toast-notification toast-${type || 'info'}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        background: ${type === 'success' ? 'rgba(46, 204, 113, 0.9)' : type === 'error' ? 'rgba(231, 76, 60, 0.9)' : 'rgba(52, 152, 219, 0.9)'};
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 14px;
-    `;
-    
-    if (!document.getElementById('toast-styles')) {
-        const style = document.createElement('style');
-        style.id = 'toast-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(notification);
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease-out forwards';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
-    
-    console.log(`[${type?.toUpperCase() || 'INFO'}] ${message}`);
 }
 
 // ============================================
