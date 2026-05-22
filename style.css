@@ -784,6 +784,7 @@ input[type="radio"] { display: none; }
     background: rgba(32, 32, 129, 0.25);
     border: 1px solid rgba(255, 142, 3, 0.35);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-height: 0;
 }
 
 .panel-header h2 {
@@ -870,12 +871,14 @@ input[type="radio"] { display: none; }
 
 /* Log Section */
 .log-section {
+    display: flex;
+    flex-direction: column;
     background: rgba(32, 32, 129, 0.2);
     border: 1px solid rgba(255, 142, 3, 0.2);
     border-radius: 6px;
     padding: 10px;
     flex: 1;
-    min-height: 150px;
+    min-height: 0;
 }
 
 .log-header {
@@ -910,7 +913,9 @@ input[type="radio"] { display: none; }
 }
 
 #logContainer {
-    max-height: 120px;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
     overflow-y: auto;
 }
 
