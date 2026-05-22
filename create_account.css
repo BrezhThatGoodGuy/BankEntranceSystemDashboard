@@ -1,0 +1,125 @@
+body {
+    background-color: rgb(27, 25, 25);
+    font-family: Inter, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.create-account-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.create-account-card {
+    background: rgba(32, 32, 129, 0.25);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 142, 3, 0.35);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 142, 3, 0.2);
+}
+
+.card-header h2 {
+    margin: 0;
+    color: #d6dce3;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    color: #a0a0a8;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    background: rgba(60, 60, 70, 0.3);
+    border: 1px solid rgba(120, 120, 130, 0.3);
+    border-radius: 5px;
+    padding: 10px;
+    color: #c8c8d0;
+    font-size: 0.9rem;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: rgba(255, 142, 3, 0.5);
+}
+
+.btn-create-account {
+    background: rgba(255, 142, 3, 0.2);
+    border: 1px solid rgb(255, 142, 3);
+    color: rgb(255, 142, 3);
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    margin-top: 10px;
+}
+
+.btn-create-account:hover {
+    background: rgba(255, 142, 3, 0.4);
+    border-color: rgb(255, 142, 3);
+    color: rgb(255, 142, 3);
+}
+
+.error-message {
+    color: rgb(231, 76, 60);
+    font-size: 0.8rem;
+    text-align: center;
+    min-height: 20px;
+}
+
+.success-message {
+    color: rgb(46, 204, 113);
+    font-size: 0.8rem;
+    text-align: center;
+    min-height: 20px;
+}
+
+.login-link {
+    padding: 15px 20px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 142, 3, 0.1);
+}
+
+.login-link p {
+    margin: 0;
+    color: #a0a0a8;
+    font-size: 0.8rem;
+}
+
+.login-link a {
+    color: rgb(255, 142, 3);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}

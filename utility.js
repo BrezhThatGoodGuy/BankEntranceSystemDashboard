@@ -1,5 +1,3 @@
-
-
 const ENTD1 = {
     id: 1,
     name: "ENT.D1",
@@ -144,15 +142,8 @@ function getURL(){
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('username');
+    window.location.href = 'login.html';
+}
