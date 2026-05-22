@@ -90,12 +90,156 @@ document.addEventListener('DOMContentLoaded', function(){
                     applyTheme(savedTheme);
 });
 
+const ESP_LOG_FILE_CONFIG = [
+    { key: 'monitoring', label: 'Monitoring Logs', url: '/logs/monitoring.txt' },
+    { key: 'control', label: 'Control Logs', url: '/logs/control.txt' },
+    { key: 'faults', label: 'Faults Logs', url: '/logs/faults.txt' },
+    { key: 'ai', label: 'AI Logs', url: '/logs/ai.txt' }
+];
+
 function showSideNavigationBar(){
-                   
-                    const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div>Log Out</div></div>';
-                    document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
-                    const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
-                    document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
+    const shownsidebar = '<div class = "shown-side-navigation-bar"><div onclick="openPrintLogsDialog()"><p>Print Info</p>  <svg class="print-icon" aria-label="Open print log selector" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div>Log Out</div></div>';
+    document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
+    const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
+    document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
+}
+
+function openPrintLogsDialog(){
+    closePrintLogsDialog();
+
+    const checkboxItems = ESP_LOG_FILE_CONFIG.map(file => `
+        <label class="print-checkbox-label">
+            <input type="checkbox" class="log-file-checkbox" value="${file.key}" checked>
+            <span>${file.label}</span>
+        </label>
+    `).join('');
+
+    const modalHtml = `
+        <div id="printSelectionModal" class="print-modal-overlay" onclick="closePrintLogsDialog(event)">
+            <div class="print-modal-card" onclick="event.stopPropagation()">
+                <div class="print-modal-header">
+                    <h3>Select logs to print</h3>
+                    <button type="button" class="close-modal-btn" onclick="closePrintLogsDialog()" aria-label="Close print dialog">×</button>
+                </div>
+                <div class="print-modal-body">
+                    <p>Select one or more ESP log files from the checklist below. After you press PRINT, the selected log content will be loaded, formatted, and sent to the browser print dialog.</p>
+                    <div class="print-checkbox-grid">
+                        ${checkboxItems}
+                    </div>
+                    <div id="printSelectionError" class="print-error-message"></div>
+                </div>
+                <div class="print-modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closePrintLogsDialog()">CANCEL</button>
+                    <button type="button" class="btn-print" onclick="printSelectedLogFiles()">PRINT</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closePrintLogsDialog(event){
+    if(event && event.target.id !== 'printSelectionModal'){
+        return;
+    }
+
+    const modal = document.getElementById('printSelectionModal');
+    if(modal){
+        modal.remove();
+    }
+
+    const printArea = document.getElementById('printableLogsArea');
+    if(printArea){
+        printArea.remove();
+    }
+}
+
+function fetchLogFileText(fileConfig){
+    return fetch(fileConfig.url, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+            'Accept': 'text/plain'
+        }
+    }).then(response => {
+        if(!response.ok){
+            throw new Error(`Unable to load ${fileConfig.label}`);
+        }
+        return response.text().then(text => ({ ...fileConfig, text }));
+    });
+}
+
+function printSelectedLogFiles(){
+    const selectedKeys = Array.from(document.querySelectorAll('.log-file-checkbox:checked')).map(el => el.value);
+    const errorElement = document.getElementById('printSelectionError');
+    if(!selectedKeys.length){
+        if(errorElement) errorElement.textContent = 'Please select at least one log file to print.';
+        return;
+    }
+    if(errorElement) errorElement.textContent = '';
+
+    const selectedLogs = ESP_LOG_FILE_CONFIG.filter(file => selectedKeys.includes(file.key));
+    const fetchPromises = selectedLogs.map(fetchLogFileText);
+
+    Promise.all(fetchPromises)
+        .then(logFiles => {
+            closePrintLogsDialog();
+            buildPrintableLogs(logFiles);
+        })
+        .catch(error => {
+            if(errorElement) errorElement.textContent = error.message || 'Error loading selected log files.';
+            console.error('[Print Logs] ', error);
+        });
+}
+
+function buildPrintableLogs(logFiles){
+    const existing = document.getElementById('printableLogsArea');
+    if(existing){
+        existing.remove();
+    }
+
+    const sectionHtml = logFiles.map(file => `
+        <section class="printable-log-file">
+            <h2>${file.label}</h2>
+            <pre>${escapeHtml(file.text)}</pre>
+        </section>
+    `).join('');
+
+    const printAreaHtml = `
+        <div id="printableLogsArea" class="printable-log-area">
+            <div class="printable-logs-header">
+                <h1>ESP Log Printout</h1>
+                <p>${logFiles.map(file => file.label).join(', ')}</p>
+                <p>${new Date().toLocaleString()}</p>
+            </div>
+            ${sectionHtml}
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', printAreaHtml);
+    const printArea = document.getElementById('printableLogsArea');
+    if (printArea) {
+        printArea.classList.add('active');
+    }
+    window.addEventListener('afterprint', cleanupPrintableLogs, { once: true });
+    window.print();
+}
+
+function cleanupPrintableLogs(){
+    const printArea = document.getElementById('printableLogsArea');
+    if(printArea){
+        printArea.remove();
+    }
+}
+
+function escapeHtml(value){
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 const imgElement = document.querySelector('.live-view-template');        
