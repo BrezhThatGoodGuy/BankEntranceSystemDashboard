@@ -212,15 +212,24 @@ function sendDoorAction(actionData) {
         },
         body: JSON.stringify(actionData)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json().catch(() => ({}));
+    })
     .then(data => {
         console.log('Server response:', data);
-        if (data.status === 'logged') {
+        // Accept either 'ok' (ESP32) or 'logged' (other backends)
+        if (data.status === 'logged' || data.status === 'ok') {
             showNotification(`Door ${actionData.door} ${actionData.state.toUpperCase()}!`, 'success');
+        } else {
+            console.log('[DoorAction] Unrecognized status:', data.status);
         }
     })
     .catch(error => {
-        console.log('ESP32 not available, using local mode');
+        console.log('ESP32 not available, using local mode', error);
+        showNotification('Door action could not be sent to ESP32', 'error');
     });
 }
 
@@ -236,12 +245,23 @@ function sendModeAction(modeData) {
         },
         body: JSON.stringify(modeData)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json().catch(() => ({}));
+    })
     .then(data => {
         console.log('[Mode Change] Server response:', data);
+        if (data.status === 'ok' || data.status === 'logged') {
+            showNotification(`Mode change sent: ${modeData.mode}`, 'success');
+        } else {
+            showNotification(`Mode change request returned: ${data.status}`, 'error');
+        }
     })
     .catch(error => {
-        console.log('[Mode Change] ESP32 not available, mode change logged locally only');
+        console.log('[Mode Change] ESP32 not available, mode change logged locally only', error);
+        showNotification('Mode change could not be sent to ESP32', 'error');
     });
 }
 
