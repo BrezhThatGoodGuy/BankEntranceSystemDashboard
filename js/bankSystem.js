@@ -410,8 +410,6 @@ function logAiDoorReconfig(configAspect) {
 // ESP32 COMMUNICATION
 // ============================================
 
-const ESP32_SERVER = 'http://192.168.1.100';
-
 /**
  * Send log entry to ESP32 for persistent storage
  * @param {string} logType - Type of log
@@ -419,7 +417,7 @@ const ESP32_SERVER = 'http://192.168.1.100';
  */
 async function sendLogToESP32(logType, logEntry) {
     try {
-        const endpoint = `${ESP32_SERVER}/log`;
+        const endpoint = `/log`;
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
@@ -431,7 +429,7 @@ async function sendLogToESP32(logType, logEntry) {
                 message: logEntry.message
             })
         });
-        
+
         if (!response.ok) {
             console.warn(`[Log] Failed to send ${logType} log to ESP32`);
         }
@@ -446,7 +444,7 @@ async function sendLogToESP32(logType, logEntry) {
  * @param {string} logType - Type of log to download
  */
 function downloadLogs(logType) {
-    const url = `${ESP32_SERVER}/logs/${logType}.txt`;
+    const url = `/logs/${logType}.txt`;
     window.open(url, '_blank');
 }
 

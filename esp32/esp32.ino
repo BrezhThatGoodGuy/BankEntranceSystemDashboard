@@ -215,9 +215,9 @@ void processActionPost(const String &body) {
     String action = parseJsonString(body, "action");
     String state = parseJsonString(body, "state");
     String mode = parseJsonString(body, "mode");
-    
+
     Serial.println("[ACTION] Parsed - action: " + action + ", door: " + door + ", state: " + state + ", mode: " + mode);
-    
+
     if (action.equalsIgnoreCase("TOGGLE") && door.length() > 0) {
         String command = "DOOR_" + door + "_";
         if (state.equalsIgnoreCase("locked")) {
@@ -227,6 +227,7 @@ void processActionPost(const String &body) {
         } else {
             command += "AUTO";
         }
+        Serial.println("[ATMEGA_CMD] " + command);
         Serial1.println(command);
         Serial.println("[ACTION] DOOR_TOGGLE: Door " + door + " to " + state + " -> " + command);
         appendLogEntry(LOG_CONTROL, "Door " + door + " set to " + state);
@@ -238,6 +239,7 @@ void processActionPost(const String &body) {
         else if (mode.equalsIgnoreCase("Entrance-Only")) command += "STAFF";
         else if (mode.equalsIgnoreCase("Lock-All") || mode.equalsIgnoreCase("Lockdown") || mode.equalsIgnoreCase("Lock-down")) command += "LOCK";
         else command += mode;
+        Serial.println("[ATMEGA_CMD] " + command);
         Serial1.println(command);
         Serial.println("[ACTION] MODE_CHANGE: " + mode + " -> " + command);
         appendLogEntry(LOG_CONTROL, "Operation mode changed to " + mode);
@@ -294,21 +296,52 @@ void setup() {
             type = request->getParam("type")->value();
         }
         int idx = resolveLogType(type);
-        request->send(200, "application/json", buildLogResponse(idx));
+        String body = buildLogResponse(idx);
+        AsyncWebServerResponse *response = request->beginResponse(200, "application/json", body);
+        response->addHeader("Access-Control-Allow-Origin", "*");
+        response->addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+        request->send(response);
     });
     server.on("/log", AsyncWebRequestMethod::HTTP_POST, [](AsyncWebServerRequest *request) {
-        request->send(200, "application/json", "{\"status\":\"ok\"}");
+        AsyncWebServerResponse *response = request->beginResponse(200, "application/json", "{\"status\":\"ok\"}");
+        response->addHeader("Access-Control-Allow-Origin", "*");
+        response->addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+        request->send(response);
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
         String body;
         for (size_t i = 0; i < len; i++) body += (char)data[i];
         processLogPost(body);
     });
+
+    // OPTIONS preflight for /log
+    server.on("/log", HTTP_OPTIONS, [](AsyncWebServerRequest *request){
+        AsyncWebServerResponse *response = request->beginResponse(204);
+        response->addHeader("Access-Control-Allow-Origin", "*");
+        response->addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+        request->send(response);
+    });
     server.on("/action", AsyncWebRequestMethod::HTTP_POST, [](AsyncWebServerRequest *request) {
-        request->send(200, "application/json", "{\"status\":\"ok\"}");
+        AsyncWebServerResponse *response = request->beginResponse(200, "application/json", "{\"status\":\"ok\"}");
+        response->addHeader("Access-Control-Allow-Origin", "*");
+        response->addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+        request->send(response);
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
         String body;
         for (size_t i = 0; i < len; i++) body += (char)data[i];
         processActionPost(body);
+    });
+
+    // OPTIONS preflight for /action
+    server.on("/action", HTTP_OPTIONS, [](AsyncWebServerRequest *request){
+        AsyncWebServerResponse *response = request->beginResponse(204);
+        response->addHeader("Access-Control-Allow-Origin", "*");
+        response->addHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+        request->send(response);
     });
     server.on("/status.json", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         String payload = "{";

@@ -37,10 +37,9 @@ function showSideNavigationBar(){
 // Door Control Configuration
 // ============================================
 
-// ESP32 Server Configuration (for hardware integration)
-const ESP32_SERVER = 'http://192.168.1.100';
-const ACTION_ENDPOINT = ESP32_SERVER + '/action';
-const LOG_ENDPOINT = ESP32_SERVER + '/log';
+// Relative URLs (ESP32 serves these pages)
+const ACTION_ENDPOINT = '/action';
+const LOG_ENDPOINT = '/log';
 
 // Store for door actions
 let doorActions = [];
@@ -71,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDoorButtonStates();
     initializeDoorButtons();
     initializeModeButtons();
+    initializeEvacuateButton();
     initializeApiPolling();
     // Initialize log refresh button
     initializeRefreshButton();
@@ -132,7 +132,7 @@ function initializeDoorButtons() {
  */
 function initializeModeButtons() {
     const modeRadios = document.querySelectorAll('input[name="mode"]');
-    
+
     modeRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.checked) {
@@ -140,6 +140,18 @@ function initializeModeButtons() {
             }
         });
     });
+}
+
+/**
+ * Initialize EVACUATE button
+ */
+function initializeEvacuateButton() {
+    const evacuateBtn = document.querySelector('.evacuate');
+    if (evacuateBtn) {
+        evacuateBtn.addEventListener('click', function() {
+            setOperationMode('evacuate');
+        });
+    }
 }
 
 /**

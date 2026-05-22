@@ -33,10 +33,8 @@ function showSideNavigationBar(){
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
-const ESP32_SERVER = 'http://192.168.1.100';
-
 function getLogsEndpoint(logType) {
-    return `${ESP32_SERVER}/log?type=${encodeURIComponent(logType)}`;
+    return `/log?type=${encodeURIComponent(logType)}`;
 }
 
 function loadAiLogs() {
