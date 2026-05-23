@@ -142,8 +142,4 @@ function getURL(){
     }
 }
 
-function logout() {
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('username');
-    window.location.href = 'login.html';
-}
+
