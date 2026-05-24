@@ -229,44 +229,101 @@ body {
 .outside-door-lock-icons {
     position: absolute;
     top: 140px;
-    left: 7%;
-    margin-left: 90px;
+    left: calc(4.5% + 60px);
+    width: 500px;
     display: grid;
-    grid-template-columns: 120px 210px 300px;
-    align-items: center; 
+    grid-template-columns: 1fr auto 1fr;
+    gap: 40px;
+    align-items: center;
+    justify-items: center;
     font-size: small;
-    color: rgba(103, 103, 237, 0.918);  
+    color: rgba(103, 103, 237, 0.918);
 }
 
 .inside-door-lock-icons {
     position: absolute;
-    top: 700px;
-    left: 8%;
-    margin-left: 90px;
+    top: 710px;
+    left: calc(4.5% + 60px);
+    width: 500px;
     display: grid;
-    grid-template-columns: 120px 210px 300px;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 40px;
     align-items: center;
+    justify-items: center;
     font-size: small; 
     color: rgba(103, 103, 237, 0.918);
 }
 
-.outside-unlocked-padlock-icon, .inside-locked-padlock-icon, .inside-unlocked-padlock-icon, .outside-locked-padlock-icon {
+
+.outside-unlocked-padlock-icon, .inside-locked-padlock-icon, .inside-unlocked-padlock-icon, .outside-locked-padlock-icon, .ent-d1-lock-icon, .ent-d2-lock-icon, .ext-d3-lock-icon, .ext-d4-lock-icon {
     display: inline;
     width: 35px;
     border-radius: 18px;
+    transition: all 0.3s ease;
 }
 
-/* Booth Internal Elements (Kept Absolute as they are relative to the booth) */
-.outside-exit-closed { position: absolute; left: 6%; top: 10%; width: 35%; height: 10px; background-color: red; }
-.outside-exit-opened { position: absolute; left: 6%; top: 10%; transform: rotate(-10deg); transform-origin: top left; width: 35%; height: 10px; background-color: rgb(6, 234, 33); }
-.outside-entrance-opened { position: absolute; right: 6%; top: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); transform: rotate(10deg); transform-origin: top right; }
-.outside-entrance-closed { position: absolute; right: 6%; top: 10%; width: 35%; height: 10px; background-color: red; }
-.inside-exit-closed { position: absolute; left: 6%; bottom: 10%; width: 35%; height: 10px; background-color: red; }
-.inside-exit-opened { transform: rotate(10deg); transform-origin: top left; position: absolute; left: 6%; bottom: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); }
-.inside-entrance-opened { transform: rotate(-10deg); transform-origin: top right; position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); }
-.inside-entrance-closed { position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: red; }
+.ent-d1-lock-icon.unlocked, .ent-d2-lock-icon.unlocked, .ext-d3-lock-icon.unlocked, .ext-d4-lock-icon.unlocked {
+    filter: drop-shadow(0 0 5px rgba(6, 234, 33, 0.6));
+}
+
+.ent-d1-lock-icon.locked, .ent-d2-lock-icon.locked, .ext-d3-lock-icon.locked, .ext-d4-lock-icon.locked {
+    filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.6));
+}
+
+.door-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.door-label {
+    font-size: 10px;
+    color: rgba(103, 103, 237, 0.7);
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Booth Internal Elements - Default to Closed State (Kept Absolute as they are relative to the booth) */
+
+/* Outside Exit Door (EXT.D4) - Show closed by default */
+.bank-booth-template .outside-exit-closed { position: absolute; left: 6%; top: 10%; width: 35%; height: 10px; background-color: red; display: block; }
+.bank-booth-template .outside-exit-opened { position: absolute; left: 6%; top: 10%; transform: rotate(-10deg); transform-origin: top left; width: 35%; height: 10px; background-color: rgb(6, 234, 33); display: none; }
+
+/* Outside Entrance Door (ENT.D1) - Show closed by default */
+.bank-booth-template .outside-entrance-opened { position: absolute; right: 6%; top: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); transform: rotate(10deg); transform-origin: top right; display: none; }
+.bank-booth-template .outside-entrance-closed { position: absolute; right: 6%; top: 10%; width: 35%; height: 10px; background-color: red; display: block; }
+
+/* Inside Exit Door (EXT.D3) - Show closed by default */
+.bank-booth-template .inside-exit-closed { position: absolute; left: 6%; bottom: 10%; width: 35%; height: 10px; background-color: red; display: block; }
+.bank-booth-template .inside-exit-opened { transform: rotate(10deg); transform-origin: top left; position: absolute; left: 6%; bottom: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); display: none; }
+
+/* Inside Entrance Door (ENT.D2) - Show closed by default */
+.bank-booth-template .inside-entrance-opened { transform: rotate(-10deg); transform-origin: top right; position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); display: none; }
+.bank-booth-template .inside-entrance-closed { position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: red; display: block; }
+
+/* Object Detection Indicators */
 .object-detected-entrance { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 100px; right: 10%; background-color: none; }
 .object-detected-exit { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 100px; left: 10%; background-color: none; }
+
+/* ========== Dynamic State Classes for Bank Booth Template ========== */
+/* These classes are added to .bank-booth-template to show/hide appropriate door state divs */
+
+/* When outside-exit is opened */
+.bank-booth-template.outside-exit-opened .outside-exit-opened { display: block; }
+.bank-booth-template.outside-exit-opened .outside-exit-closed { display: none; }
+
+/* When outside-entrance is opened */
+.bank-booth-template.outside-entrance-opened .outside-entrance-opened { display: block; }
+.bank-booth-template.outside-entrance-opened .outside-entrance-closed { display: none; }
+
+/* When inside-exit is opened */
+.bank-booth-template.inside-exit-opened .inside-exit-opened { display: block; }
+.bank-booth-template.inside-exit-opened .inside-exit-closed { display: none; }
+
+/* When inside-entrance is opened */
+.bank-booth-template.inside-entrance-opened .inside-entrance-opened { display: block; }
+.bank-booth-template.inside-entrance-opened .inside-entrance-closed { display: none; }
 
 /* =========================================================
    RESPONSIVE DISPLAY & POSITIONING MEDIA QUERIES 

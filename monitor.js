@@ -68,8 +68,60 @@ function refreshImage() {
 setInterval(refreshImage, 200);
 
 // ============================================
-// API Integration for Real-time Updates
+// Door Configuration & State Management
 // ============================================
+
+// Door mapping: doorId -> {name, position, magContactClass, lockIconSelector}
+const DOOR_CONFIG = {
+    1: {
+        name: 'ENT.D1',
+        label: 'Outside Entrance',
+        position: 'entrance',
+        type: 'outside',
+        magContactClasses: {
+            open: 'outside-entrance-opened',
+            closed: 'outside-entrance-closed'
+        },
+        lockIconSelector: '#ent-d1-lock-icon',
+        lockIconClass: 'ent-d1-lock-icon'
+    },
+    2: {
+        name: 'ENT.D2',
+        label: 'Inside Entrance',
+        position: 'entrance',
+        type: 'inside',
+        magContactClasses: {
+            open: 'inside-entrance-opened',
+            closed: 'inside-entrance-closed'
+        },
+        lockIconSelector: '#ent-d2-lock-icon',
+        lockIconClass: 'ent-d2-lock-icon'
+    },
+    3: {
+        name: 'EXT.D3',
+        label: 'Inside Exit',
+        position: 'exit',
+        type: 'inside',
+        magContactClasses: {
+            open: 'inside-exit-opened',
+            closed: 'inside-exit-closed'
+        },
+        lockIconSelector: '#ext-d3-lock-icon',
+        lockIconClass: 'ext-d3-lock-icon'
+    },
+    4: {
+        name: 'EXT.D4',
+        label: 'Outside Exit',
+        position: 'exit',
+        type: 'outside',
+        magContactClasses: {
+            open: 'outside-exit-opened',
+            closed: 'outside-exit-closed'
+        },
+        lockIconSelector: '#ext-d4-lock-icon',
+        lockIconClass: 'ext-d4-lock-icon'
+    }
+};
 
 // Store current door states
 let currentDoorStates = {
@@ -79,8 +131,109 @@ let currentDoorStates = {
     4: { state: 'closed', locked: true }
 };
 
+// ============================================
+// Door State Visualization Functions
+// ============================================
+
+/**
+ * Update the bank-booth-template classes based on door state
+ * Shows only the appropriate class (open or closed) for each door
+ * @param {number} doorId - Door ID
+ * @param {string} state - 'open' or 'closed'
+ */
+function updateDoorMagContactUI(doorId, state) {
+    if (!DOOR_CONFIG[doorId]) return;
+    
+    const config = DOOR_CONFIG[doorId];
+    const boothTemplate = document.querySelector('.bank-booth-template');
+    
+    if (!boothTemplate) return;
+    
+    // Remove both open and closed classes
+    boothTemplate.classList.remove(config.magContactClasses.open);
+    boothTemplate.classList.remove(config.magContactClasses.closed);
+    
+    // Add the appropriate class based on state
+    const stateClass = state === 'open' ? config.magContactClasses.open : config.magContactClasses.closed;
+    boothTemplate.classList.add(stateClass);
+    
+    console.log(`[${config.name}] MagContact state updated: ${state.toUpperCase()} | Class: ${stateClass}`);
+}
+
+/**
+ * Update the lock icon (padlock image) for a door
+ * Shows unlocked icon if locked=false (digitalWrite(DOORxG, HIGH))
+ * Shows locked icon if locked=true (digitalWrite(DOORxR, HIGH))
+ * @param {number} doorId - Door ID
+ * @param {boolean} locked - true = locked (red), false = unlocked (green)
+ */
+function updateDoorLockIcon(doorId, locked) {
+    if (!DOOR_CONFIG[doorId]) return;
+    
+    const config = DOOR_CONFIG[doorId];
+    const lockIcon = document.querySelector(config.lockIconSelector);
+    
+    if (!lockIcon) {
+        console.warn(`Lock icon not found for ${config.name} (selector: ${config.lockIconSelector})`);
+        return;
+    }
+    
+    // Update image src and alt text based on locked state
+    const imageSrc = locked ? 'locked-padlock.png' : 'unlocked-padlock.png';
+    const altText = locked ? `${config.name} - Locked` : `${config.name} - Unlocked`;
+    
+    lockIcon.src = imageSrc;
+    lockIcon.alt = altText;
+    
+    // Add visual feedback class
+    lockIcon.classList.remove('unlocked', 'locked');
+    lockIcon.classList.add(locked ? 'locked' : 'unlocked');
+    
+    console.log(`[${config.name}] Lock icon updated: ${locked ? 'LOCKED' : 'UNLOCKED'} | Icon: ${imageSrc}`);
+}
+
+/**
+ * Update UI for a specific door based on its complete state
+ * Handles both MagContact state and lock status
+ * @param {number} doorId - Door ID
+ * @param {object} doorData - Door data from API
+ */
+function updateDoorUI(doorId, doorData) {
+    if (!doorData) return;
+    
+    const config = DOOR_CONFIG[doorId];
+    if (!config) {
+        console.warn(`Door configuration not found for door ID: ${doorId}`);
+        return;
+    }
+    
+    // Update MagContact state visualization (open/closed door indicators)
+    updateDoorMagContactUI(doorId, doorData.state);
+    
+    // Update lock icon visualization (locked/unlocked padlock)
+    updateDoorLockIcon(doorId, doorData.locked);
+}
+
+/**
+ * Initialize all door UI elements with current states
+ */
+function initializeDoorStates() {
+    Object.keys(currentDoorStates).forEach(doorId => {
+        const doorId_num = parseInt(doorId);
+        const doorState = currentDoorStates[doorId_num];
+        
+        if (DOOR_CONFIG[doorId_num]) {
+            updateDoorMagContactUI(doorId_num, doorState.state);
+            updateDoorLockIcon(doorId_num, doorState.locked);
+        }
+    });
+    
+    console.log('[Monitor] Door states initialized');
+}
+
 // Initialize API polling when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    initializeDoorStates();
     initializeApiPolling();
 });
 
@@ -118,32 +271,23 @@ function updateDoorStatesFromAPI(data) {
             locked: door.locked
         };
         
-        // Update UI elements
+        // Update UI elements (both MagContact and lock icon)
         updateDoorUI(doorId, door);
         
         // Log state changes
         if (previousState && previousState.state !== door.state) {
             logDoorStateChange(door.name, door.state);
-            window.API.addLogEntry(door.name, 'STATE_CHANGE', door.state);
+            if (typeof window.API !== 'undefined') {
+                window.API.addLogEntry(door.name, 'STATE_CHANGE', door.state);
+            }
+        }
+        
+        // Log lock status changes
+        if (previousState && previousState.locked !== door.locked) {
+            const lockStatus = door.locked ? 'LOCKED' : 'UNLOCKED';
+            logDoorStateChange(door.name, `Lock: ${lockStatus}`);
         }
     });
-}
-
-/**
- * Update a specific door's UI elements
- * @param {number} doorId - Door ID
- * @param {object} door - Door data
- */
-function updateDoorUI(doorId, door) {
-    // Update door state indicators based on your HTML structure
-    // This depends on your specific HTML elements - adjust as needed
-    
-    const stateClass = door.state === 'open' ? 'door-open' : 'door-closed';
-    const lockClass = door.locked ? 'door-locked' : 'door-unlocked';
-    
-    // Example: Update door visual elements if they exist
-    // You'll need to match these selectors to your actual HTML
-    console.log(`[Door ${doorId}] State: ${door.state}, Locked: ${door.locked}`);
 }
 
 /**
