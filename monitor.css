@@ -228,8 +228,8 @@ body {
 
 .outside-door-lock-icons {
     position: absolute;
-    top: 140px;
-    left: calc(4.5% + 60px);
+    top: 125px;
+    left: 120px;
     width: 500px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -242,13 +242,13 @@ body {
 
 .inside-door-lock-icons {
     position: absolute;
-    top: 710px;
-    left: calc(4.5% + 60px);
+    top: 690px;
+    left: 120px;
     width: 500px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     gap: 40px;
-    align-items: center;
+    align-items: top;
     justify-items: center;
     font-size: small; 
     color: rgba(103, 103, 237, 0.918);
