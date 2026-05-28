@@ -93,32 +93,43 @@
                         <div class="setup-header">
                             <h3>1. On Weapon Detection</h3>
                         </div>
-                        <div class="door-grid">
-                            <div class="door-setup-box">
-                                <div class="door-label">ENT.D1</div>
-                                <button class="door-action-btn locked" data-door="1" data-type="weapon" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                        <form class="mode-selection">
+                            <div class="mode-option">
+                                <input type="radio" name="weapon-mode" id="weapon-evacuate" value="evacuate" onchange="updateAiMode('weapon', 'evacuate')">
+                                <label for="weapon-evacuate" class="mode-label">
+                                    <span class="mode-name">Evacuate</span>
+                                    <span class="mode-desc">Unlock All</span>
+                                </label>
                             </div>
-                            <div class="door-setup-box">
-                                <div class="door-label">ENT.D2</div>
-                                <button class="door-action-btn locked" data-door="2" data-type="weapon" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                            <div class="mode-option">
+                                <input type="radio" name="weapon-mode" id="weapon-normal" value="normal" onchange="updateAiMode('weapon', 'normal')">
+                                <label for="weapon-normal" class="mode-label">
+                                    <span class="mode-name">Normal-Traffic</span>
+                                    <span class="mode-desc">Allow Entrance & Exit</span>
+                                </label>
                             </div>
-                            <div class="door-setup-box">
-                                <div class="door-label">EXT.D3</div>
-                                <button class="door-action-btn locked" data-door="3" data-type="weapon" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                            <div class="mode-option">
+                                <input type="radio" name="weapon-mode" id="weapon-exit" value="exit" onchange="updateAiMode('weapon', 'exit')">
+                                <label for="weapon-exit" class="mode-label">
+                                    <span class="mode-name">Exit-Only</span>
+                                    <span class="mode-desc">Block Entrance</span>
+                                </label>
                             </div>
-                            <div class="door-setup-box">
-                                <div class="door-label">EXT.D4</div>
-                                <button class="door-action-btn locked" data-door="4" data-type="weapon" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                            <div class="mode-option">
+                                <input type="radio" name="weapon-mode" id="weapon-entrance" value="entrance" onchange="updateAiMode('weapon', 'entrance')">
+                                <label for="weapon-entrance" class="mode-label">
+                                    <span class="mode-name">Entrance-Only</span>
+                                    <span class="mode-desc">Block Exit</span>
+                                </label>
                             </div>
-                        </div>
+                            <div class="mode-option">
+                                <input type="radio" name="weapon-mode" id="weapon-lock" value="lock" checked onchange="updateAiMode('weapon', 'lock')">
+                                <label for="weapon-lock" class="mode-label">
+                                    <span class="mode-name">Lock-All</span>
+                                    <span class="mode-desc">Lock All Doors</span>
+                                </label>
+                            </div>
+                        </form>
                     </div>
 
                     <!-- On Masked Face Card -->
@@ -126,32 +137,43 @@
                         <div class="setup-header">
                             <h3>2. On Masked Face</h3>
                         </div>
-                        <div class="door-grid">
-                            <div class="door-setup-box">
-                                <div class="door-label">ENT.D1</div>
-                                <button class="door-action-btn locked" data-door="1" data-type="masked" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                        <form class="mode-selection">
+                            <div class="mode-option">
+                                <input type="radio" name="masked-mode" id="masked-evacuate" value="evacuate" onchange="updateAiMode('masked', 'evacuate')">
+                                <label for="masked-evacuate" class="mode-label">
+                                    <span class="mode-name">Evacuate</span>
+                                    <span class="mode-desc">Unlock All</span>
+                                </label>
                             </div>
-                            <div class="door-setup-box">
-                                <div class="door-label">ENT.D2</div>
-                                <button class="door-action-btn locked" data-door="2" data-type="masked" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                            <div class="mode-option">
+                                <input type="radio" name="masked-mode" id="masked-normal" value="normal" onchange="updateAiMode('masked', 'normal')">
+                                <label for="masked-normal" class="mode-label">
+                                    <span class="mode-name">Normal-Traffic</span>
+                                    <span class="mode-desc">Allow Entrance & Exit</span>
+                                </label>
                             </div>
-                            <div class="door-setup-box">
-                                <div class="door-label">EXT.D3</div>
-                                <button class="door-action-btn locked" data-door="3" data-type="masked" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                            <div class="mode-option">
+                                <input type="radio" name="masked-mode" id="masked-exit" value="exit" onchange="updateAiMode('masked', 'exit')">
+                                <label for="masked-exit" class="mode-label">
+                                    <span class="mode-name">Exit-Only</span>
+                                    <span class="mode-desc">Block Entrance</span>
+                                </label>
                             </div>
-                            <div class="door-setup-box">
-                                <div class="door-label">EXT.D4</div>
-                                <button class="door-action-btn locked" data-door="4" data-type="masked" onclick="toggleDoorAction(this)">
-                                    <span class="btn-text">LOCKED</span>
-                                </button>
+                            <div class="mode-option">
+                                <input type="radio" name="masked-mode" id="masked-entrance" value="entrance" onchange="updateAiMode('masked', 'entrance')">
+                                <label for="masked-entrance" class="mode-label">
+                                    <span class="mode-name">Entrance-Only</span>
+                                    <span class="mode-desc">Block Exit</span>
+                                </label>
                             </div>
-                        </div>
+                            <div class="mode-option">
+                                <input type="radio" name="masked-mode" id="masked-lock" value="lock" checked onchange="updateAiMode('masked', 'lock')">
+                                <label for="masked-lock" class="mode-label">
+                                    <span class="mode-name">Lock-All</span>
+                                    <span class="mode-desc">Lock All Doors</span>
+                                </label>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

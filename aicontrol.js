@@ -130,53 +130,41 @@ let aiConfig = {
         weaponDetection: false,
         aiDoorControl: false
     },
-    doorActions: {
-        weapon: { 1: 'locked', 2: 'locked', 3: 'locked', 4: 'locked' },
-        masked: { 1: 'locked', 2: 'locked', 3: 'locked', 4: 'locked' }
+    operationModes: {
+        weapon: 'lock',
+        masked: 'lock'
     }
 };
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize button states from current HTML classes
-    initializeDoorButtonStates();
+    // Initialize radio button states from current config
+    initializeModeSelections();
     initializeApiPolling();
     pollAiLogs();
     setInterval(pollAiLogs, 5000);
 });
 
 /**
- * Initialize door button states from HTML classes
- * This ensures buttons work even without API
+ * Initialize mode selections from current state
+ * This ensures radio buttons work even without API
  */
-function initializeDoorButtonStates() {
-    const buttons = document.querySelectorAll('.door-action-btn');
-    buttons.forEach(button => {
-        const door = button.getAttribute('data-door');
-        const type = button.getAttribute('data-type');
-        
-        // Determine current state from class
-        if (button.classList.contains('locked')) {
-            if (type === 'weapon') {
-                aiConfig.doorActions.weapon[door] = 'locked';
-            } else if (type === 'masked') {
-                aiConfig.doorActions.masked[door] = 'locked';
-            }
-        } else if (button.classList.contains('open')) {
-            if (type === 'weapon') {
-                aiConfig.doorActions.weapon[door] = 'open';
-            } else if (type === 'masked') {
-                aiConfig.doorActions.masked[door] = 'open';
-            }
-        } else if (button.classList.contains('auto')) {
-            if (type === 'weapon') {
-                aiConfig.doorActions.weapon[door] = 'auto';
-            } else if (type === 'masked') {
-                aiConfig.doorActions.masked[door] = 'auto';
-            }
-        }
-    });
-    console.log('[AI Control] Door button states initialized:', aiConfig.doorActions);
+function initializeModeSelections() {
+    // Set weapon mode
+    const weaponMode = aiConfig.operationModes.weapon || 'lock';
+    const weaponRadio = document.getElementById(`weapon-${weaponMode}`);
+    if (weaponRadio) {
+        weaponRadio.checked = true;
+    }
+    
+    // Set masked mode
+    const maskedMode = aiConfig.operationModes.masked || 'lock';
+    const maskedRadio = document.getElementById(`masked-${maskedMode}`);
+    if (maskedRadio) {
+        maskedRadio.checked = true;
+    }
+    
+    console.log('[AI Control] Mode selections initialized:', aiConfig.operationModes);
 }
 
 // ============================================
@@ -213,10 +201,10 @@ function updateAiConfigFromAPI(data) {
     updateAiToggle('weaponToggle', null, data.aiSystem.weaponDetection);
     updateAiToggle('aiDoorControlToggle', null, data.aiSystem.aiDoorControl);
     
-    // Update door action buttons
-    if (data.doorActions) {
-        updateDoorActionButtons('weapon', data.doorActions.weapon);
-        updateDoorActionButtons('masked', data.doorActions.masked);
+    // Update operation mode selections
+    if (data.operationModes) {
+        updateModeSelection('weapon', data.operationModes.weapon);
+        updateModeSelection('masked', data.operationModes.masked);
     }
     
     // Log config changes
@@ -253,31 +241,18 @@ function updateAiToggle(toggleId, statusId, isEnabled) {
 }
 
 /**
- * Update door action buttons based on API data
+ * Update mode selection based on API data
  * @param {string} type - 'weapon' or 'masked'
- * @param {object} actions - Door actions object
+ * @param {string} mode - Operation mode ('evacuate', 'normal', 'exit', 'entrance', 'lock')
  */
-function updateDoorActionButtons(type, actions) {
-    if (!actions) return;
+function updateModeSelection(type, mode) {
+    if (!mode) return;
     
-    Object.keys(actions).forEach(doorId => {
-        const button = document.querySelector(`.door-action-btn[data-door="${doorId}"][data-type="${type}"]`);
-        if (button) {
-            const action = actions[doorId];
-            const btnText = button.querySelector('.btn-text');
-            
-            button.classList.remove('locked', 'open', 'auto');
-            button.classList.add(action);
-            
-            if (action === 'locked') {
-                btnText.textContent = 'LOCKED';
-            } else if (action === 'open') {
-                btnText.textContent = 'OPEN';
-            } else {
-                btnText.textContent = 'AUTO';
-            }
-        }
-    });
+    const radio = document.getElementById(`${type}-${mode}`);
+    if (radio && !radio.checked) {
+        radio.checked = true;
+        console.log(`[AI Control] ${type} mode updated to: ${mode}`);
+    }
 }
 
 // ============================================
@@ -384,57 +359,30 @@ function toggleAiDoorControl() {
     }
 }
 
-// ============================================
-// Door Action Functions
-// ============================================
-
-// Toggle door action between locked (red), open (green), auto (blue)
-function toggleDoorAction(button) {
-    const door = button.getAttribute('data-door');
-    const type = button.getAttribute('data-type');
-    const btnText = button.querySelector('.btn-text');
-    
-    // Get current action based on type
-    let currentAction;
+/**
+ * Update AI operation mode based on user selection
+ * @param {string} type - 'weapon' or 'masked'
+ * @param {string} mode - Operation mode ('evacuate', 'normal', 'exit', 'entrance', 'lock')
+ */
+function updateAiMode(type, mode) {
     if (type === 'weapon') {
-        currentAction = aiConfig.doorActions.weapon[door];
+        aiConfig.operationModes.weapon = mode;
     } else if (type === 'masked') {
-        currentAction = aiConfig.doorActions.masked[door];
+        aiConfig.operationModes.masked = mode;
     }
     
-    // Cycle through: locked -> open -> auto -> locked
-    let nextAction;
-    if (currentAction === 'locked') {
-        nextAction = 'open';
-    } else if (currentAction === 'open') {
-        nextAction = 'auto';
-    } else {
-        nextAction = 'locked';
-    }
+    const modeNames = {
+        'evacuate': 'Evacuate',
+        'normal': 'Normal-Traffic',
+        'exit': 'Exit-Only',
+        'entrance': 'Entrance-Only',
+        'lock': 'Lock-All'
+    };
     
-    // Update the config
-    if (type === 'weapon') {
-        aiConfig.doorActions.weapon[door] = nextAction;
-    } else if (type === 'masked') {
-        aiConfig.doorActions.masked[door] = nextAction;
-    }
-    
-    // Update button appearance
-    button.classList.remove('locked', 'open', 'auto');
-    button.classList.add(nextAction);
-    
-    if (nextAction === 'locked') {
-        btnText.textContent = 'LOCKED';
-    } else if (nextAction === 'open') {
-        btnText.textContent = 'OPEN';
-    } else {
-        btnText.textContent = 'AUTO';
-    }
-    
-    console.log(`Door ${door} (${type}): ${nextAction}`);
+    console.log(`AI ${type} detection mode set to: ${modeNames[mode]}`);
     
     if (typeof window.API !== 'undefined') {
-        window.API.addLogEntry(`Door ${door} (${type})`, 'ACTION', nextAction);
+        window.API.addLogEntry(`AI ${type} Detection`, 'MODE_SET', modeNames[mode]);
     }
 }
 }
