@@ -54,14 +54,11 @@ function pollESP32MonitoringLogs() {
         });
 }
 // Live CCTV image refresh
-const imgElement = document.querySelector('.live-view-template');
-
 function refreshImage() {
-    const imgElement = document.querySelector('.live-view-template');
+    const imgElement = document.querySelector('.live-image-container');
     if (imgElement) {
-        const baseUrl = imgElement.src;
         const timestamp = new Date().getTime();
-        imgElement.src = `${baseUrl}?t=${timestamp}`;
+        imgElement.src = `/stream?t=${timestamp}`;
     }
 }
 

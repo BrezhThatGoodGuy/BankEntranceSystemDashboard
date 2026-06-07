@@ -182,14 +182,50 @@
             <div class="ai-right-column">
                 <div class="feed-card">
                     <div class="feed-header">
-                        <h3>ESP32-CAM Live Feed</h3>
-                        <span class="feed-status">Connected</span>
+                        <h3>ESP32-CAM Live Feed + AI Inference</h3>
+                        <span class="feed-status" id="feedStatus">Connecting...</span>
                     </div>
-                    <div class="feed-view">
-                        <img id="esp32Feed" alt="ESP32 Camera Feed" src="/third.png">
+                    <div class="feed-view" id="feedContainer" style="position: relative; width: 100%; max-width: 500px; margin: 0 auto;">
+                        <img id="esp32Feed" alt="ESP32 Camera Feed" src="" style="width: 100%; display: block; border-radius: 4px;">
+                        <canvas id="inferenceCanvas" style="position: absolute; top: 0; left: 0; width: 100%; cursor: crosshair; display: none; border-radius: 4px;"></canvas>
                     </div>
-                    <div class="feed-info">
-                        <span>Source: /stream</span>
+                    
+                    <!-- Inference Results Section -->
+                    <div class="inference-results" style="margin-top: 15px; padding: 15px; background-color: #f5f5f5; border-radius: 4px; border-left: 4px solid #4fc1ff;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin: 0;">Inference Results</h4>
+                            <span id="inferenceTime" style="font-size: 12px; color: #666;">--ms</span>
+                        </div>
+                        
+                        <div id="inferenceContent" style="font-size: 13px;">
+                            <div style="color: #999; padding: 10px; text-align: center;">Waiting for inference...</div>
+                        </div>
+                        
+                        <!-- Classification Results -->
+                        <div id="classificationResults" style="display: none; margin-top: 10px;">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">Classification:</div>
+                            <div id="topLabel" style="padding: 8px; background-color: #e8f5e9; border-radius: 3px; margin-bottom: 5px;">
+                                <span style="font-weight: bold;" id="labelName">--</span>
+                                <span id="labelConfidence" style="float: right; color: #2e7d32; font-weight: bold;">0%</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Object Detection Results -->
+                        <div id="detectionResults" style="display: none; margin-top: 10px;">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">Detections:</div>
+                            <div id="detectionList" style="max-height: 150px; overflow-y: auto;"></div>
+                        </div>
+                        
+                        <!-- Timing Info -->
+                        <div id="timingInfo" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 11px; color: #666;">
+                            <div>DSP: <span id="dspTime">--</span>ms</div>
+                            <div>Classification: <span id="classTime">--</span>ms</div>
+                            <div>Total: <span id="totalTime">--</span>ms</div>
+                        </div>
+                    </div>
+                    
+                    <div class="feed-info" style="margin-top: 10px;">
+                        <span>Source: /stream | Inference: /api/inference</span>
                     </div>
                 </div>
             </div>
@@ -199,6 +235,7 @@
 <script src="js/api-client.js"></script>
 <script src="js/bankSystem.js"></script>
 <script src="aicontrol.js"></script>
+<script src="aicontrol-inference.js"></script>
 <script src="script.js"></script>
 <script src="logout.js"></script>
 

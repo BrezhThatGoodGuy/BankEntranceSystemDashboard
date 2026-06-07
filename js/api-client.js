@@ -6,7 +6,8 @@
  */
 
 // Import endpoints (inline for browser compatibility)
-const API_BASE = 'api';
+// Using absolute paths (starting with /) ensures they work regardless of ESP32 IP address
+const API_BASE = '/api';
 
 const Endpoints = {
     DOORS: `${API_BASE}/doors.json`,

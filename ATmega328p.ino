@@ -1,4 +1,4 @@
-﻿/*
+/*
 ====================================================================
  ATmega328P Dual Interlocking Door Controller
  Bidirectional UART + Operational Modes Switch

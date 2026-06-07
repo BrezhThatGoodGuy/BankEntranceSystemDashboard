@@ -353,3 +353,130 @@ input:checked + .slider:before {
         max-width: 100%;
     }
 }
+
+/* ===== Inference Display Styles ===== */
+.inference-results {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(79, 193, 255, 0.05) 100%);
+    border-left: 4px solid #4fc1ff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.inference-results h4 {
+    margin: 0;
+    color: #4fc1ff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+#inferenceContent {
+    color: #b0b0b0;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+}
+
+#classificationResults {
+    animation: slideIn 0.3s ease-in-out;
+}
+
+#detectionResults {
+    animation: slideIn 0.3s ease-in-out;
+}
+
+#topLabel {
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(46, 125, 50, 0.05));
+    border-left: 3px solid #2ecc71;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #2ecc71;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+#detectionList {
+    max-height: 150px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#detectionList > div {
+    padding: 8px;
+    background: linear-gradient(135deg, rgba(25, 118, 210, 0.1), rgba(21, 101, 192, 0.05));
+    border-left: 3px solid #1976d2;
+    border-radius: 4px;
+    color: #b0b0b0;
+    font-size: 12px;
+    animation: slideIn 0.2s ease-in-out;
+}
+
+#timingInfo {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 142, 3, 0.2);
+    font-size: 12px;
+    color: #8fa1a8;
+}
+
+#timingInfo > div {
+    margin: 3px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+#inferenceTime {
+    font-size: 12px;
+    color: #707078;
+    background: rgba(79, 193, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Canvas overlay for bounding boxes */
+#inferenceCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 4px;
+    cursor: crosshair;
+    box-shadow: inset 0 0 10px rgba(79, 193, 255, 0.2);
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scrollbar styling for detection list */
+#detectionList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#detectionList::-webkit-scrollbar-track {
+    background: rgba(255, 142, 3, 0.1);
+    border-radius: 3px;
+}
+
+#detectionList::-webkit-scrollbar-thumb {
+    background: rgba(79, 193, 255, 0.4);
+    border-radius: 3px;
+}
+
+#detectionList::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 193, 255, 0.6);
+}
