@@ -15,7 +15,7 @@ class InferenceDisplay {
         this.feedStatus = document.getElementById('feedStatus');
         
         this.lastInferenceTime = 0;
-        this.streamRefreshRate = 100; // ms between frame updates
+        this.streamRefreshRate = 6000; // ms between frame updates
         this.inferencePollingRate = 500; // ms between inference polls
         this.lastStreamUpdate = 0;
         this.lastInferencePoll = 0;

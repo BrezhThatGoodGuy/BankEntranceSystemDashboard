@@ -189,7 +189,7 @@ body {
     overflow: hidden;
 }
 
-.live-view-template {
+.live-image-container {
     background: rgba(59, 55, 55, 0.675);
     height: 500px;
     width: 500px;
