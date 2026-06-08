@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDoorButtons();
     initializeModeButtons();
     initializeEvacuateButton();
+    initializeModeSyncListener();
     initializeApiPolling();
     // Initialize log refresh button
     initializeRefreshButton();
@@ -313,6 +314,31 @@ function setOperationMode(modeId) {
 // ============================================
 // API Integration for Real-time Updates
 // ============================================
+
+/**
+ * Initialize mode sync listener for other tabs/pages
+ */
+function initializeModeSyncListener() {
+    window.addEventListener('storage', function(event) {
+        if (!event.key || event.key !== 'modeSync') return;
+        if (!event.newValue) return;
+
+        try {
+            const data = JSON.parse(event.newValue);
+            if (data && data.mode) {
+                if (data.mode !== currentMode) {
+                    setOperationMode(data.mode);
+                    const radio = document.getElementById(data.mode);
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('[Control] Invalid mode sync data', e);
+        }
+    });
+}
 
 /**
  * Initialize API polling

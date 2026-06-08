@@ -3,6 +3,12 @@ if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     // Redirect to login page if not logged in
     window.location.href = 'login.html';
 } else {
+    const storedUsername = sessionStorage.getItem('username') || '';
+    const usernameInitial = storedUsername.trim().charAt(0).toUpperCase() || '';
+    const userNameElement = document.querySelector('.user-name');
+    if (userNameElement) {
+        userNameElement.textContent = usernameInitial;
+    }
 // filepath: monitor.js
 // Bank Entrance System - Monitor Page with API Integration
 // Real-time door state monitoring and activity logs
@@ -53,6 +59,42 @@ function pollESP32MonitoringLogs() {
             }
         });
 }
+
+function updateMonitorCountersFromStatus(data) {
+    if (!data) return;
+
+    const entriesElement = document.getElementById('total-entries');
+    const exitsElement = document.getElementById('total-exits');
+    const insideElement = document.getElementById('clients-inside');
+
+    if (entriesElement && typeof data.entries !== 'undefined') {
+        entriesElement.textContent = data.entries;
+    }
+    if (exitsElement && typeof data.exits !== 'undefined') {
+        exitsElement.textContent = data.exits;
+    }
+    if (insideElement && typeof data.inside !== 'undefined') {
+        insideElement.textContent = data.inside;
+    }
+}
+
+function pollESP32Status() {
+    const tryStatus = (url) => fetch(url, { cache: 'no-store' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Status fetch failed: ${response.status}`);
+            }
+            return response.json();
+        });
+
+    tryStatus('/api/status.json')
+        .catch(() => tryStatus('/status.json'))
+        .then(updateMonitorCountersFromStatus)
+        .catch((error) => {
+            console.warn('[Monitor] Status polling failed', error);
+        });
+}
+
 // Live CCTV image refresh
 function refreshImage() {
     const imgElement = document.querySelector('.live-image-container');
@@ -231,8 +273,53 @@ function initializeDoorStates() {
 // Initialize API polling when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     initializeDoorStates();
+    initializeMonitorEvacuateButton();
     initializeApiPolling();
 });
+
+function initializeMonitorEvacuateButton() {
+    const evacuateBtn = document.querySelector('.evacuate');
+    if (!evacuateBtn) return;
+
+    evacuateBtn.addEventListener('click', function() {
+        setMonitorOperationMode('evacuate');
+    });
+}
+
+function setMonitorOperationMode(modeId) {
+    const modeLabels = {
+        evacuate: 'Evacuation'
+    };
+    const modeLabel = modeLabels[modeId] || 'Evacuation';
+    const modeData = {
+        action: 'MODE_CHANGE',
+        mode: modeLabel,
+        time: new Date().toISOString()
+    };
+
+    fetch('/action', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(modeData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json().catch(() => ({}));
+    })
+    .then(data => {
+        console.log('[Monitor] Mode change sent:', data);
+    })
+    .catch(error => {
+        console.warn('[Monitor] Failed to send mode change', error);
+    });
+
+    // Notify other pages in the same origin (e.g. control page)
+    localStorage.setItem('modeSync', JSON.stringify({ mode: modeId, timestamp: Date.now() }));
+}
 
 /**
  * Initialize API polling for real-time updates
@@ -243,6 +330,8 @@ function initializeApiPolling() {
         window.API.startPolling('DOORS', updateDoorStatesFromAPI, 3000);
         pollESP32MonitoringLogs();
         setInterval(pollESP32MonitoringLogs, 3000);
+        pollESP32Status();
+        setInterval(pollESP32Status, 3000);
         console.log('[Monitor] API polling initialized');
     } else {
         console.warn('[Monitor] API client not loaded, using fallback mode');

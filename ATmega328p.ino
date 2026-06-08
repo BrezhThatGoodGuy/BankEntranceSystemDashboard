@@ -82,6 +82,21 @@ bool lastRedState[4] = {false, false, false, false};
 
 const char* doorNames[4] = {"ENT.D1", "ENT.D2", "EXT.D3", "EXT.D4"};
 
+// Counters for monitor display
+int totalEntries = 0;
+int totalExits = 0;
+int clientsInside = 0;
+
+void sendStatusUpdate() {
+  clientsInside = totalEntries - totalExits;
+  Serial.print("STATS:ENTRIES=");
+  Serial.print(totalEntries);
+  Serial.print(";EXITS=");
+  Serial.print(totalExits);
+  Serial.print(";INSIDE=");
+  Serial.println(clientsInside);
+}
+
 // ==================================================
 // LED UPDATE ROUTINE BASED ON OPERATIONAL MODE
 // ==================================================
@@ -294,9 +309,19 @@ void loop() {
   if (eventDoor1Open)  { Serial.println("DOOR_1_OPENED"); eventDoor1Open = false; }
   if (eventDoor1Close) { Serial.println("DOOR_1_CLOSED"); eventDoor1Close = false; }
   if (eventDoor2Open)  { Serial.println("DOOR_2_OPENED"); eventDoor2Open = false; }
-  if (eventDoor2Close) { Serial.println("DOOR_2_CLOSED"); eventDoor2Close = false; }
+  if (eventDoor2Close) {
+    totalEntries++;
+    Serial.println("DOOR_2_CLOSED");
+    sendStatusUpdate();
+    eventDoor2Close = false;
+  }
   if (eventDoor3Open)  { Serial.println("DOOR_3_OPENED"); eventDoor3Open = false; }
   if (eventDoor3Close) { Serial.println("DOOR_3_CLOSED"); eventDoor3Close = false; }
   if (eventDoor4Open)  { Serial.println("DOOR_4_OPENED"); eventDoor4Open = false; }
-  if (eventDoor4Close) { Serial.println("DOOR_4_CLOSED"); eventDoor4Close = false; }
+  if (eventDoor4Close) {
+    totalExits++;
+    Serial.println("DOOR_4_CLOSED");
+    sendStatusUpdate();
+    eventDoor4Close = false;
+  }
 }

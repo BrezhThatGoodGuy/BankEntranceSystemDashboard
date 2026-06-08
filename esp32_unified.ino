@@ -103,6 +103,10 @@ struct InferenceResult {
 InferenceResult last_result = {0};
 bool new_inference_available = false;
 
+int totalEntries = 0;
+int totalExits = 0;
+int clientsInside = 0;
+
 // ===== Camera Configuration Structure =====
 static camera_config_t camera_config = {
     .pin_pwdn = PWDN_GPIO_NUM,
@@ -174,6 +178,17 @@ String parseJsonString(const String &body, const String &key) {
     int end = body.indexOf('"', start + 1);
     if (end < 0) return String();
     return body.substring(start + 1, end);
+}
+
+String parseStatValue(const String &line, const String &key) {
+    int keyIndex = line.indexOf(key + "=");
+    if (keyIndex < 0) return String();
+    int start = keyIndex + key.length() + 1;
+    int end = line.indexOf(';', start);
+    if (end < 0) {
+        end = line.length();
+    }
+    return line.substring(start, end);
 }
 
 void saveLogFile(int idx) {
@@ -314,7 +329,39 @@ void processAtmegaLine(const String &line) {
             String message = "Door " + String(doorId) + " " + suffix;
             appendLogEntry(LOG_MONITORING, message);
         }
+    } else if (line.startsWith("STATS:")) {
+        String entriesValue = parseStatValue(line, "ENTRIES");
+        String exitsValue = parseStatValue(line, "EXITS");
+        String insideValue = parseStatValue(line, "INSIDE");
+
+        if (entriesValue.length() > 0) {
+            totalEntries = entriesValue.toInt();
+        }
+        if (exitsValue.length() > 0) {
+            totalExits = exitsValue.toInt();
+        }
+        if (insideValue.length() > 0) {
+            clientsInside = insideValue.toInt();
+        }
+
+        appendLogEntry(LOG_MONITORING, "Occupancy counts updated: Entries=" + String(totalEntries) + ", Exits=" + String(totalExits) + ", Inside=" + String(clientsInside));
     }
+}
+
+String buildStatusPayload() {
+    String payload = "{";
+    payload += "\"uptime\":\"" + formatTimestamp() + "\",";
+    payload += "\"camera_ready\":" + String(is_camera_initialised ? "true" : "false") + ",";
+    payload += "\"entries\":" + String(totalEntries) + ",";
+    payload += "\"exits\":" + String(totalExits) + ",";
+    payload += "\"inside\":" + String(clientsInside) + ",";
+    payload += "\"doors\":[";
+    for (int i = 0; i < 4; i++) {
+        if (i) payload += ",";
+        payload += "{\"id\":\"" + String(i + 1) + "\",\"name\":\"" + String(doorNames[i]) + "\"}";
+    }
+    payload += "]}";
+    return payload;
 }
 
 // ===== CAMERA FUNCTIONS =====
@@ -596,23 +643,18 @@ void setupWebServerEndpoints() {
     });
 
     server.on("/status.json", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
-        String payload = "{";
-        payload += "\"uptime\":\"" + formatTimestamp() + "\",";
-        payload += "\"camera_ready\":" + String(is_camera_initialised ? "true" : "false") + ",";
-        payload += "\"entries\":0,";
-        payload += "\"exits\":0,";
-        payload += "\"inside\":0,";
-        payload += "\"doors\":[";
-        for (int i = 0; i < 4; i++) {
-            if (i) payload += ",";
-            payload += "{\"id\":\"" + String(i + 1) + "\",\"name\":\"" + String(doorNames[i]) + "\"}";
-        }
-        payload += "]}";
-        request->send(200, "application/json", payload);
+        request->send(200, "application/json", buildStatusPayload());
     });
 
+    server.on("/api/status.json", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "application/json", buildStatusPayload());
+    });
+
+    // Serve static files from LittleFS; default to index.html for root requests
+    server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+
     server.onNotFound([](AsyncWebServerRequest *request) {
-        request->send(404, "text/plain", "404 Not Found");
+        request->send(404, "text/plain", "Hmmmmm Brezh! Chekai code dzenyu chief.");
     });
 }
 

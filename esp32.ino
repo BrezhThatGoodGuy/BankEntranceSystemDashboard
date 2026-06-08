@@ -275,7 +275,7 @@ void setup() {
     }
     Serial.println("\nWiFi Connected");
     loadAllLogFiles();
-    server.serveStatic("/", LittleFS, "/").setDefaultFile("monitor.html");
+    server.serveStatic("/", LittleFS, "/").setDefaultFile("login.html");
     server.on("/logs/monitoring.txt", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(LittleFS, "/monitoring.log", "text/plain");
     });
