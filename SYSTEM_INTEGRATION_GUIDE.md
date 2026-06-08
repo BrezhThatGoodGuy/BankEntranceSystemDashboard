@@ -241,9 +241,9 @@ Total Latency:     ~150-300ms per inference cycle
 ```
 
 ### Optimization Tips
-1. **Reduce Inference Frequency** - Change 2000ms to higher value in loop()
+1. **Reduce Inference Frequency** - Change 2000ms to 5000ms in loop()
    ```cpp
-   if (millis() - last_inference > 5000) {  // Run every 5 seconds
+   if (millis() - last_inference > 5000) {  // Run every 5 seconds (Recommended for thermal stability)
    ```
 
 2. **Adjust JPEG Quality** - Trade quality for speed

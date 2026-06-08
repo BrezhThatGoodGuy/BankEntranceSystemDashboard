@@ -15,10 +15,11 @@ class InferenceDisplay {
         this.feedStatus = document.getElementById('feedStatus');
         
         this.lastInferenceTime = 0;
-        this.streamRefreshRate = 6000; // ms between frame updates
-        this.inferencePollingRate = 500; // ms between inference polls
+        this.streamRefreshRate = Infinity; // Disable periodic stream updates
+        this.inferencePollingRate = 1000; // Poll for background results every 1s
         this.lastStreamUpdate = 0;
         this.lastInferencePoll = 0;
+        this.pendingInferenceData = null; // Buffer to draw boxes after img load
         
         this.init();
     }
@@ -28,6 +29,10 @@ class InferenceDisplay {
         this.feedImg.onload = () => {
             this.resizeCanvas();
             this.updateFeedStatus('Connected', true);
+            if (this.pendingInferenceData) {
+                this.drawBoundingBoxes(this.pendingInferenceData);
+                this.pendingInferenceData = null;
+            }
         };
         
         this.feedImg.onerror = () => {
@@ -36,9 +41,9 @@ class InferenceDisplay {
 
         // Start the update loop
         this.startUpdateLoop();
-        
-        // Set initial image source with cache busting
-        this.updateStreamFrame();
+
+        // Show initial placeholder
+        this.updatePlaceholder(true);
     }
 
     updateStreamFrame() {
@@ -59,13 +64,7 @@ class InferenceDisplay {
         setInterval(() => {
             const now = Date.now();
             
-            // Update stream frame at specified rate
-            if (now - this.lastStreamUpdate > this.streamRefreshRate) {
-                this.updateStreamFrame();
-                this.lastStreamUpdate = now;
-            }
-            
-            // Poll inference results at specified rate
+            // Poll inference results at specified rate regardless of stream
             if (now - this.lastInferencePoll > this.inferencePollingRate) {
                 this.pollInferenceResults();
                 this.lastInferencePoll = now;
@@ -74,11 +73,23 @@ class InferenceDisplay {
     }
 
     pollInferenceResults() {
+        // Respect the UI configuration states
+        const config = window.aiConfig;
+        const isAiEnabled = config && config.aiSystem && config.aiSystem.enabled;
+        const isDetectionActive = config && config.aiSystem && (config.aiSystem.maskedFaceDetection || config.aiSystem.weaponDetection);
+
+        if (!isAiEnabled || !isDetectionActive) {
+            this.updatePlaceholder(true, 'AI Threat Detection is Disabled');
+            this.feedImg.style.display = 'none';
+            this.canvas.style.display = 'none';
+            return;
+        }
+
         fetch('/api/inference')
             .then(response => response.json())
             .then(data => {
+                this.pendingInferenceData = data;
                 this.displayInferenceResults(data);
-                this.drawBoundingBoxes(data);
             })
             .catch(error => {
                 console.error('Error fetching inference results:', error);
@@ -96,9 +107,19 @@ class InferenceDisplay {
 
             // Check if we have bounding boxes (object detection)
             if (data.bounding_boxes && data.bounding_boxes.length > 0) {
+                this.updatePlaceholder(false);
+                this.feedImg.style.display = 'block';
+                this.canvas.style.display = 'block';
+                
+                // Trigger frame update only when detection occurs
+                this.updateStreamFrame();
                 this.displayObjectDetection(data);
             } else {
+                this.updatePlaceholder(true, 'No Threatful Situations have been detected');
+                this.feedImg.style.display = 'none';
+                this.canvas.style.display = 'none';
                 this.displayClassification(data);
+                this.pendingInferenceData = null;
             }
 
             this.lastInferenceTime = data.timestamp;
@@ -151,6 +172,27 @@ class InferenceDisplay {
             `;
             detectionList.appendChild(item);
         });
+    }
+
+    updatePlaceholder(show, text = 'No Threatful Situations have been detected') {
+        let placeholder = document.getElementById('aiPlaceholder');
+        if (!placeholder && this.feedContainer) {
+            placeholder = document.createElement('div');
+            placeholder.id = 'aiPlaceholder';
+            placeholder.style.cssText = `
+                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                display: flex; align-items: center; justify-content: center;
+                background-color: #05070a; color: #64748b; font-size: 24px;
+                text-align: center; padding: 40px; z-index: 5; font-weight: bold;
+                border: 2px dashed #1e293b; border-radius: 50px; box-sizing: border-box;
+            `;
+            this.feedContainer.appendChild(placeholder);
+            this.feedContainer.style.position = 'relative';
+        }
+        if (placeholder) {
+            placeholder.style.display = show ? 'flex' : 'none';
+            placeholder.textContent = text;
+        }
     }
 
     drawBoundingBoxes(data) {

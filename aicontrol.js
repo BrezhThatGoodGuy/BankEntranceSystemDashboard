@@ -122,8 +122,8 @@ function showNotification(message, type) {
 // ============================================
 // AI Configuration Storage
 // ============================================
-
-let aiConfig = {
+// Exposed globally for aicontrol-inference.js to monitor state
+window.aiConfig = {
     aiSystem: {
         enabled: false,
         maskedFaceDetection: false,
@@ -266,8 +266,8 @@ function initializeApiPolling() {
 function updateAiConfigFromAPI(data) {
     if (!data) return;
     
-    const previousConfig = JSON.stringify(aiConfig);
-    aiConfig = data;
+    const previousConfig = JSON.stringify(window.aiConfig);
+    window.aiConfig = data;
     
     // Update UI toggles if they differ from current state
     updateAiToggle('aiSystemToggle', 'aiSystemStatus', data.aiSystem.enabled);
@@ -282,7 +282,7 @@ function updateAiConfigFromAPI(data) {
     }
     
     // Log config changes
-    if (previousConfig !== JSON.stringify(aiConfig)) {
+    if (previousConfig !== JSON.stringify(window.aiConfig)) {
         console.log('[AI Config] Updated:', aiConfig);
         if (typeof window.API !== 'undefined') {
             window.API.addLogEntry('AI System', 'CONFIG_UPDATE', data.aiSystem.enabled ? 'ENABLED' : 'DISABLED');
@@ -340,7 +340,7 @@ function toggleAiSystem() {
     const configSection = document.querySelector('.ai-config-section');
     
     if (toggle) {
-        aiConfig.aiSystem.enabled = toggle.checked;
+        window.aiConfig.aiSystem.enabled = toggle.checked;
         
         if (toggle.checked) {
             if (status) {
@@ -376,7 +376,7 @@ function toggleMaskedFace() {
     const setupCard = document.getElementById('maskedFaceSetupCard');
     
     if (toggle) {
-        aiConfig.aiSystem.maskedFaceDetection = toggle.checked;
+        window.aiConfig.aiSystem.maskedFaceDetection = toggle.checked;
         
         if (setupCard) {
             if (toggle.checked) {
@@ -400,7 +400,7 @@ function toggleWeapon() {
     const setupCard = document.getElementById('weaponSetupCard');
     
     if (toggle) {
-        aiConfig.aiSystem.weaponDetection = toggle.checked;
+        window.aiConfig.aiSystem.weaponDetection = toggle.checked;
         
         if (setupCard) {
             if (toggle.checked) {
@@ -423,7 +423,7 @@ function toggleAiDoorControl() {
     const toggle = document.getElementById('aiDoorControlToggle');
     
     if (toggle) {
-        aiConfig.aiSystem.aiDoorControl = toggle.checked;
+        window.aiConfig.aiSystem.aiDoorControl = toggle.checked;
         
         console.log('AI Door Control:', toggle.checked ? 'ON' : 'OFF');
         
@@ -440,9 +440,9 @@ function toggleAiDoorControl() {
  */
 function updateAiMode(type, mode) {
     if (type === 'weapon') {
-        aiConfig.operationModes.weapon = mode;
+        window.aiConfig.operationModes.weapon = mode;
     } else if (type === 'masked') {
-        aiConfig.operationModes.masked = mode;
+        window.aiConfig.operationModes.masked = mode;
     }
     
     const modeNames = {
