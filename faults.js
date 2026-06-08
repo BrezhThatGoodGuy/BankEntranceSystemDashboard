@@ -106,6 +106,7 @@ let currentFaults = {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    initializeEvacuateButton();
     initializeApiPolling();
     loadFaultLogs();
 });
@@ -113,6 +114,121 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================
 // API Integration for Real-time Updates
 // ============================================
+
+const ACTION_ENDPOINT = '/action';
+const modeLabels = {
+    'evacuate': 'Evacuation',
+    'normal': 'Normal-Traffic',
+    'exit': 'Exit-Only',
+    'entrance': 'Entrance-Only',
+    'lock': 'Lock-All'
+};
+
+function initializeEvacuateButton() {
+    const evacuateBtn = document.querySelector('.evacuate');
+    if (evacuateBtn) {
+        evacuateBtn.addEventListener('click', function() {
+            setOperationMode('evacuate');
+        });
+    }
+}
+
+function setOperationMode(modeId) {
+    const modeLabel = modeLabels[modeId] || modeId;
+    
+    console.log('Operation mode changed to:', modeId, '(', modeLabel, ')');
+    
+    // Send mode change to ESP32 server
+    const modeData = {
+        action: 'MODE_CHANGE',
+        mode: modeLabel,
+        time: new Date().toISOString()
+    };
+    
+    sendModeAction(modeData);
+    
+    // Update API (for future backend integration)
+    if (typeof window.API !== 'undefined') {
+        window.API.addLogEntry('System', 'MODE_CHANGE', modeLabel);
+    }
+    
+    // Sync with other pages (e.g. control page)
+    localStorage.setItem('modeSync', JSON.stringify({ mode: modeId, timestamp: Date.now() }));
+}
+
+function sendModeAction(modeData) {
+    fetch(ACTION_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(modeData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json().catch(() => ({}));
+    })
+    .then(data => {
+        console.log('[Mode Change] Server response:', data);
+        if (data.status === 'ok' || data.status === 'logged') {
+            showNotification(`Mode change sent: ${modeData.mode}`, 'success');
+        } else {
+            showNotification(`Mode change request returned: ${data.status}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.log('[Mode Change] ESP32 not available, mode change logged locally only', error);
+        showNotification('Mode change could not be sent to ESP32', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `toast-notification toast-${type || 'info'}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${type === 'success' ? 'rgba(46, 204, 113, 0.9)' : type === 'error' ? 'rgba(231, 76, 60, 0.9)' : 'rgba(52, 152, 219, 0.9)'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+    `;
+    
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
 
 /**
  * Initialize API polling for fault status

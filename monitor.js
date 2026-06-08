@@ -38,14 +38,14 @@ function hideSideNavigationBar(){
 }
 
 function showSideNavigationBar(){
-    const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
+    const shownsidebar = '<div class = "shown-side-navigation-bar"><div onclick="openPrintLogsDialog()"><p>Print Info</p>  <svg class="print-icon" aria-label="Open print log selector" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
     const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
 function pollESP32MonitoringLogs() {
-    fetch(`/log?type=monitoring`)
+    fetch(`/log?type=monitoring`, { cache: 'no-store' })
         .then(response => {
             if (!response.ok) {
                 throw new Error('ESP32 log fetch failed');
@@ -63,10 +63,14 @@ function pollESP32MonitoringLogs() {
 function updateMonitorCountersFromStatus(data) {
     if (!data) return;
 
+    const uptimeElement = document.getElementById('system-uptime');
     const entriesElement = document.getElementById('total-entries');
     const exitsElement = document.getElementById('total-exits');
     const insideElement = document.getElementById('clients-inside');
 
+    if (uptimeElement && typeof data.uptime !== 'undefined') {
+        uptimeElement.textContent = normalizeTimestamp(data.uptime);
+    }
     if (entriesElement && typeof data.entries !== 'undefined') {
         entriesElement.textContent = data.entries;
     }
@@ -75,6 +79,10 @@ function updateMonitorCountersFromStatus(data) {
     }
     if (insideElement && typeof data.inside !== 'undefined') {
         insideElement.textContent = data.inside;
+    }
+
+    if (Array.isArray(data.doors)) {
+        updateDoorStatesFromAPI(data, { logChanges: false });
     }
 }
 
@@ -170,6 +178,91 @@ let currentDoorStates = {
     4: { state: 'closed', locked: true }
 };
 
+let monitorEventSource = null;
+let fallbackPollingStarted = false;
+
+function setAttributes(element, attributes) {
+    if (!element || !attributes) return;
+    Object.entries(attributes).forEach(([key, value]) => {
+        if (value === null || typeof value === 'undefined') {
+            element.removeAttribute(key);
+        } else {
+            element.setAttribute(key, String(value));
+        }
+    });
+}
+
+function normalizeDoorState(state) {
+    const value = String(state || '').trim().toLowerCase();
+    if (value === 'open' || value === 'opened') return 'opened';
+    if (value === 'close' || value === 'closed') return 'closed';
+    return value;
+}
+
+function normalizeTimestamp(value) {
+    if (value === null || typeof value === 'undefined' || value === '') {
+        return new Date().toLocaleTimeString([], { hour12: false });
+    }
+
+    const raw = String(value).trim();
+    if (/^\d{1,6}:\d{2}:\d{2}$/.test(raw)) return raw;
+
+    const parsed = new Date(raw);
+    if (!Number.isNaN(parsed.getTime())) {
+        return parsed.toLocaleTimeString([], { hour12: false });
+    }
+
+    const timeMatch = raw.match(/(\d{1,6}:\d{2}:\d{2})/);
+    if (timeMatch) return timeMatch[1];
+
+    return new Date().toLocaleTimeString([], { hour12: false });
+}
+
+function escapeHTML(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function parseDoorEvent(input) {
+    if (!input) return null;
+
+    if (typeof input === 'object') {
+        const doorId = Number(input.doorId ?? input.id ?? input.door);
+        const state = normalizeDoorState(input.state ?? input.status ?? input.action);
+        if (doorId >= 1 && doorId <= 4 && (state === 'opened' || state === 'closed')) {
+            return {
+                doorId,
+                state,
+                locked: typeof input.locked === 'boolean' ? input.locked : currentDoorStates[doorId]?.locked,
+                timestamp: input.timestamp || input.time,
+                message: input.message || `Door ${doorId} ${state}`,
+                raw: input.raw || input.message || ''
+            };
+        }
+    }
+
+    const text = typeof input === 'string' ? input : (input.message || JSON.stringify(input));
+    const match = text.match(/door\s*_?\s*(\d)\s*(?:_|\s|-)*(opened|open|closed|close)/i);
+    if (!match) return null;
+
+    const doorId = Number(match[1]);
+    const state = normalizeDoorState(match[2]);
+    if (doorId < 1 || doorId > 4 || (state !== 'opened' && state !== 'closed')) return null;
+
+    return {
+        doorId,
+        state,
+        locked: currentDoorStates[doorId]?.locked,
+        timestamp: input.timestamp || input.time,
+        message: `Door ${doorId} ${state}`,
+        raw: text
+    };
+}
+
 // ============================================
 // Door State Visualization Functions
 // ============================================
@@ -185,18 +278,44 @@ function updateDoorMagContactUI(doorId, state) {
     
     const config = DOOR_CONFIG[doorId];
     const boothTemplate = document.querySelector('.bank-booth-template');
+    const normalizedState = normalizeDoorState(state);
     
     if (!boothTemplate) return;
     
-    // Remove both open and closed classes
+    const openedElement = boothTemplate.querySelector(`.${config.magContactClasses.open}`);
+    const closedElement = boothTemplate.querySelector(`.${config.magContactClasses.closed}`);
+    const isOpen = normalizedState === 'opened';
+
+    // Remove both open and closed state classes for this door, then add the current one.
     boothTemplate.classList.remove(config.magContactClasses.open);
     boothTemplate.classList.remove(config.magContactClasses.closed);
-    
-    // Add the appropriate class based on state
-    const stateClass = state === 'open' ? config.magContactClasses.open : config.magContactClasses.closed;
+    const stateClass = isOpen ? config.magContactClasses.open : config.magContactClasses.closed;
     boothTemplate.classList.add(stateClass);
+
+    // The visual bars are child elements, so update their attributes/styles directly too.
+    if (openedElement) {
+        openedElement.style.display = isOpen ? 'block' : 'none';
+        setAttributes(openedElement, {
+            'aria-hidden': isOpen ? 'false' : 'true',
+            'data-door-id': doorId,
+            'data-door-state': isOpen ? 'active' : 'inactive'
+        });
+    }
+    if (closedElement) {
+        closedElement.style.display = isOpen ? 'none' : 'block';
+        setAttributes(closedElement, {
+            'aria-hidden': isOpen ? 'true' : 'false',
+            'data-door-id': doorId,
+            'data-door-state': isOpen ? 'inactive' : 'active'
+        });
+    }
+
+    setAttributes(boothTemplate, {
+        [`data-door-${doorId}-state`]: normalizedState,
+        'data-last-door-update': Date.now()
+    });
     
-    console.log(`[${config.name}] MagContact state updated: ${state.toUpperCase()} | Class: ${stateClass}`);
+    console.log(`[${config.name}] MagContact state updated: ${normalizedState.toUpperCase()} | Class: ${stateClass}`);
 }
 
 /**
@@ -247,10 +366,14 @@ function updateDoorUI(doorId, doorData) {
     }
     
     // Update MagContact state visualization (open/closed door indicators)
-    updateDoorMagContactUI(doorId, doorData.state);
+    if (typeof doorData.state !== 'undefined') {
+        updateDoorMagContactUI(doorId, doorData.state);
+    }
     
     // Update lock icon visualization (locked/unlocked padlock)
-    updateDoorLockIcon(doorId, doorData.locked);
+    if (typeof doorData.locked !== 'undefined') {
+        updateDoorLockIcon(doorId, doorData.locked);
+    }
 }
 
 /**
@@ -270,34 +393,102 @@ function initializeDoorStates() {
     console.log('[Monitor] Door states initialized');
 }
 
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `toast-notification toast-${type || 'info'}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${type === 'success' ? 'rgba(46, 204, 113, 0.9)' : type === 'error' ? 'rgba(231, 76, 60, 0.9)' : 'rgba(52, 152, 219, 0.9)'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+    `;
+    
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
 // Initialize API polling when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     initializeDoorStates();
-    initializeMonitorEvacuateButton();
+    initializeEvacuateButton();
     initializeApiPolling();
 });
 
-function initializeMonitorEvacuateButton() {
-    const evacuateBtn = document.querySelector('.evacuate');
-    if (!evacuateBtn) return;
+const ACTION_ENDPOINT = '/action';
+const modeLabels = {
+    'evacuate': 'Evacuation',
+    'normal': 'Normal-Traffic',
+    'exit': 'Exit-Only',
+    'entrance': 'Entrance-Only',
+    'lock': 'Lock-All'
+};
 
-    evacuateBtn.addEventListener('click', function() {
-        setMonitorOperationMode('evacuate');
-    });
+function initializeEvacuateButton() {
+    const evacuateBtn = document.querySelector('.evacuate');
+    if (evacuateBtn) {
+        evacuateBtn.addEventListener('click', function() {
+            setOperationMode('evacuate');
+        });
+    }
 }
 
-function setMonitorOperationMode(modeId) {
-    const modeLabels = {
-        evacuate: 'Evacuation'
-    };
-    const modeLabel = modeLabels[modeId] || 'Evacuation';
+function setOperationMode(modeId) {
+    const modeLabel = modeLabels[modeId] || modeId;
+    
+    console.log('Operation mode changed to:', modeId, '(', modeLabel, ')');
+    
+    // Send mode change to ESP32 server
     const modeData = {
         action: 'MODE_CHANGE',
         mode: modeLabel,
         time: new Date().toISOString()
     };
+    
+    sendModeAction(modeData);
+    
+    // Update API (for future backend integration)
+    if (typeof window.API !== 'undefined') {
+        window.API.addLogEntry('System', 'MODE_CHANGE', modeLabel);
+    }
+    
+    // Sync with other pages (e.g. control page)
+    localStorage.setItem('modeSync', JSON.stringify({ mode: modeId, timestamp: Date.now() }));
+}
 
-    fetch('/action', {
+function sendModeAction(modeData) {
+    fetch(ACTION_ENDPOINT, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -311,32 +502,98 @@ function setMonitorOperationMode(modeId) {
         return response.json().catch(() => ({}));
     })
     .then(data => {
-        console.log('[Monitor] Mode change sent:', data);
+        console.log('[Mode Change] Server response:', data);
+        if (data.status === 'ok' || data.status === 'logged') {
+            showNotification(`Mode change sent: ${modeData.mode}`, 'success');
+        } else {
+            showNotification(`Mode change request returned: ${data.status}`, 'error');
+        }
     })
     .catch(error => {
-        console.warn('[Monitor] Failed to send mode change', error);
+        console.log('[Mode Change] ESP32 not available, mode change logged locally only', error);
+        showNotification('Mode change could not be sent to ESP32', 'error');
     });
-
-    // Notify other pages in the same origin (e.g. control page)
-    localStorage.setItem('modeSync', JSON.stringify({ mode: modeId, timestamp: Date.now() }));
 }
 
 /**
  * Initialize API polling for real-time updates
  */
 function initializeApiPolling() {
-    // Poll door states every 3 seconds
-    if (typeof window.API !== 'undefined') {
-        window.API.startPolling('DOORS', updateDoorStatesFromAPI, 3000);
-        pollESP32MonitoringLogs();
-        setInterval(pollESP32MonitoringLogs, 3000);
-        pollESP32Status();
-        setInterval(pollESP32Status, 3000);
-        console.log('[Monitor] API polling initialized');
+    pollESP32MonitoringLogs();
+    pollESP32Status();
+
+    if (startMonitorEventStream()) {
+        console.log('[Monitor] Event-driven updates initialized via /events');
     } else {
-        console.warn('[Monitor] API client not loaded, using fallback mode');
-        // Fallback: use simulated data
-        setInterval(simulateDoorUpdates, 3000);
+        startFallbackPolling();
+    }
+}
+
+function startMonitorEventStream() {
+    if (!('EventSource' in window)) {
+        console.warn('[Monitor] EventSource not supported by this browser');
+        return false;
+    }
+
+    monitorEventSource = new EventSource('/events');
+
+    monitorEventSource.addEventListener('open', () => {
+        console.log('[Monitor] Connected to ESP32 event stream');
+    });
+
+    monitorEventSource.addEventListener('door', (event) => {
+        try {
+            applyDoorEvent(JSON.parse(event.data), { addLog: true });
+        } catch (error) {
+            console.warn('[Monitor] Bad door event payload', error, event.data);
+        }
+    });
+
+    monitorEventSource.addEventListener('status', (event) => {
+        try {
+            updateMonitorCountersFromStatus(JSON.parse(event.data));
+        } catch (error) {
+            console.warn('[Monitor] Bad status event payload', error, event.data);
+        }
+    });
+
+    monitorEventSource.onerror = (error) => {
+        console.warn('[Monitor] Event stream disconnected; browser will retry automatically', error);
+        startFallbackPolling();
+    };
+
+    return true;
+}
+
+function startFallbackPolling() {
+    if (fallbackPollingStarted) return;
+    fallbackPollingStarted = true;
+    console.warn('[Monitor] Falling back to GET polling because /events is unavailable');
+    setInterval(pollESP32MonitoringLogs, 3000);
+    setInterval(pollESP32Status, 3000);
+}
+
+function applyDoorEvent(eventData, options = {}) {
+    const parsed = parseDoorEvent(eventData);
+    if (!parsed) return;
+
+    const previous = currentDoorStates[parsed.doorId] || { state: 'closed', locked: true };
+    const nextState = {
+        state: parsed.state,
+        locked: typeof parsed.locked === 'boolean' ? parsed.locked : previous.locked
+    };
+
+    currentDoorStates[parsed.doorId] = nextState;
+    updateDoorUI(parsed.doorId, nextState);
+
+    if (options.addLog) {
+        addLogEntryToUI({
+            time: parsed.timestamp,
+            door: DOOR_CONFIG[parsed.doorId]?.name || `Door ${parsed.doorId}`,
+            action: 'status changed to',
+            status: parsed.state,
+            message: parsed.message
+        });
     }
 }
 
@@ -344,32 +601,35 @@ function initializeApiPolling() {
  * Update door states from API data
  * @param {object} data - Door data from API
  */
-function updateDoorStatesFromAPI(data) {
+function updateDoorStatesFromAPI(data, options = {}) {
     if (!data || !data.doors) return;
+    const shouldLogChanges = options.logChanges === true;
     
     data.doors.forEach(door => {
-        const doorId = door.id;
+        const doorId = Number(door.id);
+        if (!DOOR_CONFIG[doorId]) return;
         const previousState = currentDoorStates[doorId];
+        const normalizedState = normalizeDoorState(door.state || previousState?.state || 'closed');
         
         // Update stored state
         currentDoorStates[doorId] = {
-            state: door.state,
-            locked: door.locked
+            state: normalizedState,
+            locked: typeof door.locked === 'boolean' ? door.locked : previousState?.locked
         };
         
         // Update UI elements (both MagContact and lock icon)
-        updateDoorUI(doorId, door);
+        updateDoorUI(doorId, currentDoorStates[doorId]);
         
         // Log state changes
-        if (previousState && previousState.state !== door.state) {
-            logDoorStateChange(door.name, door.state);
+        if (shouldLogChanges && previousState && previousState.state !== normalizedState) {
+            logDoorStateChange(door.name, normalizedState);
             if (typeof window.API !== 'undefined') {
-                window.API.addLogEntry(door.name, 'STATE_CHANGE', door.state);
+                window.API.addLogEntry(door.name, 'STATE_CHANGE', normalizedState);
             }
         }
         
         // Log lock status changes
-        if (previousState && previousState.locked !== door.locked) {
+        if (shouldLogChanges && previousState && typeof door.locked === 'boolean' && previousState.locked !== door.locked) {
             const lockStatus = door.locked ? 'LOCKED' : 'UNLOCKED';
             logDoorStateChange(door.name, `Lock: ${lockStatus}`);
         }
@@ -381,20 +641,30 @@ function updateDoorStatesFromAPI(data) {
  * @param {object} data - Logs data from API
  */
 function updateLogsFromAPI(data) {
-    if (!data || !Array.isArray(data.logs) || data.logs.length === 0) return;
-    
     const logContainer = document.getElementById('logContainer');
     if (!logContainer) return;
+
+    if (!data || !Array.isArray(data.logs) || data.logs.length === 0) {
+        logContainer.innerHTML = '<div class="empty-log">No recent door activity...</div>';
+        return;
+    }
     
+    data.logs.forEach(log => {
+        const parsedEvent = parseDoorEvent(log);
+        if (parsedEvent) {
+            applyDoorEvent(parsedEvent, { addLog: false });
+        }
+    });
+
     const logs = data.logs.slice(-12).reverse();
     let html = '';
     logs.forEach(log => {
-        const time = log.timestamp || log.time || log.Time || '--:--:--';
+        const time = normalizeTimestamp(log.timestamp || log.time || log.Time);
         const message = log.message || log.action || log.status || log.door || JSON.stringify(log);
         html += `
             <div class="log-entry">
-                <span class="log-time">[${time}]</span>
-                <span class="log-clicked">${message}</span>
+                <span class="log-time">[${escapeHTML(time)}]</span>
+                <span class="log-clicked">${escapeHTML(message)}</span>
             </div>
         `;
     });
@@ -408,15 +678,22 @@ function updateLogsFromAPI(data) {
 function addLogEntryToUI(log) {
     const logContainer = document.getElementById('logContainer');
     if (!logContainer) return;
+    const time = normalizeTimestamp(log.time || log.timestamp);
+    const door = log.door || 'Door';
+    const action = log.action || 'status changed to';
+    const status = log.status || log.state || '';
     
+    const emptyLog = logContainer.querySelector('.empty-log');
+    if (emptyLog) emptyLog.remove();
+
     const newLog = document.createElement('div');
     newLog.className = 'log-entry';
-    newLog.setAttribute('data-time', log.time);
+    newLog.setAttribute('data-time', time);
     
     newLog.innerHTML = `
-        <span class="log-time">[${log.time}]</span> 
-        <span class="log-clicked">${log.door}</span> 
-        ${log.action || 'status changed to'} <span class="log-client">${log.status}</span>
+        <span class="log-time">[${escapeHTML(time)}]</span> 
+        <span class="log-clicked">${escapeHTML(door)}</span> 
+        ${escapeHTML(action)} <span class="log-client">${escapeHTML(status)}</span>
     `;
     
     logContainer.insertBefore(newLog, logContainer.firstChild);
@@ -441,9 +718,7 @@ function logDoorStateChange(doorName, newState) {
         emptyLog.remove();
     }
 
-    // Get current time formatted as HH:MM:SS
-    const now = new Date();
-    const timeString = now.toLocaleTimeString([], { hour12: false });
+    const timeString = normalizeTimestamp();
 
     // Create the new log entry div
     const newLog = document.createElement('div');
@@ -451,9 +726,9 @@ function logDoorStateChange(doorName, newState) {
     
     // Build the log message using your existing CSS classes
     newLog.innerHTML = `
-        <span class="log-time">[${timeString}]</span> 
-        <span class="log-clicked">${doorName}</span> 
-        status changed to <span class="log-client">${newState}</span>
+        <span class="log-time">[${escapeHTML(timeString)}]</span> 
+        <span class="log-clicked">${escapeHTML(doorName)}</span> 
+        status changed to <span class="log-client">${escapeHTML(newState)}</span>
     `;
 
     // Prepend so the newest log appears at the top

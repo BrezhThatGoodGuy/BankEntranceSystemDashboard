@@ -139,11 +139,85 @@ let aiConfig = {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize radio button states from current config
+    initializeEvacuateButton();
     initializeModeSelections();
     initializeApiPolling();
     pollAiLogs();
     setInterval(pollAiLogs, 5000);
 });
+
+/**
+ * Initialize mode selections from current state
+ */
+
+const ACTION_ENDPOINT = '/action';
+const modeLabels = {
+    'evacuate': 'Evacuation',
+    'normal': 'Normal-Traffic',
+    'exit': 'Exit-Only',
+    'entrance': 'Entrance-Only',
+    'lock': 'Lock-All'
+};
+
+function initializeEvacuateButton() {
+    const evacuateBtn = document.querySelector('.evacuate');
+    if (evacuateBtn) {
+        evacuateBtn.addEventListener('click', function() {
+            setOperationMode('evacuate');
+        });
+    }
+}
+
+function setOperationMode(modeId) {
+    const modeLabel = modeLabels[modeId] || modeId;
+    
+    console.log('Operation mode changed to:', modeId, '(', modeLabel, ')');
+    
+    // Send mode change to ESP32 server
+    const modeData = {
+        action: 'MODE_CHANGE',
+        mode: modeLabel,
+        time: new Date().toISOString()
+    };
+    
+    sendModeAction(modeData);
+    
+    // Update API (for future backend integration)
+    if (typeof window.API !== 'undefined') {
+        window.API.addLogEntry('System', 'MODE_CHANGE', modeLabel);
+    }
+    
+    // Sync with other pages (e.g. control page)
+    localStorage.setItem('modeSync', JSON.stringify({ mode: modeId, timestamp: Date.now() }));
+}
+
+function sendModeAction(modeData) {
+    fetch(ACTION_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(modeData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json().catch(() => ({}));
+    })
+    .then(data => {
+        console.log('[Mode Change] Server response:', data);
+        if (data.status === 'ok' || data.status === 'logged') {
+            showNotification(`Mode change sent: ${modeData.mode}`, 'success');
+        } else {
+            showNotification(`Mode change request returned: ${data.status}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.log('[Mode Change] ESP32 not available, mode change logged locally only', error);
+        showNotification('Mode change could not be sent to ESP32', 'error');
+    });
+}
 
 /**
  * Initialize mode selections from current state

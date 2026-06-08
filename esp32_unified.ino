@@ -53,6 +53,7 @@ const char* password = "brezhnev02";
 
 // ===== Web Server Configuration =====
 AsyncWebServer server(80);
+AsyncEventSource events("/events");
 
 // ===== Logging System =====
 enum LogType {
@@ -74,6 +75,11 @@ const char* doorNames[4] = {"Door 1", "Door 2", "Door 3", "Door 4"};
 const int MAX_LOG_LINES = 100;
 String logBuffers[LOG_TYPE_COUNT][MAX_LOG_LINES];
 int logCounts[LOG_TYPE_COUNT] = {0, 0, 0, 0};
+
+// ===== Live Door State =====
+String doorContactStates[4] = {"closed", "closed", "closed", "closed"};
+bool doorLockStates[4] = {true, true, true, true};
+unsigned long lastDoorEventId = 0;
 
 // ===== Camera & Inference State =====
 static bool debug_nn = false;
@@ -147,16 +153,18 @@ void loadAllLogFiles();
 void appendLogEntry(int idx, const String &message);
 void processAtmegaLine(const String &line);
 void processActionPost(const String &body);
+String buildDoorEventPayload(int doorId, const String &state, const String &rawLine);
+String buildStatusPayload();
+void publishDoorEvent(int doorId, const String &state, const String &rawLine);
 
 // ===== LOGGING FUNCTIONS =====
 String formatTimestamp() {
     unsigned long totalSeconds = millis() / 1000;
     unsigned long seconds = totalSeconds % 60;
     unsigned long minutes = (totalSeconds / 60) % 60;
-    unsigned long hours = (totalSeconds / 3600) % 24;
-    const char* baseDate = "24/04/26";
+    unsigned long hours = totalSeconds / 3600;
     char buffer[32];
-    sprintf(buffer, "%s---%02lu:%02lu:%02lu", baseDate, hours, minutes, seconds);
+    sprintf(buffer, "%02lu:%02lu:%02lu", hours, minutes, seconds);
     return String(buffer);
 }
 
@@ -321,6 +329,43 @@ void processActionPost(const String &body) {
     }
 }
 
+String jsonEscape(String value) {
+    value.replace("\\", "\\\\");
+    value.replace("\"", "\\\"");
+    value.replace("\n", " ");
+    value.replace("\r", " ");
+    return value;
+}
+
+String buildDoorEventPayload(int doorId, const String &state, const String &rawLine) {
+    String normalizedState = state;
+    normalizedState.toLowerCase();
+    String message = "Door " + String(doorId) + " " + normalizedState;
+    String payload = "{";
+    payload += "\"type\":\"door\",";
+    payload += "\"eventId\":" + String(lastDoorEventId) + ",";
+    payload += "\"doorId\":" + String(doorId) + ",";
+    payload += "\"doorName\":\"" + String(doorNames[doorId - 1]) + "\",";
+    payload += "\"state\":\"" + normalizedState + "\",";
+    payload += "\"locked\":" + String(doorLockStates[doorId - 1] ? "true" : "false") + ",";
+    payload += "\"message\":\"" + jsonEscape(message) + "\",";
+    payload += "\"raw\":\"" + jsonEscape(rawLine) + "\",";
+    payload += "\"timestamp\":\"" + formatTimestamp() + "\",";
+    payload += "\"millis\":" + String(millis());
+    payload += "}";
+    return payload;
+}
+
+void publishDoorEvent(int doorId, const String &state, const String &rawLine) {
+    if (doorId < 1 || doorId > 4) return;
+    doorContactStates[doorId - 1] = state;
+    doorContactStates[doorId - 1].toLowerCase();
+    lastDoorEventId++;
+    String payload = buildDoorEventPayload(doorId, doorContactStates[doorId - 1], rawLine);
+    events.send(payload.c_str(), "door", lastDoorEventId);
+    events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
+}
+
 void processAtmegaLine(const String &line) {
     if (line.startsWith("DOOR_")) {
         int doorId = line.charAt(5) - '0';
@@ -328,6 +373,19 @@ void processAtmegaLine(const String &line) {
             String suffix = line.substring(7);
             String message = "Door " + String(doorId) + " " + suffix;
             appendLogEntry(LOG_MONITORING, message);
+            if (suffix.equalsIgnoreCase("OPENED")) {
+                publishDoorEvent(doorId, "opened", line);
+            } else if (suffix.equalsIgnoreCase("CLOSED")) {
+                publishDoorEvent(doorId, "closed", line);
+            } else if (suffix.equalsIgnoreCase("LOCKED")) {
+                doorLockStates[doorId - 1] = true;
+                lastDoorEventId++;
+                events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
+            } else if (suffix.equalsIgnoreCase("UNLOCKED")) {
+                doorLockStates[doorId - 1] = false;
+                lastDoorEventId++;
+                events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
+            }
         }
     } else if (line.startsWith("STATS:")) {
         String entriesValue = parseStatValue(line, "ENTRIES");
@@ -345,6 +403,8 @@ void processAtmegaLine(const String &line) {
         }
 
         appendLogEntry(LOG_MONITORING, "Occupancy counts updated: Entries=" + String(totalEntries) + ", Exits=" + String(totalExits) + ", Inside=" + String(clientsInside));
+        lastDoorEventId++;
+        events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
     }
 }
 
@@ -358,7 +418,7 @@ String buildStatusPayload() {
     payload += "\"doors\":[";
     for (int i = 0; i < 4; i++) {
         if (i) payload += ",";
-        payload += "{\"id\":\"" + String(i + 1) + "\",\"name\":\"" + String(doorNames[i]) + "\"}";
+        payload += "{\"id\":" + String(i + 1) + ",\"name\":\"" + String(doorNames[i]) + "\",\"state\":\"" + doorContactStates[i] + "\",\"locked\":" + String(doorLockStates[i] ? "true" : "false") + "}";
     }
     payload += "]}";
     return payload;
@@ -568,6 +628,14 @@ String buildInferenceJsonResponse() {
 
 // ===== WEB SERVER ENDPOINTS =====
 void setupWebServerEndpoints() {
+    events.onConnect([](AsyncEventSourceClient *client) {
+        if (client->lastId()) {
+            Serial.printf("SSE client reconnected, last message ID: %u\n", client->lastId());
+        }
+        client->send(buildStatusPayload().c_str(), "status", millis(), 1000);
+    });
+    server.addHandler(&events);
+
     // Stream endpoint - returns individual JPEG frames
     server.on("/stream", AsyncWebRequestMethod::HTTP_GET, [](AsyncWebServerRequest *request) {
         camera_fb_t *fb = esp_camera_fb_get();
