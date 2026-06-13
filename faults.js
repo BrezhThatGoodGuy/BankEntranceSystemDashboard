@@ -20,7 +20,7 @@ function openFaultsPage(){
     window.location.href = "faults.html";
 }
 
-function openAiControlPage(){
+function openAiPage(){
     window.location.href = "aicontrol.html";
 }
 
@@ -32,13 +32,118 @@ function hideSideNavigationBar(){
 }
 
 function showSideNavigationBar(){
-    const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
+    const shownsidebar = '<div class = "shown-side-navigation-bar"><div onclick="openPrintLogsDialog()"><p>Print Info</p>  <svg class="print-icon" aria-label="Print logs" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
     const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
+function escapeHTML(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+const ESP_LOG_FILE_CONFIG = [
+    { key: 'monitoring', label: 'Monitoring Logs', url: '/logs/monitoring.txt' },
+    { key: 'control', label: 'Control Logs', url: '/logs/control.txt' },
+    { key: 'faults', label: 'Faults Logs', url: '/logs/faults.txt' },
+    { key: 'ai', label: 'AI Logs', url: '/logs/ai.txt' }
+];
+
+function openPrintLogsDialog() {
+    closePrintLogsDialog();
+    const items = ESP_LOG_FILE_CONFIG.map(file =>
+        `<label class="print-checkbox-label"><input type="checkbox" class="log-file-checkbox" value="${file.key}" checked><span>${file.label}</span></label>`
+    ).join('');
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="printSelectionModal" class="print-modal-overlay" onclick="closePrintLogsDialog(event)">
+            <div class="print-modal-card" onclick="event.stopPropagation()">
+                <div class="print-modal-header">
+                    <h3>Select logs to print</h3>
+                    <button type="button" class="close-modal-btn" onclick="closePrintLogsDialog()">×</button>
+                </div>
+                <div class="print-modal-body">
+                    <p>Select one or more log files then press PRINT.</p>
+                    <div class="print-checkbox-grid">${items}</div>
+                    <div id="printSelectionError" class="print-error-message"></div>
+                </div>
+                <div class="print-modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closePrintLogsDialog()">CANCEL</button>
+                    <button type="button" class="btn-print" onclick="printSelectedLogFiles()">PRINT</button>
+                </div>
+            </div>
+        </div>`);
+}
+
+function closePrintLogsDialog(event) {
+    if (event && event.target.id !== 'printSelectionModal') return;
+    ['printSelectionModal', 'printableLogsArea'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    });
+}
+
+function printSelectedLogFiles() {
+    const keys = [...document.querySelectorAll('.log-file-checkbox:checked')].map(el => el.value);
+    const errEl = document.getElementById('printSelectionError');
+
+    if (!keys.length) {
+        if (errEl) errEl.textContent = 'Please select at least one log file.';
+        return;
+    }
+
+    if (errEl) errEl.textContent = '';
+
+    const selected = ESP_LOG_FILE_CONFIG.filter(file => keys.includes(file.key));
+    Promise.all(selected.map(file =>
+        fetch(file.url, { cache: 'no-store', headers: { Accept: 'text/plain' } })
+            .then(response => response.ok ? response.text() : Promise.reject(`Cannot load ${file.label}`))
+            .then(text => ({ ...file, text }))
+    ))
+        .then(files => {
+            closePrintLogsDialog();
+            buildAndPrintLogs(files);
+        })
+        .catch(error => {
+            if (errEl) errEl.textContent = String(error);
+        });
+}
+
+function buildAndPrintLogs(files) {
+    const existing = document.getElementById('printableLogsArea');
+    if (existing) existing.remove();
+
+    const sections = files.map(file =>
+        `<section class="printable-log-file"><h2>${file.label}</h2><pre>${escapeHTML(file.text)}</pre></section>`
+    ).join('');
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="printableLogsArea" class="printable-log-area active">
+            <div class="printable-logs-header">
+                <h1>ESP Log Printout</h1>
+                <p>${files.map(file => file.label).join(', ')}</p>
+                <p>${new Date().toLocaleString()}</p>
+            </div>
+            ${sections}
+        </div>`);
+
+    window.addEventListener('afterprint', () => {
+        const el = document.getElementById('printableLogsArea');
+        if (el) el.remove();
+    }, { once: true });
+
+    window.print();
+}
+
+const API_ENDPOINTS = window.API_ENDPOINTS || {};
+
 function getLogsEndpoint(logType) {
+    if (API_ENDPOINTS.LOGS_QUERY) return API_ENDPOINTS.LOGS_QUERY(logType);
     return `/log?type=${encodeURIComponent(logType)}`;
 }
 
@@ -115,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // API Integration for Real-time Updates
 // ============================================
 
-const ACTION_ENDPOINT = '/action';
+const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 const modeLabels = {
     'evacuate': 'Evacuation',
     'normal': 'Normal-Traffic',

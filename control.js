@@ -43,8 +43,14 @@ function showSideNavigationBar(){
 // ============================================
 
 // Relative URLs (ESP32 serves these pages)
-const ACTION_ENDPOINT = '/action';
-const LOG_ENDPOINT = '/log';
+const API_ENDPOINTS = window.API_ENDPOINTS || {};
+const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
+const LOG_ENDPOINT = API_ENDPOINTS.LOGS_BASE || '/log';
+
+function getLogEndpoint(logType) {
+    if (API_ENDPOINTS.LOGS_QUERY) return API_ENDPOINTS.LOGS_QUERY(logType);
+    return `${LOG_ENDPOINT}?type=${encodeURIComponent(logType)}`;
+}
 
 // Store for door actions
 let doorActions = [];
@@ -443,7 +449,7 @@ function displayLog() {
 
 function loadLogData() {
     // First try to fetch from ESP32 server
-    fetch(`${LOG_ENDPOINT}?type=control`)
+    fetch(getLogEndpoint('control'))
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');

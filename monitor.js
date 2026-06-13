@@ -67,6 +67,8 @@ const currentDoorStates = {
     4: { state: 'closed', locked: true }
 };
 
+const API_ENDPOINTS = window.API_ENDPOINTS || {};
+
 let monitorEventSource   = null;
 let fallbackPollingActive = false;
 
@@ -392,15 +394,20 @@ function clearLogs() {
 // ============================================================
 
 function pollMonitoringLogs() {
-    fetch('/log?type=monitoring', { cache: 'no-store' })
+    const url = API_ENDPOINTS.LOGS_QUERY
+        ? API_ENDPOINTS.LOGS_QUERY('monitoring')
+        : '/log?type=monitoring';
+    fetch(url, { cache: 'no-store' })
         .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(renderLogsFromPayload)
         .catch(() => console.warn('[Monitor] Log poll failed'));
 }
 
 function pollStatus() {
-    fetch('/api/status.json', { cache: 'no-store' })
-        .catch(() => fetch('/status.json', { cache: 'no-store' }))
+    const primary = API_ENDPOINTS.STATUS_PRIMARY || '/api/status.json';
+    const fallback = API_ENDPOINTS.STATUS_FALLBACK || '/status.json';
+    fetch(primary, { cache: 'no-store' })
+        .catch(() => fetch(fallback, { cache: 'no-store' }))
         .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(applyStatusEvent)
         .catch(err => console.warn('[Monitor] Status poll failed', err));
@@ -471,7 +478,8 @@ function startEventStream() {
 
 function refreshCCTV() {
     const img = document.querySelector('.live-image-container');
-    if (img) img.src = '/stream?t=' + Date.now();
+    const streamUrl = API_ENDPOINTS.STREAM || '/stream';
+    if (img) img.src = `${streamUrl}?t=${Date.now()}`;
 }
 
 setInterval(refreshCCTV, 100);
@@ -481,7 +489,7 @@ setInterval(refreshCCTV, 100);
 // EVACUATE BUTTON
 // ============================================================
 
-const ACTION_ENDPOINT = '/action';
+const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 
 const MODE_LABELS = {
     evacuate: 'Evacuation',

@@ -7,17 +7,15 @@
 
 // Import endpoints (inline for browser compatibility)
 // Using absolute paths (starting with /) ensures they work regardless of ESP32 IP address
-const API_BASE = '/api';
-
-const Endpoints = {
-    DOORS: `${API_BASE}/doors.json`,
-    MODE: `${API_BASE}/mode.json`,
-    FAULTS: `${API_BASE}/faults.json`,
-    AI_CONFIG: `${API_BASE}/ai-config.json`,
-    LOGS: `${API_BASE}/logs.json`
+const Endpoints = window.API_ENDPOINTS || {
+    DOORS: '/api/status.json',
+    MODE: '/api/mode.json',
+    FAULTS: '/api/faults.json',
+    AI_CONFIG: '/api/ai-config',
+    LOGS: '/api/logs.json'
 };
 
-const Intervals = {
+const Intervals = window.API_POLL_INTERVALS || {
     DOORS: 3000,
     MODE: 5000,
     FAULTS: 5000,
@@ -35,6 +33,7 @@ const activePollers = {};
  */
 async function fetchAPI(url) {
     try {
+        if (!url) return null;
         const response = await fetch(url, {
             method: 'GET',
             headers: {
