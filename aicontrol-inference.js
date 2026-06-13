@@ -1,8 +1,7 @@
 /**
  * AI Control - Inference Display
- * - No continuous streaming; the img element is only updated when
- *   a detection fires with confidence > 70 %.
- * - Inference is polled every 3 s (only while AI system + a detector are on).
+ * - No polling; the ESP32 immediately SSE-pushes a frame + inference JSON
+ *   whenever a detection fires with confidence > 50 %.
  * - Placeholder text reflects the current system state.
  */
 
@@ -13,10 +12,7 @@ class InferenceDisplay {
         this.ctx            = this.canvas ? this.canvas.getContext('2d') : null;
         this.feedContainer  = document.getElementById('feedContainer');
         this.feedStatus     = document.getElementById('feedStatus');
-
-        // Inference polling interval — 3 s to avoid hogging the ESP32
-        this.INFERENCE_INTERVAL_MS = 3000;
-        this._inferenceTimer = null;
+        this._sseSource     = null;
 
         this.init();
     }
@@ -24,7 +20,6 @@ class InferenceDisplay {
     // ─── Init ────────────────────────────────────────────────────────────────
 
     init() {
-        // Canvas sizing whenever the img actually loads a real frame
         this.feedImg.onload = () => {
             this._resizeCanvas();
             this.updateFeedStatus('Connected', true);
@@ -33,18 +28,21 @@ class InferenceDisplay {
             this.updateFeedStatus('Connection Error', false);
         };
 
-        // Show the correct initial placeholder immediately
         this._refreshPlaceholder();
-
-        // Watch aiConfig changes so we start/stop polling dynamically
         this._watchConfig();
+        this._initSSE();
     }
 
     // ─── Config watcher ──────────────────────────────────────────────────────
 
     _watchConfig() {
-        // Re-evaluate every 500 ms — cheap compared to network calls
-        setInterval(() => this._applyConfigState(), 500);
+        // Re-evaluate every 500 ms — if detectors are turned off, clear the feed
+        setInterval(() => {
+            if (!this._isDetectionActive()) {
+                this._hideFrame();
+                this._refreshPlaceholder();
+            }
+        }, 500);
     }
 
     _isDetectionActive() {
@@ -55,95 +53,73 @@ class InferenceDisplay {
                (cfg.aiSystem.maskedFaceDetection || cfg.aiSystem.weaponDetection);
     }
 
-    _applyConfigState() {
-        if (this._isDetectionActive()) {
-            this._startPolling();
-        } else {
-            this._stopPolling();
-            this._refreshPlaceholder();
-        }
-    }
+    // ─── SSE listener ────────────────────────────────────────────────────────
 
-    // ─── Polling ─────────────────────────────────────────────────────────────
+    _initSSE() {
+        if (typeof EventSource === 'undefined') return;
 
-    _startPolling() {
-        if (this._inferenceTimer) return;          // already running
-        this._inferenceTimer = setInterval(() => this._pollInference(), this.INFERENCE_INTERVAL_MS);
-        // Kick off the first call immediately
-        this._pollInference();
-    }
+        const evtSource = new EventSource('/events');
+        this._sseSource = evtSource;
 
-    _stopPolling() {
-        if (!this._inferenceTimer) return;
-        clearInterval(this._inferenceTimer);
-        this._inferenceTimer = null;
-        // Hide the live image; clear canvas
-        this._hideFrame();
-    }
+        evtSource.addEventListener('inference', (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                this._handleSSEInference(data);
+            } catch (err) {
+                console.error('[Inference] SSE parse error:', err);
+            }
+        });
 
-    _pollInference() {
-        if (!this._isDetectionActive()) {
-            this._stopPolling();
-            return;
-        }
+        evtSource.onerror = () => {
+            console.warn('[Inference] SSE connection error — waiting for reconnect');
+            this.updateFeedStatus('Connection Error', false);
+        };
 
-        const endpoints = window.API_ENDPOINTS || {};
-        const url = endpoints.INFERENCE || '/api/inference';
-
-        fetch(url)
-            .then(r => r.json())
-            .then(data => this._handleInferenceData(data))
-            .catch(err => console.error('[Inference] Poll error:', err));
+        console.log('[Inference] SSE listener initialized on /events');
     }
 
     // ─── Data handling ───────────────────────────────────────────────────────
 
-    _handleInferenceData(data) {
-        // Always update the timing readout
+    _handleSSEInference(data) {
+        if (!this._isDetectionActive()) return;
+
         this._updateTiming(data);
 
         const hasBBoxes = data.bounding_boxes && data.bounding_boxes.length > 0;
 
         if (!hasBBoxes) {
-            // No threat detected
             this._hideFrame();
             this._showPlaceholderText('No Threatful Situations Detected');
             this._displayClassification(data);
             return;
         }
 
-        // Find the highest-confidence detection
+        // Highest-confidence detection in this frame
         const topBox = data.bounding_boxes.reduce((best, b) =>
             b.confidence > best.confidence ? b : best, data.bounding_boxes[0]);
-
         const confidencePct = topBox.confidence * 100;
 
-        // Update the detection list panel regardless of threshold
         this._displayObjectDetection(data);
 
-        if (confidencePct > 70) {
-            // High-confidence threat — pull the stored ESP32 frame and draw boxes.
-            this._fetchAndDisplayFrame(data);
+        if (confidencePct > 50 && data.imageB64) {
+            this._displayFrameFromB64(data.imageB64, data);
         } else {
-            // Below threshold — keep placeholder, still show detection info
             this._hideFrame();
             this._showPlaceholderText('No Threatful Situations Detected');
         }
     }
 
-    // ─── Frame capture ───────────────────────────────────────────────────────
+    // ─── Frame display ───────────────────────────────────────────────────────
 
-    _fetchAndDisplayFrame(inferenceData) {
-        const timestamp = Date.now();
+    _displayFrameFromB64(imageB64, inferenceData) {
+        const dataUrl = 'data:image/jpeg;base64,' + imageB64;
         const newImg = new Image();
 
         newImg.onload = () => {
-            // Swap src on the visible img element
-            this.feedImg.src = newImg.src;
+            this.feedImg.src = dataUrl;
             this.feedImg.style.display = 'block';
             this._hidePlaceholder();
 
-            // Wait for the feedImg to register the new src dimensions
             requestAnimationFrame(() => {
                 this._resizeCanvas();
                 this.canvas.style.display = 'block';
@@ -157,9 +133,7 @@ class InferenceDisplay {
             this._showPlaceholderText('No Threatful Situations Detected');
         };
 
-        const endpoints = window.API_ENDPOINTS || {};
-        const captureUrl = endpoints.CAPTURE || '/capture';
-        newImg.src = `${captureUrl}?t=${timestamp}`;
+        newImg.src = dataUrl;
     }
 
     // ─── UI helpers ──────────────────────────────────────────────────────────
@@ -198,10 +172,7 @@ class InferenceDisplay {
     }
 
     _refreshPlaceholder() {
-        if (this._isDetectionActive()) {
-            // Don't overwrite a live detection view; let polling handle it
-            return;
-        }
+        if (this._isDetectionActive()) return;
         this._hideFrame();
         this._showPlaceholderText('AI Threat Detectors are Disabled.');
     }
@@ -219,9 +190,9 @@ class InferenceDisplay {
         const dsp   = (data.dsp_time            || 0).toFixed(0);
         const cls   = (data.classification_time || 0).toFixed(0);
         const total = (parseFloat(dsp) + parseFloat(cls)).toFixed(0);
-        this._setText('dspTime',    dsp);
-        this._setText('classTime',  cls);
-        this._setText('totalTime',  total);
+        this._setText('dspTime',       dsp);
+        this._setText('classTime',     cls);
+        this._setText('totalTime',     total);
         this._setText('inferenceTime', total + 'ms');
     }
 
@@ -334,5 +305,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Kept for any external HTML onclick handlers
 function triggerAIInference() {
-    if (window.inferenceDisplay) window.inferenceDisplay._pollInference();
+    console.log('[Inference] Manual trigger not needed — ESP32 pushes frames via SSE');
 }

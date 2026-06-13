@@ -1,3 +1,9 @@
+/* Faults page background — overrides the plain dark body from style.css */
+.simulation-background {
+    background: linear-gradient(160deg, #0b1628 0%, #0f1e35 55%, #0c1a2e 100%);
+    min-height: 100vh;
+}
+
 /* Faults Page Main Container */
 .faults-container {
     display: flex;
@@ -9,12 +15,12 @@
 }
 
 .faults-card {
-    background: rgba(32, 32, 129, 0.5);
+    background: #18243e;
     width: 100%;
     max-width: 700px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 142, 3, 0.5);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 142, 3, 0.65);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     flex: 1;
 }
@@ -22,12 +28,12 @@
 /* Logs Card */
 .logs-card {
     margin-left: 50px;
-    background: rgba(32, 32, 129, 0.5);
+    background: #18243e;
     width: 100%;
     max-width: 320px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 142, 3, 0.5);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 142, 3, 0.65);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     flex: 0 0 320px;
 }
@@ -37,7 +43,7 @@
     flex-direction: column;
     gap: 8px;
     padding: 12px 15px;
-    border-bottom: 1px solid rgba(255, 142, 3, 0.15);
+    border-bottom: 1px solid rgba(255, 142, 3, 0.25);
 }
 
 .stat-box {
@@ -45,7 +51,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 10px;
-    background: rgba(60, 60, 70, 0.5);
+    background: #1e2e50;
     border-radius: 6px;
 }
 
@@ -56,7 +62,7 @@
 }
 
 .stat-label {
-    color: #a0a0a8;
+    color: #9aaac8;
     font-size: 0.65rem;
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -66,7 +72,7 @@
     display: grid;
     grid-template-columns: 0.5fr 1fr 1fr 1fr;
     padding: 8px 12px;
-    background: rgba(80, 80, 90, 0.5);
+    background: #223260;
     font-size: 0.55rem;
     font-weight: 600;
     color: rgb(255, 142, 3);
@@ -85,22 +91,22 @@
     display: grid;
     grid-template-columns: 0.5fr 1fr 1fr 1fr;
     padding: 8px 12px;
-    border-bottom: 1px solid rgba(255, 142, 3, 0.1);
+    border-bottom: 1px solid rgba(255, 142, 3, 0.15);
     font-size: 0.6rem;
     align-items: center;
 }
 
 .log-row:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 142, 3, 0.07);
 }
 
 .log-id {
-    color: #c8c8d0;
+    color: #d8e0f0;
     font-weight: 600;
 }
 
 .log-time {
-    color: #909098;
+    color: #9aaac8;
 }
 
 .log-reported, .log-status {
@@ -113,27 +119,27 @@
 
 .log-reported.pending, .log-status.pending {
     color: rgb(241, 196, 15);
-    background: rgba(241, 196, 15, 0.1);
+    background: rgba(241, 196, 15, 0.22);
 }
 
 .log-reported.yes, .log-status.resolved {
     color: rgb(46, 204, 113);
-    background: rgba(46, 204, 113, 0.1);
+    background: rgba(46, 204, 113, 0.22);
 }
 
 .log-reported.no, .log-status.active {
     color: rgb(231, 76, 60);
-    background: rgba(231, 76, 60, 0.1);
+    background: rgba(231, 76, 60, 0.22);
 }
 
 .card-header {
     padding: 12px 20px;
-    border-bottom: 1px solid rgba(255, 142, 3, 0.2);
+    border-bottom: 1px solid rgba(255, 142, 3, 0.3);
 }
 
 .card-header h2 {
     margin: 0;
-    color: #d6dce3;
+    color: #e4eaf6;
     font-size: 1.1rem;
     font-weight: 600;
     letter-spacing: 1px;
@@ -142,7 +148,7 @@
 /* Fault Section */
 .fault-section {
     padding: 12px 20px;
-    border-bottom: 1px solid rgba(255, 142, 3, 0.15);
+    border-bottom: 1px solid rgba(255, 142, 3, 0.2);
 }
 
 .fault-section:last-child {
@@ -175,8 +181,8 @@
 
 /* Fault Box */
 .fault-box {
-    background: rgba(60, 60, 70, 0.5);
-    border: 1px solid rgba(120, 120, 130, 0.3);
+    background: #1e2e50;
+    border: 1px solid rgba(100, 120, 180, 0.45);
     border-radius: 6px;
     padding: 10px;
     display: flex;
@@ -187,12 +193,12 @@
 }
 
 .fault-box:hover {
-    background: rgba(80, 80, 90, 0.5);
-    border-color: rgba(255, 142, 3, 0.5);
+    background: #243660;
+    border-color: rgba(255, 142, 3, 0.7);
 }
 
 .fault-label {
-    color: #c8c8d0;
+    color: #d8e0f0;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.5px;
@@ -432,12 +438,12 @@
 
 .status-normal {
     color: rgb(46, 204, 113);
-    background: rgba(46, 204, 113, 0.12);
+    background: rgba(46, 204, 113, 0.25);
 }
 
 .status-fault {
     color: rgb(231, 76, 60);
-    background: rgba(231, 76, 60, 0.12);
+    background: rgba(231, 76, 60, 0.25);
 }
 
 .report-btn {
@@ -475,12 +481,12 @@
 }
 
 .modal-content {
-    background: rgb(27, 25, 25);
+    background: #18243e;
     border: 2px solid rgb(255, 142, 3);
     border-radius: 12px;
     width: 90%;
     max-width: 450px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
     padding: 25px;
     box-sizing: border-box;
 }
@@ -501,16 +507,16 @@
 }
 
 .modal-body label {
-    color: #d6dce3;
+    color: #e4eaf6;
     font-size: 0.85rem;
     font-weight: bold;
 }
 
 .modal-body input, .modal-body textarea {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 142, 3, 0.4);
+    background: #1e2e50;
+    border: 1px solid rgba(255, 142, 3, 0.5);
     border-radius: 5px;
-    color: white;
+    color: #e4eaf6;
     padding: 10px;
     font-family: Inter, sans-serif;
     resize: none;
@@ -519,7 +525,7 @@
 .modal-body input:focus, .modal-body textarea:focus {
     outline: none;
     border-color: rgb(255, 142, 3);
-    background: rgba(255, 255, 255, 0.1);
+    background: #243660;
 }
 
 .modal-footer {

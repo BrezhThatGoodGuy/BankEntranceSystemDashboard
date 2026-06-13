@@ -1,10 +1,15 @@
 body {
     display: block;
-     background-color: rgba(9, 12, 27, 0.963);
-    min-height: 100vh; /* Changed from fixed 5000px height to prevent massive scrollbars */
+    background-color: #0b1628;
+    min-height: 100vh;
     font-family: Inter, sans-serif;
     font-weight: 700;
     margin: 0;
+}
+
+.simulation-background {
+    background: linear-gradient(160deg, #0b1628 0%, #0f1e35 55%, #0c1a2e 100%);
+    min-height: 100vh;
 }
 
 .whole-header {
@@ -151,16 +156,27 @@ body {
 .shown-side-navigation-bar div {
     display: block;
     text-align: center;
-    color: rgb(221, 216, 216);
-    font-weight: 200;
+    color: rgb(0, 0, 0);
+    font-weight: 600;
     width: 90px;
     margin: 2px;
     border-radius: 5px;
-    background-color: rgba(12, 50, 163, 0.214);
+    background-color: rgb(162, 160, 164);
     border-style: solid;
     border-width: 2px;
-    border-color: rgba(255, 142, 3, 0.447);
+    border-color: rgb(45, 44, 44);
     cursor: pointer;
+}
+
+.shown-side-navigation-bar div:hover {
+    background-color: rgb(204, 196, 196);
+    border-color: rgb(255, 142, 3);
+}
+
+.shown-side-navigation-bar div p,
+.shown-side-navigation-bar div svg {
+    color: rgb(0, 0, 0);
+    stroke: rgb(0, 0, 0);
 }
 
 .hidden-side-navigation-bar {
@@ -230,7 +246,7 @@ body {
 
 .outside-door-lock-icons {
     position: absolute;
-    top: 125px;
+    top: 120px;
     left: 120px;
     width: 500px;
     display: grid;
@@ -244,7 +260,7 @@ body {
 
 .inside-door-lock-icons {
     position: absolute;
-    top: 690px;
+    top: 683px;
     left: 120px;
     width: 500px;
     display: grid;

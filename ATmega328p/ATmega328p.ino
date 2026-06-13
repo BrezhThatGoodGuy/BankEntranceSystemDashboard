@@ -52,13 +52,18 @@ enum OperationMode {
 enum DoorOverrideMode {
   AUTO_MODE,
   FORCE_LOCKED,
-  FORCE_UNLOCKED
+  FORCE_UNLOCKED,
+  ONESHOT_UNLOCKED  // unlocked for one door cycle, then reverts to AUTO_MODE
 };
 
 volatile BoothState booth1State = IDLE_FIRST_DOOR;
 volatile BoothState booth2State = IDLE_FIRST_DOOR;
 OperationMode currentMode = MODE_NORMAL;
-DoorOverrideMode doorOverrideMode[4] = {AUTO_MODE, AUTO_MODE, AUTO_MODE, AUTO_MODE};
+volatile DoorOverrideMode doorOverrideMode[4] = {AUTO_MODE, AUTO_MODE, AUTO_MODE, AUTO_MODE};
+
+// One-shot unlock tracking: set in ISR, cleared in loop()
+volatile bool oneshotDoorOpened[4]  = {false, false, false, false};
+volatile bool eventOneshotRevert[4] = {false, false, false, false};
 
 // ==================================================
 // DEBOUNCE TIMERS & EVENT FLAGS
@@ -121,7 +126,7 @@ void setDoorOutput(int index, bool leftGreen, bool leftRed) {
 
 void updateSystemLEDs() {
   for (int i = 0; i < 4; i++) {
-    if (doorOverrideMode[i] == FORCE_UNLOCKED) {
+    if (doorOverrideMode[i] == FORCE_UNLOCKED || doorOverrideMode[i] == ONESHOT_UNLOCKED) {
       setDoorOutput(i, true, false);
       continue;
     }
@@ -196,10 +201,17 @@ void processIncomingCommand(const String &command) {
     if (doorId >= 1 && doorId <= 4) {
       if (command.endsWith("_LOCKED")) {
         doorOverrideMode[doorId - 1] = FORCE_LOCKED;
+        oneshotDoorOpened[doorId - 1] = false;
       } else if (command.endsWith("_UNLOCKED")) {
         doorOverrideMode[doorId - 1] = FORCE_UNLOCKED;
+        oneshotDoorOpened[doorId - 1] = false;
       } else if (command.endsWith("_AUTO")) {
         doorOverrideMode[doorId - 1] = AUTO_MODE;
+        oneshotDoorOpened[doorId - 1] = false;
+      } else if (command.endsWith("_UNLOCK_ONCE")) {
+        oneshotDoorOpened[doorId - 1] = false;
+        eventOneshotRevert[doorId - 1] = false;
+        doorOverrideMode[doorId - 1] = ONESHOT_UNLOCKED;
       }
     }
   }
@@ -214,10 +226,17 @@ ISR(PCINT1_vect) {
         booth1State = WAIT_FIRST_DOOR_CLOSE;
         eventDoor1Open = true;
       }
+      if (doorOverrideMode[0] == ONESHOT_UNLOCKED) {
+        oneshotDoorOpened[0] = true;
+      }
     } else {
       if (booth1State == WAIT_FIRST_DOOR_CLOSE) {
         booth1State = SECOND_DOOR_ENABLED;
         eventDoor1Close = true;
+      }
+      if (doorOverrideMode[0] == ONESHOT_UNLOCKED && oneshotDoorOpened[0]) {
+        oneshotDoorOpened[0] = false;
+        eventOneshotRevert[0] = true;
       }
     }
     lastInterruptTime1 = currentTime;
@@ -229,10 +248,17 @@ ISR(PCINT1_vect) {
         booth1State = WAIT_SECOND_DOOR_CLOSE;
         eventDoor2Open = true;
       }
+      if (doorOverrideMode[1] == ONESHOT_UNLOCKED) {
+        oneshotDoorOpened[1] = true;
+      }
     } else {
       if (booth1State == WAIT_SECOND_DOOR_CLOSE) {
         booth1State = IDLE_FIRST_DOOR;
         eventDoor2Close = true;
+      }
+      if (doorOverrideMode[1] == ONESHOT_UNLOCKED && oneshotDoorOpened[1]) {
+        oneshotDoorOpened[1] = false;
+        eventOneshotRevert[1] = true;
       }
     }
     lastInterruptTime2 = currentTime;
@@ -248,10 +274,17 @@ ISR(PCINT2_vect) {
         booth2State = WAIT_FIRST_DOOR_CLOSE;
         eventDoor3Open = true;
       }
+      if (doorOverrideMode[2] == ONESHOT_UNLOCKED) {
+        oneshotDoorOpened[2] = true;
+      }
     } else {
       if (booth2State == WAIT_FIRST_DOOR_CLOSE) {
         booth2State = SECOND_DOOR_ENABLED;
         eventDoor3Close = true;
+      }
+      if (doorOverrideMode[2] == ONESHOT_UNLOCKED && oneshotDoorOpened[2]) {
+        oneshotDoorOpened[2] = false;
+        eventOneshotRevert[2] = true;
       }
     }
     lastInterruptTime3 = currentTime;
@@ -263,10 +296,17 @@ ISR(PCINT2_vect) {
         booth2State = WAIT_SECOND_DOOR_CLOSE;
         eventDoor4Open = true;
       }
+      if (doorOverrideMode[3] == ONESHOT_UNLOCKED) {
+        oneshotDoorOpened[3] = true;
+      }
     } else {
       if (booth2State == WAIT_SECOND_DOOR_CLOSE) {
         booth2State = IDLE_FIRST_DOOR;
         eventDoor4Close = true;
+      }
+      if (doorOverrideMode[3] == ONESHOT_UNLOCKED && oneshotDoorOpened[3]) {
+        oneshotDoorOpened[3] = false;
+        eventOneshotRevert[3] = true;
       }
     }
     lastInterruptTime4 = currentTime;
@@ -323,5 +363,14 @@ void loop() {
     Serial.println("DOOR_4_CLOSED");
     sendStatusUpdate();
     eventDoor4Close = false;
+  }
+
+  // One-shot unlock: revert door to AUTO_MODE after it has been opened and closed once
+  for (int i = 0; i < 4; i++) {
+    if (eventOneshotRevert[i]) {
+      eventOneshotRevert[i] = false;
+      doorOverrideMode[i] = AUTO_MODE;
+      Serial.println(String("DOOR_") + (i + 1) + "_AUTO");
+    }
   }
 }

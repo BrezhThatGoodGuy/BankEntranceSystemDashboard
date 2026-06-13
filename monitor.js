@@ -205,43 +205,30 @@ function updateDoorMagContactUI(doorId, state) {
 }
 
 /**
- * Build an inline SVG padlock string.
- * Locked  → red body, shackle closed (both arms enter the body).
- * Unlocked → green body, shackle open (right arm raised above body).
+ * Update the padlock icon for a door.
  *
  * ATmega logic (from ATmega328p.ino → setDoorOutput):
- *   Green HIGH / Red LOW  →  UNLOCKED  →  locked = false
- *   Green LOW  / Red HIGH →  LOCKED    →  locked = true
+ *   Green HIGH / Red LOW  →  UNLOCKED  →  locked = false  →  unlocked-padlock.png
+ *   Green LOW  / Red HIGH →  LOCKED    →  locked = true   →  locked-padlock.png
  *
- * ESP32 sends DOOR_x_LOCKED / DOOR_x_UNLOCKED over UART;
- * the ESP32 relays these as SSE "status" events with the full doors[] array.
+ * ESP32 sends DOOR_x_LOCKED / DOOR_x_UNLOCKED over UART when
+ * the output state changes; the ESP32 relays these as SSE
+ * "status" events with the full doors[] array.
  */
-function padlockSVG(id, iconClass, isLocked, doorName) {
-    const color   = isLocked ? '#dc2626' : '#16a34a';
-    const state   = isLocked ? 'locked'  : 'unlocked';
-    // Locked  shackle: M8,18 L8,11 C8,3 24,3 24,11 L24,18  (right arm enters body)
-    // Unlocked shackle: M8,18 L8,11 C8,3 24,3 24,11 L24,4  (right arm raised above body)
-    const shackle = isLocked
-        ? 'M8,18 L8,11 C8,3 24,3 24,11 L24,18'
-        : 'M8,18 L8,11 C8,3 24,3 24,11 L24,4';
-    return `<svg id="${id}" class="${iconClass} ${state}" viewBox="0 0 32 40" width="35" height="44" xmlns="http://www.w3.org/2000/svg" aria-label="${doorName} – ${isLocked ? 'Locked' : 'Unlocked'}">` +
-        `<path d="${shackle}" stroke="${color}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
-        `<rect x="2" y="17" width="28" height="21" rx="5" fill="${color}"/>` +
-        `<circle cx="16" cy="26" r="3.5" fill="rgba(0,0,0,0.3)"/>` +
-        `<rect x="14.5" y="26" width="3" height="6" rx="1.5" fill="rgba(0,0,0,0.3)"/>` +
-        `</svg>`;
-}
-
 function updateDoorLockIcon(doorId, locked) {
-    const cfg = DOOR_CONFIG[doorId];
+    const cfg  = DOOR_CONFIG[doorId];
     if (!cfg) return;
 
     const icon = document.getElementById(cfg.lockIconId);
     if (!icon) return;
 
-    // Replace the element in-place with the appropriate SVG padlock.
-    // outerHTML swap preserves the ID and classes inside the new element.
-    icon.outerHTML = padlockSVG(cfg.lockIconId, cfg.lockIconId, locked === true, cfg.name);
+    const isLocked = locked === true;
+    icon.src = isLocked ? 'locked-padlock.png' : 'unlocked-padlock.png';
+    icon.alt = `${cfg.name} – ${isLocked ? 'Locked' : 'Unlocked'}`;
+
+    // CSS classes drive the glow effect defined in monitor.css
+    icon.classList.toggle('locked',   isLocked);
+    icon.classList.toggle('unlocked', !isLocked);
 }
 
 /**
@@ -504,10 +491,6 @@ setInterval(refreshCCTV, 100);
 
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 
-function getActiveUser() {
-    return sessionStorage.getItem('username') || 'Unknown';
-}
-
 const MODE_LABELS = {
     evacuate: 'Evacuation',
     normal:   'Normal-Traffic',
@@ -521,7 +504,7 @@ function setOperationMode(modeId) {
     fetch(ACTION_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'MODE_CHANGE', mode: label, user: getActiveUser() })
+        body: JSON.stringify({ action: 'MODE_CHANGE', mode: label })
     })
     .then(r => r.ok ? r.json().catch(() => ({})) : Promise.reject(r.status))
     .then(() => showToast(`Mode → ${label}`, 'success'))
@@ -575,9 +558,13 @@ function openAiPage()       { window.location.href = 'aicontrol.html'; }
 function hideSideNavigationBar() {
     document.querySelector('.js-side-navigation-bar').innerHTML =
         '<div class="hidden-side-navigation-bar"></div>';
+    document.querySelector('.js-navigation-menu').innerHTML =
+        '<svg class="navigation-menu" onclick="showSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Open menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
 }
 
 function showSideNavigationBar() {
+    document.querySelector('.js-navigation-menu').innerHTML =
+        '<svg class="navigation-menu" onclick="hideSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Close menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
     document.querySelector('.js-side-navigation-bar').innerHTML = `
         <div class="shown-side-navigation-bar">
             <div onclick="openPrintLogsDialog()">
@@ -754,13 +741,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Wire evacuate button
     const evBtn = document.querySelector('.evacuate');
     if (evBtn) evBtn.addEventListener('click', () => setOperationMode('evacuate'));
-
-    // Wire log refresh button
-    const logRefreshBtn = document.querySelector('.refresh-btn');
-    if (logRefreshBtn) {
-        logRefreshBtn.textContent = 'o';
-        logRefreshBtn.addEventListener('click', () => pollMonitoringLogs());
-    }
 
     // Paint doors to default closed/locked state
     initializeDoorUI();

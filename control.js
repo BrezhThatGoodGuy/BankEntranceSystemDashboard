@@ -27,14 +27,14 @@ function openAiPage(){
 function hideSideNavigationBar(){
     const hiddensidebar = '<div class = "hidden-side-navigation-bar"></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = hiddensidebar;
-    const clickedmenu = '<svg class="navigation-menu" onclick="showSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Open menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
+    const clickedmenu = '<img class="navigation-menu" onclick="showSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
     document.querySelector('.js-navigation-menu').innerHTML = clickedmenu;
 }
 
 function showSideNavigationBar(){
     const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a></div><div><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
-    const unclickedmenu = '<svg class="navigation-menu" onclick="hideSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Close menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
+    const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
@@ -47,10 +47,6 @@ const API_ENDPOINTS = window.API_ENDPOINTS || {};
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 const LOG_ENDPOINT = API_ENDPOINTS.LOGS_BASE || '/log';
 
-function getActiveUser() {
-    return sessionStorage.getItem('username') || 'Unknown';
-}
-
 function getLogEndpoint(logType) {
     if (API_ENDPOINTS.LOGS_QUERY) return API_ENDPOINTS.LOGS_QUERY(logType);
     return `${LOG_ENDPOINT}?type=${encodeURIComponent(logType)}`;
@@ -59,12 +55,12 @@ function getLogEndpoint(logType) {
 // Store for door actions
 let doorActions = [];
 
-// Door states storage
+// Door states: only two valid values — 'auto-controlled' | 'unlocked'
 let doorStates = {
-    1: 'locked',
-    2: 'locked',
-    3: 'locked',
-    4: 'locked'
+    1: 'auto-controlled',
+    2: 'auto-controlled',
+    3: 'auto-controlled',
+    4: 'auto-controlled'
 };
 
 // Current operation mode
@@ -81,16 +77,14 @@ const modeLabels = {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize door button states from HTML classes
     initializeDoorButtonStates();
     initializeDoorButtons();
     initializeModeButtons();
     initializeEvacuateButton();
     initializeModeSyncListener();
     initializeApiPolling();
-    // Initialize log refresh button
     initializeRefreshButton();
-    // Load initial log data
+    initializeControlSSE();
     loadLogData();
 });
 
@@ -100,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeRefreshButton() {
     const refreshBtn = document.getElementById('refreshBtn');
     if (refreshBtn) {
-        refreshBtn.textContent = 'o';
         refreshBtn.addEventListener('click', function() {
             loadLogData();
         });
@@ -109,22 +102,15 @@ function initializeRefreshButton() {
 
 /**
  * Initialize door button states from HTML classes
- * This ensures buttons work even without API
  */
 function initializeDoorButtonStates() {
     const buttons = document.querySelectorAll('.door-btn');
     buttons.forEach(button => {
         const doorId = button.getAttribute('data-id');
-        
-        // Determine current state from class
-        if (button.classList.contains('locked')) {
-            doorStates[doorId] = 'locked';
-        } else if (button.classList.contains('unlocked')) {
+        if (button.classList.contains('unlocked')) {
             doorStates[doorId] = 'unlocked';
-        } else if (button.classList.contains('auto-controlled')) {
-            doorStates[doorId] = 'auto-controlled';
         } else {
-            doorStates[doorId] = 'locked';
+            doorStates[doorId] = 'auto-controlled';
         }
     });
     console.log('[Control] Door button states initialized:', doorStates);
@@ -172,61 +158,57 @@ function initializeEvacuateButton() {
 }
 
 /**
-
- * @param {string} doorId - Door ID
+ * Toggle a door between auto-controlled and one-shot unlock.
+ * - auto-controlled → unlocked: sends UNLOCK_ONCE to ATmega; ATmega auto-reverts on door close.
+ * - unlocked → auto-controlled: operator cancels the pending unlock; sends AUTO to ATmega.
+ * @param {string} doorId
  */
 function toggleDoor(doorId) {
-    const currentState = doorStates[doorId] || 'locked';
-    
-    let nextState;
-    if (currentState === 'locked') {
-        nextState = 'unlocked';
-    } else if (currentState === 'unlocked') {
-        nextState = 'auto-controlled';
-    } else {
-        nextState = 'locked';
-    }
-    
-    doorStates[doorId] = nextState;
-    
-    // Update the button appearance
-    const button = document.querySelector(`.door-btn[data-id="${doorId}"]`);
-    
-    if (button) {
-        button.classList.remove('locked', 'unlocked', 'auto-controlled');
-        
-        if (nextState === 'unlocked') {
-            button.classList.add('unlocked');
-            const statusEl = button.querySelector('.door-status');
-            if (statusEl) statusEl.textContent = 'UNLOCKED';
-        } else if (nextState === 'locked') {
-            button.classList.add('locked');
-            const statusEl = button.querySelector('.door-status');
-            if (statusEl) statusEl.textContent = 'LOCKED';
-        } else if (nextState === 'auto-controlled') {
-            button.classList.add('auto-controlled');
-            const statusEl = button.querySelector('.door-status');
-            if (statusEl) statusEl.textContent = 'AUTO-CONTROLLED';
-        }
-    }
+    const currentState = doorStates[doorId] || 'auto-controlled';
+    const nextState = currentState === 'auto-controlled' ? 'unlocked' : 'auto-controlled';
 
-    console.log('Door toggled:', doorId, nextState);
-    
-    // Log the action
-    const actionData = {
-        door: doorId,
-        action: 'TOGGLE',
-        state: nextState,
-        time: new Date().toISOString(),
-        user: getActiveUser()
-    };
-    
-    // Try to send to ESP32 server
-    sendDoorAction(actionData);
-    
-    // Also log locally
+    applyDoorButtonState(doorId, nextState);
+
+    // Map UI state to the command the ESP32/ATmega understand
+    const espState = nextState === 'unlocked' ? 'unlock-once' : 'auto';
+    sendDoorAction({ door: doorId, action: 'TOGGLE', state: espState, time: new Date().toISOString() });
+
     if (typeof window.API !== 'undefined') {
-        window.API.addLogEntry(`Door ${doorId}`, 'TOGGLE', nextState);
+        window.API.addLogEntry(`Door ${doorId}`, 'TOGGLE', espState);
+    }
+}
+
+/**
+ * Apply a visual state to a door button and update the doorStates cache.
+ * @param {string|number} doorId
+ * @param {'auto-controlled'|'unlocked'} state
+ */
+function applyDoorButtonState(doorId, state) {
+    doorStates[doorId] = state;
+    const button = document.querySelector(`.door-btn[data-id="${doorId}"]`);
+    if (!button) return;
+
+    button.classList.remove('locked', 'unlocked', 'auto-controlled');
+    const statusEl = button.querySelector('.door-status');
+
+    if (state === 'unlocked') {
+        button.classList.add('unlocked');
+        if (statusEl) statusEl.textContent = 'CANCEL';
+    } else {
+        button.classList.add('auto-controlled');
+        if (statusEl) statusEl.textContent = 'UNLOCK';
+    }
+}
+
+/**
+ * Called when ATmega sends DOOR_x_AUTO after completing a one-shot unlock cycle.
+ * Reverts the button to auto-controlled without sending a command (ATmega already reverted).
+ * @param {number} doorId
+ */
+function revertDoorToAuto(doorId) {
+    if (doorStates[doorId] === 'unlocked') {
+        applyDoorButtonState(String(doorId), 'auto-controlled');
+        showNotification(`Door ${doorId} reverted to auto-controlled`, 'success');
     }
 }
 
@@ -309,10 +291,9 @@ function setOperationMode(modeId) {
     const modeData = {
         action: 'MODE_CHANGE',
         mode: modeLabel,
-        time: new Date().toISOString(),
-        user: getActiveUser()
+        time: new Date().toISOString()
     };
-
+    
     sendModeAction(modeData);
     
     // Update API (for future backend integration)
@@ -389,33 +370,50 @@ function updateModeFromAPI(data) {
 }
 
 /**
- * Update doors from API data
+ * Update doors from API data (two states only: 'unlocked' or 'auto-controlled')
  * @param {object} data - Door data from API
  */
 function updateDoorsFromAPI(data) {
     if (!data || !data.doors) return;
-    
+
     data.doors.forEach(door => {
         const doorId = door.id;
-        const newState = door.state;
-        
-        // Only update if state changed
-        if (doorStates[doorId] !== newState) {
-            doorStates[doorId] = newState;
-            
-            // Update button appearance
-            const button = document.querySelector(`.door-btn[data-id="${doorId}"]`);
-            if (button) {
-                button.classList.remove('locked', 'unlocked', 'auto-controlled');
-                button.classList.add(newState);
-                
-                const statusEl = button.querySelector('.door-status');
-                if (statusEl) {
-                    statusEl.textContent = newState.toUpperCase();
-                }
-            }
+        // Normalize legacy 'locked' state to 'auto-controlled' for two-state UI
+        const rawState = door.state;
+        const uiState = (rawState === 'unlocked') ? 'unlocked' : 'auto-controlled';
+
+        if (doorStates[doorId] !== uiState) {
+            applyDoorButtonState(String(doorId), uiState);
         }
     });
+}
+
+/**
+ * Open SSE connection to receive one-shot revert events from the ATmega via ESP32.
+ * When the ATmega completes a one-shot cycle it sends DOOR_x_AUTO → ESP32 fires
+ * a 'control' SSE event with {type:'auto', doorId:x} → we revert the UI button.
+ */
+function initializeControlSSE() {
+    if (typeof EventSource === 'undefined') return;
+
+    const evtSource = new EventSource('/events');
+
+    evtSource.addEventListener('control', function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            if (data && data.type === 'auto' && data.doorId) {
+                revertDoorToAuto(data.doorId);
+            }
+        } catch (err) {
+            console.warn('[ControlSSE] Failed to parse control event:', err);
+        }
+    });
+
+    evtSource.onerror = function() {
+        console.warn('[ControlSSE] SSE connection error — auto-revert notifications will not work until reconnected.');
+    };
+
+    console.log('[Control] SSE listener for one-shot revert initialized');
 }
 
 // ============================================
@@ -433,23 +431,20 @@ function displayLog() {
     }
     
     let logHTML = '';
-
+    
     for (let i = doorActions.length - 1; i >= 0; i--) {
         const action = doorActions[i];
+        // Handle both ESP32 format and local API format
         const time = action.timestamp || action.time || action.Time || '--:--:--';
-        // ESP32 log entries arrive as a single pre-formatted message string
-        // that already includes the username (e.g. "Door 1 set to unlocked by 'Shyleen'").
-        // Fall back to a composed string for legacy/local entries.
-        const door = action.door || action.doorId || '-';
-        const actionType = action.action || action.actionType || action.type || '-';
-        const status = action.state || action.status || '-';
-        const message = action.message ||
-            `Door ${door}: ${actionType} — ${status}`;
-
+        const door = action.door || action.message || action.doorId || '-';
+        const actionType = action.type || action.action || action.actionType || '-';
+        const status = action.status || action.state || '-';
+        
         logHTML += `
             <div class="log-entry">
                 <div class="log-time">${formatTime(time)}</div>
-                <div class="log-message">${message}</div>
+                <div class="log-clicked">Door: ${door}</div>
+                <div class="log-client">Action: ${actionType} - ${status}</div>
             </div>
         `;
     }

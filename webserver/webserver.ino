@@ -16,6 +16,7 @@ Optimized for Memory & Performance - Int8 Quantized Model (EON Compiler)
 #include <Threat_Detector_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
+#include "mbedtls/base64.h"
 
 
 using namespace eloq;
@@ -107,7 +108,7 @@ size_t jpeg_buf_len = 0;
 camera_fb_t *pending_inference_fb = nullptr;
 camera_fb_t *stored_capture_fb = nullptr;
 
-const float CAPTURE_CONFIDENCE_THRESHOLD = 0.70f;
+const float CAPTURE_CONFIDENCE_THRESHOLD = 0.50f;
 
 // ===== Inference Results Storage =====
 struct InferenceResult {
@@ -184,6 +185,7 @@ void promotePendingInferenceFrame();
 bool applyOperationMode(const String &mode, const String &source, const String &user = "");
 String resolveInferenceDetectionType(const char *label);
 void applyInferenceOperationMode();
+void broadcastInferenceSSE();
 
 // ===== LOGGING FUNCTIONS =====
 
@@ -351,6 +353,8 @@ void processActionPost(const String &body) {
             command += "LOCKED";
         } else if (state.equalsIgnoreCase("unlocked")) {
             command += "UNLOCKED";
+        } else if (state.equalsIgnoreCase("unlock-once")) {
+            command += "UNLOCK_ONCE";
         } else {
             command += "AUTO";
         }
@@ -541,6 +545,11 @@ void processAtmegaLine(const String &line) {
                 doorLockStates[doorId - 1] = false;
                 lastDoorEventId++;
                 events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
+            } else if (suffix.equalsIgnoreCase("AUTO")) {
+                lastDoorEventId++;
+                String ctrlPayload = "{\"type\":\"auto\",\"doorId\":" + String(doorId) + "}";
+                events.send(ctrlPayload.c_str(), "control", lastDoorEventId);
+                appendLogEntry(LOG_CONTROL, "Door " + String(doorId) + " auto-reverted to normal control");
             }
         }
     } else if (line.startsWith("STATS:")) {
@@ -859,6 +868,7 @@ void run_inference_task() {
 
     if (last_result.max_confidence >= CAPTURE_CONFIDENCE_THRESHOLD) {
         promotePendingInferenceFrame();
+        broadcastInferenceSSE();
         applyInferenceOperationMode();
     } else {
         releasePendingInferenceFrame();
@@ -893,6 +903,57 @@ String buildInferenceJsonResponse() {
     
     payload += "]}";
     return payload;
+}
+
+// Push the stored inference frame (JPEG) to all connected SSE clients as a
+// base64-encoded data field alongside the inference result JSON.
+// Called immediately after promotePendingInferenceFrame() so the frame is fresh.
+void broadcastInferenceSSE() {
+    if (stored_capture_fb == nullptr) return;
+    if (events.count() == 0) return;
+
+    // Determine required base64 output length
+    size_t b64_len = 0;
+    mbedtls_base64_encode(nullptr, 0, &b64_len,
+                          stored_capture_fb->buf, stored_capture_fb->len);
+
+    char* b64 = (char*)ps_malloc(b64_len + 1);
+    if (!b64) {
+        Serial.println("[SSE] broadcastInferenceSSE: ps_malloc failed");
+        return;
+    }
+
+    mbedtls_base64_encode((unsigned char*)b64, b64_len, &b64_len,
+                          stored_capture_fb->buf, stored_capture_fb->len);
+    b64[b64_len] = '\0';
+
+    // Build combined JSON: inference metadata + base64 image
+    String payload = "{";
+    payload += "\"timestamp\":"            + String(last_result.timestamp) + ",";
+    payload += "\"top_label\":\""          + String(last_result.top_label ? last_result.top_label : "N/A") + "\",";
+    payload += "\"confidence\":"           + String(last_result.max_confidence, 3) + ",";
+    payload += "\"dsp_time\":"             + String((int)last_result.inference_time_dsp) + ",";
+    payload += "\"classification_time\":" + String((int)last_result.inference_time_classification) + ",";
+    payload += "\"bounding_boxes\":[";
+    for (uint32_t i = 0; i < last_result.bbox_count && i < 10; i++) {
+        if (i > 0) payload += ",";
+        payload += "{\"label\":\""     + String(last_result.bboxes[i].label) + "\",";
+        payload += "\"confidence\":"   + String(last_result.bboxes[i].confidence, 3) + ",";
+        payload += "\"x\":"            + String(last_result.bboxes[i].x) + ",";
+        payload += "\"y\":"            + String(last_result.bboxes[i].y) + ",";
+        payload += "\"width\":"        + String(last_result.bboxes[i].width) + ",";
+        payload += "\"height\":"       + String(last_result.bboxes[i].height) + "}";
+    }
+    payload += "],\"imageB64\":\"";
+    payload += b64;
+    payload += "\"}";
+
+    free(b64);
+
+    lastDoorEventId++;
+    events.send(payload.c_str(), "inference", lastDoorEventId);
+    Serial.printf("[SSE] Inference frame sent (%u byte JPEG) to %u client(s)\n",
+                  stored_capture_fb->len, events.count());
 }
 
 // ===== WEB SERVER ENDPOINTS =====
