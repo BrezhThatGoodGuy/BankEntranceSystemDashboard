@@ -124,12 +124,14 @@ body {
 
 .navigation-menu {
     position: absolute;
-    width: 40px;
-    border-radius: 20px;
+    width: 30px;
+    height: 22px;
     left: 5px;
-    top: -13px;
+    top: -10px;
     cursor: pointer;
     display: block;
+    color: rgba(255, 255, 255, 0.85);
+    overflow: visible;
 }
 
 .navigation-menu p {
@@ -255,11 +257,12 @@ body {
 }
 
 
-.outside-unlocked-padlock-icon, .inside-locked-padlock-icon, .inside-unlocked-padlock-icon, .outside-locked-padlock-icon, .ent-d1-lock-icon, .ent-d2-lock-icon, .ext-d3-lock-icon, .ext-d4-lock-icon {
-    display: inline;
+.outside-unlocked-padlock-icon, .inside-locked-padlock-icon, .inside-unlocked-padlock-icon, .outside-locked-padlock-icon,
+.ent-d1-lock-icon, .ent-d2-lock-icon, .ext-d3-lock-icon, .ext-d4-lock-icon {
+    display: block;
     width: 35px;
-    border-radius: 18px;
-    transition: all 0.3s ease;
+    height: 44px;
+    transition: filter 0.3s ease;
 }
 
 .ent-d1-lock-icon.unlocked, .ent-d2-lock-icon.unlocked, .ext-d3-lock-icon.unlocked, .ext-d4-lock-icon.unlocked {

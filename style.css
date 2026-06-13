@@ -125,17 +125,16 @@ body{
 
 }
 
-.navigation-menu{
-    
+.navigation-menu {
     position: absolute;
-    width: 40px;
-    border-radius: 20px;
-    left : 5px;
-    top : -13px;
+    width: 30px;
+    height: 22px;
+    left: 5px;
+    top: -10px;
     cursor: pointer;
     display: block;
-
-  
+    color: rgba(255, 255, 255, 0.85);
+    overflow: visible;
 }
 .navigation-menu p {
     
