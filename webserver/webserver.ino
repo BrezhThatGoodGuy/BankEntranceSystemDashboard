@@ -11,6 +11,7 @@ Optimized for Memory & Performance - Int8 Quantized Model (EON Compiler)
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include <time.h>
 #include <eloquent_esp32cam.h>
 #include <Threat_Detector_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
@@ -22,6 +23,12 @@ using namespace eloq;
 // ===== WiFi Configuration =====
 const char* ssid = "@verydemure";
 const char* password = "44936051";
+
+// ===== NTP Configuration =====
+#define NTP_SERVER_1     "pool.ntp.org"
+#define NTP_SERVER_2     "time.google.com"
+#define GMT_OFFSET_SEC   (2 * 3600)   // UTC+2 — Central Africa Time (Zimbabwe, no DST)
+#define DST_OFFSET_SEC   0
 
 // ===== UART Configuration (ATmega328p) =====
 #define ATMEGA_RX_PIN 13
@@ -174,19 +181,27 @@ String buildAllLogsPayload();
 void publishDoorEvent(int doorId, const String &state, const String &rawLine);
 void releasePendingInferenceFrame();
 void promotePendingInferenceFrame();
-bool applyOperationMode(const String &mode, const String &source);
+bool applyOperationMode(const String &mode, const String &source, const String &user = "");
 String resolveInferenceDetectionType(const char *label);
 void applyInferenceOperationMode();
 
 // ===== LOGGING FUNCTIONS =====
+
+// Returns an ISO-8601 local timestamp (e.g. "2026-06-13T14:30:05") when NTP is
+// synced, or an uptime string ("UP+00:12:34") as a clearly-labelled fallback so
+// log entries are never empty and the browser's Date() can parse the real form.
 String formatTimestamp() {
-    unsigned long totalSeconds = millis() / 1000;
-    unsigned long seconds = totalSeconds % 60;
-    unsigned long minutes = (totalSeconds / 60) % 60;
-    unsigned long hours = totalSeconds / 3600;
-    char buffer[32];
-    sprintf(buffer, "%02lu:%02lu:%02lu", hours, minutes, seconds);
-    return String(buffer);
+    struct tm timeinfo;
+    if (getLocalTime(&timeinfo)) {
+        char buf[32];
+        strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &timeinfo);
+        return String(buf);
+    }
+    // NTP not yet available — fall back to uptime counter
+    unsigned long s = millis() / 1000;
+    char buf[24];
+    sprintf(buf, "UP+%02lu:%02lu:%02lu", s / 3600, (s / 60) % 60, s % 60);
+    return String(buf);
 }
 
 int resolveLogType(const String &type) {
@@ -319,12 +334,17 @@ void processLogPost(const String &body) {
 
 void processActionPost(const String &body) {
     Serial.println("[ACTION] Received POST: " + body);
-    String door = parseJsonString(body, "door");
+    String door   = parseJsonString(body, "door");
     String action = parseJsonString(body, "action");
-    String state = parseJsonString(body, "state");
-    String mode = parseJsonString(body, "mode");
-    String type = parseJsonString(body, "type");
-    
+    String state  = parseJsonString(body, "state");
+    String mode   = parseJsonString(body, "mode");
+    String type   = parseJsonString(body, "type");
+    String user   = parseJsonString(body, "user");
+
+    // Build the attribution suffix used in every log line.
+    // Empty when the action was triggered by the AI (no human user).
+    String byUser = user.length() > 0 ? " by '" + user + "'" : "";
+
     if (action.equalsIgnoreCase("TOGGLE") && door.length() > 0) {
         String command = "DOOR_" + door + "_";
         if (state.equalsIgnoreCase("locked")) {
@@ -336,19 +356,26 @@ void processActionPost(const String &body) {
         }
         Serial1.println(command);
         Serial.println("[ACTION] DOOR_TOGGLE: Door " + door + " to " + state + " -> " + command);
-        appendLogEntry(LOG_CONTROL, "Door " + door + " set to " + state);
+        appendLogEntry(LOG_CONTROL, "Door " + door + " set to " + state + byUser);
+
     } else if (action.equalsIgnoreCase("MODE_CHANGE") && mode.length() > 0) {
-        applyOperationMode(mode, "ACTION");
-    }    else if (action.equalsIgnoreCase("AI_SYSTEM")) {
+        applyOperationMode(mode, "ACTION", user);
+
+    } else if (action.equalsIgnoreCase("AI_SYSTEM")) {
         ai_system_enabled = state.equalsIgnoreCase("ON");
         Serial.println("[AI] System enabled: " + String(ai_system_enabled ? "YES" : "NO"));
-    }
-    else if (action.equalsIgnoreCase("AI_THREAT")) {
+        appendLogEntry(LOG_AI, "AI System turned " + state + byUser);
+
+    } else if (action.equalsIgnoreCase("AI_THREAT")) {
         ai_threat_detection = state.equalsIgnoreCase("ON");
         Serial.println("[AI] Threat detection active: " + String(ai_threat_detection ? "YES" : "NO"));
+        appendLogEntry(LOG_AI, "AI Threat Detection turned " + state + byUser);
+
     } else if (action.equalsIgnoreCase("AI_DOOR_CONTROL")) {
         ai_door_control_enabled = state.equalsIgnoreCase("ON");
         Serial.println("[AI] Door control enabled: " + String(ai_door_control_enabled ? "YES" : "NO"));
+        appendLogEntry(LOG_AI, "AI Door Control turned " + state + byUser);
+
     } else if (action.equalsIgnoreCase("AI_MODE") && mode.length() > 0) {
         if (type.equalsIgnoreCase("weapon")) {
             ai_weapon_operation_mode = mode;
@@ -356,11 +383,11 @@ void processActionPost(const String &body) {
             ai_masked_operation_mode = mode;
         }
         Serial.println("[AI] " + type + " detection mode set to: " + mode);
-        appendLogEntry(LOG_AI, "AI " + type + " detection mode set to " + mode);
+        appendLogEntry(LOG_AI, "AI " + type + " detection mode set to " + mode + byUser);
     }
 }
 
-bool applyOperationMode(const String &mode, const String &source) {
+bool applyOperationMode(const String &mode, const String &source, const String &user) {
     if (mode.length() == 0) {
         return false;
     }
@@ -403,9 +430,10 @@ bool applyOperationMode(const String &mode, const String &source) {
     current_operation_mode = next_mode;
     current_operation_label = next_label;
 
+    String byUser = user.length() > 0 ? " by '" + user + "'" : "";
     Serial1.println(command);
     Serial.println("[" + source + "] MODE_CHANGE: " + next_label + " -> " + command);
-    appendLogEntry(LOG_CONTROL, "Operation mode changed to " + next_label);
+    appendLogEntry(LOG_CONTROL, "Operation mode changed to " + next_label + byUser);
 
     return true;
 }
@@ -1058,6 +1086,24 @@ void setup() {
         Serial.println("\nWiFi Connected");
         Serial.print("IP Address: ");
         Serial.println(WiFi.localIP());
+
+        // Sync real-world time over NTP
+        configTime(GMT_OFFSET_SEC, DST_OFFSET_SEC, NTP_SERVER_1, NTP_SERVER_2);
+        Serial.print("Waiting for NTP sync");
+        struct tm timeinfo;
+        int ntpAttempts = 0;
+        while (!getLocalTime(&timeinfo) && ntpAttempts < 20) {
+            delay(500);
+            Serial.print('.');
+            ntpAttempts++;
+        }
+        if (getLocalTime(&timeinfo)) {
+            char timeBuf[32];
+            strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%dT%H:%M:%S", &timeinfo);
+            Serial.println("\nNTP sync OK: " + String(timeBuf));
+        } else {
+            Serial.println("\nNTP sync failed — uptime timestamps will be used");
+        }
     } else {
         Serial.println("\nWiFi Connection Failed");
     }

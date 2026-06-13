@@ -221,6 +221,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================
 
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
+
+function getActiveUser() {
+    return sessionStorage.getItem('username') || 'Unknown';
+}
+
 const modeLabels = {
     'evacuate': 'Evacuation',
     'normal': 'Normal-Traffic',
@@ -247,9 +252,10 @@ function setOperationMode(modeId) {
     const modeData = {
         action: 'MODE_CHANGE',
         mode: modeLabel,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        user: getActiveUser()
     };
-    
+
     sendModeAction(modeData);
     
     // Update API (for future backend integration)

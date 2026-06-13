@@ -336,7 +336,7 @@ function applyStatusEvent(data) {
 
 /**
  * Prepend a single log row to #logContainer.
- * Keeps the list trimmed to 50 entries.
+ * Keeps the list trimmed to 10 entries.
  */
 function addLogEntryToUI({ time, door, action, status }) {
     const container = document.getElementById('logContainer');
@@ -355,7 +355,7 @@ function addLogEntryToUI({ time, door, action, status }) {
         `<span class="log-client">${escapeHTML(status || '')}</span>`;
 
     container.insertBefore(row, container.firstChild);
-    while (container.children.length > 50) container.removeChild(container.lastChild);
+    while (container.children.length > 10) container.removeChild(container.lastChild);
 }
 
 /**
@@ -371,8 +371,8 @@ function renderLogsFromPayload(data) {
         return;
     }
 
-    // Most-recent first; cap display at 50
-    const rows = data.logs.slice(-50).reverse();
+    // Most-recent first; cap display at 10
+    const rows = data.logs.slice(-10).reverse();
     container.innerHTML = rows.map(log => {
         const ts  = normalizeTimestamp(log.timestamp || log.time);
         const msg = escapeHTML(log.message || log.action || log.status || JSON.stringify(log));
@@ -491,6 +491,10 @@ setInterval(refreshCCTV, 100);
 
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 
+function getActiveUser() {
+    return sessionStorage.getItem('username') || 'Unknown';
+}
+
 const MODE_LABELS = {
     evacuate: 'Evacuation',
     normal:   'Normal-Traffic',
@@ -504,7 +508,7 @@ function setOperationMode(modeId) {
     fetch(ACTION_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'MODE_CHANGE', mode: label })
+        body: JSON.stringify({ action: 'MODE_CHANGE', mode: label, user: getActiveUser() })
     })
     .then(r => r.ok ? r.json().catch(() => ({})) : Promise.reject(r.status))
     .then(() => showToast(`Mode → ${label}`, 'success'))
@@ -737,6 +741,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Wire evacuate button
     const evBtn = document.querySelector('.evacuate');
     if (evBtn) evBtn.addEventListener('click', () => setOperationMode('evacuate'));
+
+    // Wire log refresh button
+    const logRefreshBtn = document.querySelector('.refresh-btn');
+    if (logRefreshBtn) {
+        logRefreshBtn.textContent = 'o';
+        logRefreshBtn.addEventListener('click', () => pollMonitoringLogs());
+    }
 
     // Paint doors to default closed/locked state
     initializeDoorUI();

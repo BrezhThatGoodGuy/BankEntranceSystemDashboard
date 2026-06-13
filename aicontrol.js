@@ -241,15 +241,80 @@ window.aiConfig = {
     }
 };
 
-// Prevent polling from overwriting user changes before they sync to the server
-// Initialise to "now" so the first poll (within 5s of load) never clobbers user state
-let lastInteractionTime = Date.now();
+// Prevent polling from overwriting user changes before they sync to the server.
+// Start at 0 (not Date.now()) so the first poll on page load is never blocked.
+let lastInteractionTime = 0;
+
+// ============================================
+// Config persistence helpers (localStorage)
+// ============================================
+
+function saveConfigToStorage(config) {
+    try {
+        localStorage.setItem('aiConfig', JSON.stringify(config));
+    } catch (e) { /* storage full — silent */ }
+}
+
+/**
+ * Apply a full AI config object to window.aiConfig and the UI.
+ * Also saves it to localStorage so the next reload can restore immediately.
+ * Does NOT check the interaction guard — callers that need the guard must
+ * check it before calling this.
+ * @param {object} data - Full aiConfig payload (must contain .aiSystem)
+ */
+function applyAiConfig(data) {
+    if (!data || !data.aiSystem) return;
+    window.aiConfig = data;
+
+    updateAiToggle('aiSystemToggle',      'aiSystemStatus', data.aiSystem.enabled);
+    updateAiToggle('maskedFaceToggle',    null,             data.aiSystem.maskedFaceDetection);
+    updateAiToggle('weaponToggle',        null,             data.aiSystem.weaponDetection);
+    updateAiToggle('aiDoorControlToggle', null,             data.aiSystem.aiDoorControl);
+
+    if (data.operationModes) {
+        updateModeSelection('weapon', data.operationModes.weapon);
+        updateModeSelection('masked', data.operationModes.masked);
+    }
+
+    saveConfigToStorage(data);
+}
+
+/**
+ * Load config immediately on page start:
+ * 1. Restore the last-known config from localStorage so the UI is populated
+ *    instantly (before the server replies).
+ * 2. Fetch the live state from the ESP32 server and apply it (overrides localStorage).
+ */
+function loadInitialConfig() {
+    const saved = localStorage.getItem('aiConfig');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.aiSystem) {
+                applyAiConfig(parsed);
+                console.log('[AI Config] Restored from localStorage:', parsed);
+            }
+        } catch (e) {
+            console.warn('[AI Config] Failed to parse saved config from localStorage');
+        }
+    }
+
+    fetch(AI_CONFIG_ENDPOINT)
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.aiSystem) {
+                applyAiConfig(data);
+                console.log('[AI Config] Loaded from server on page load:', data);
+            }
+        })
+        .catch(err => console.warn('[AI] Initial config fetch failed — using localStorage fallback:', err));
+}
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize radio button states from current config
     initializeEvacuateButton();
     initializeModeSelections();
+    loadInitialConfig();
     initializeApiPolling();
     pollAiLogs();
     setInterval(pollAiLogs, 5000);
@@ -261,6 +326,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 const AI_CONFIG_ENDPOINT = API_ENDPOINTS.AI_CONFIG || '/api/ai-config';
+
+function getActiveUser() {
+    return sessionStorage.getItem('username') || 'Unknown';
+}
 const modeLabels = {
     'evacuate': 'Evacuation',
     'normal': 'Normal-Traffic',
@@ -287,9 +356,10 @@ function setOperationMode(modeId) {
     const modeData = {
         action: 'MODE_CHANGE',
         mode: modeLabel,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        user: getActiveUser()
     };
-    
+
     sendModeAction(modeData);
     
     // Update API (for future backend integration)
@@ -333,7 +403,7 @@ function syncAiMode(type, mode) {
     return fetch(ACTION_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'AI_MODE', type, mode })
+        body: JSON.stringify({ action: 'AI_MODE', type, mode, user: getActiveUser() })
     }).catch(err => console.warn('[AI] Failed to sync detection mode:', err));
 }
 
@@ -397,22 +467,12 @@ function updateAiConfigFromAPI(data) {
     // /status.json was polled instead of /api/ai-config). Bail immediately.
     if (!data || !data.aiSystem) return;
 
-    // Optimistic UI: ignore poll results for 5 s after any user interaction
+    // Optimistic UI: ignore poll results for 5 s after any user interaction.
+    // lastInteractionTime starts at 0 so this guard never fires on the initial load.
     if (Date.now() - lastInteractionTime < 5000) return;
 
     const previousConfig = JSON.stringify(window.aiConfig);
-    window.aiConfig = data;
-
-    // Mirror ESP32 state into the UI toggles
-    updateAiToggle('aiSystemToggle',    'aiSystemStatus', data.aiSystem.enabled);
-    updateAiToggle('maskedFaceToggle',  null,             data.aiSystem.maskedFaceDetection);
-    updateAiToggle('weaponToggle',      null,             data.aiSystem.weaponDetection);
-    updateAiToggle('aiDoorControlToggle', null,           data.aiSystem.aiDoorControl);
-
-    if (data.operationModes) {
-        updateModeSelection('weapon', data.operationModes.weapon);
-        updateModeSelection('masked', data.operationModes.masked);
-    }
+    applyAiConfig(data);
 
     if (previousConfig !== JSON.stringify(window.aiConfig)) {
         console.log('[AI Config] Synced from ESP32:', window.aiConfig);
@@ -484,12 +544,13 @@ function toggleAiSystem() {
     
     if (toggle) {
         window.aiConfig.aiSystem.enabled = toggle.checked;
-        
+        saveConfigToStorage(window.aiConfig);
+
         // Sync Master AI State with ESP32
         fetch(ACTION_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'AI_SYSTEM', state: toggle.checked ? 'ON' : 'OFF' })
+            body: JSON.stringify({ action: 'AI_SYSTEM', state: toggle.checked ? 'ON' : 'OFF', user: getActiveUser() })
         }).catch(err => console.warn('[AI] Failed to sync master state', err));
 
         if (toggle.checked) {
@@ -532,7 +593,7 @@ function syncThreatState() {
     fetch(ACTION_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'AI_THREAT', state: active ? 'ON' : 'OFF' })
+        body: JSON.stringify({ action: 'AI_THREAT', state: active ? 'ON' : 'OFF', user: getActiveUser() })
     }).catch(err => console.warn('[AI] Failed to sync threat state:', err));
 }
 
@@ -544,7 +605,8 @@ function toggleMaskedFace() {
     
     if (toggle) {
         window.aiConfig.aiSystem.maskedFaceDetection = toggle.checked;
-        
+        saveConfigToStorage(window.aiConfig);
+
         // Update combined threat state on ESP32
         syncThreatState();
 
@@ -572,7 +634,8 @@ function toggleWeapon() {
     
     if (toggle) {
         window.aiConfig.aiSystem.weaponDetection = toggle.checked;
-        
+        saveConfigToStorage(window.aiConfig);
+
         // Update combined threat state on ESP32
         syncThreatState();
 
@@ -599,10 +662,11 @@ function toggleAiDoorControl() {
     
     if (toggle) {
         window.aiConfig.aiSystem.aiDoorControl = toggle.checked;
+        saveConfigToStorage(window.aiConfig);
         fetch(ACTION_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'AI_DOOR_CONTROL', state: toggle.checked ? 'ON' : 'OFF' })
+            body: JSON.stringify({ action: 'AI_DOOR_CONTROL', state: toggle.checked ? 'ON' : 'OFF', user: getActiveUser() })
         }).catch(err => console.warn('[AI] Failed to sync door-control state:', err));
         
         console.log('AI Door Control:', toggle.checked ? 'ON' : 'OFF');
@@ -626,6 +690,7 @@ function updateAiMode(type, mode) {
     } else if (type === 'masked') {
         window.aiConfig.operationModes.masked = mode;
     }
+    saveConfigToStorage(window.aiConfig);
     
     const modeNames = {
         'evacuate': 'Evacuate',

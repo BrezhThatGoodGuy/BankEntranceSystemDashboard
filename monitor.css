@@ -588,6 +588,11 @@ body {
     color: #4fc3f7;
 }
 
+.log-message {
+    color: #00ff88;
+    font-weight: 600;
+}
+
 /* Empty State */
 
 .empty-log {

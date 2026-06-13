@@ -956,6 +956,12 @@ input[type="radio"] { display: none; }
     font-size: 0.6rem;
 }
 
+.log-message {
+    color: rgb(255, 142, 3);
+    font-weight: 600;
+    font-size: 0.65rem;
+}
+
 /* Responsive breakpoints */
 @media (max-width: 1200px) {
     .main-container {

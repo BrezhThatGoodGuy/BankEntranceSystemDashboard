@@ -47,6 +47,10 @@ const API_ENDPOINTS = window.API_ENDPOINTS || {};
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 const LOG_ENDPOINT = API_ENDPOINTS.LOGS_BASE || '/log';
 
+function getActiveUser() {
+    return sessionStorage.getItem('username') || 'Unknown';
+}
+
 function getLogEndpoint(logType) {
     if (API_ENDPOINTS.LOGS_QUERY) return API_ENDPOINTS.LOGS_QUERY(logType);
     return `${LOG_ENDPOINT}?type=${encodeURIComponent(logType)}`;
@@ -96,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeRefreshButton() {
     const refreshBtn = document.getElementById('refreshBtn');
     if (refreshBtn) {
+        refreshBtn.textContent = 'o';
         refreshBtn.addEventListener('click', function() {
             loadLogData();
         });
@@ -212,7 +217,8 @@ function toggleDoor(doorId) {
         door: doorId,
         action: 'TOGGLE',
         state: nextState,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        user: getActiveUser()
     };
     
     // Try to send to ESP32 server
@@ -303,9 +309,10 @@ function setOperationMode(modeId) {
     const modeData = {
         action: 'MODE_CHANGE',
         mode: modeLabel,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        user: getActiveUser()
     };
-    
+
     sendModeAction(modeData);
     
     // Update API (for future backend integration)
@@ -426,20 +433,23 @@ function displayLog() {
     }
     
     let logHTML = '';
-    
+
     for (let i = doorActions.length - 1; i >= 0; i--) {
         const action = doorActions[i];
-        // Handle both ESP32 format and local API format
         const time = action.timestamp || action.time || action.Time || '--:--:--';
-        const door = action.door || action.message || action.doorId || '-';
-        const actionType = action.type || action.action || action.actionType || '-';
-        const status = action.status || action.state || '-';
-        
+        // ESP32 log entries arrive as a single pre-formatted message string
+        // that already includes the username (e.g. "Door 1 set to unlocked by 'Shyleen'").
+        // Fall back to a composed string for legacy/local entries.
+        const door = action.door || action.doorId || '-';
+        const actionType = action.action || action.actionType || action.type || '-';
+        const status = action.state || action.status || '-';
+        const message = action.message ||
+            `Door ${door}: ${actionType} — ${status}`;
+
         logHTML += `
             <div class="log-entry">
                 <div class="log-time">${formatTime(time)}</div>
-                <div class="log-clicked">Door: ${door}</div>
-                <div class="log-client">Action: ${actionType} - ${status}</div>
+                <div class="log-message">${message}</div>
             </div>
         `;
     }

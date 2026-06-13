@@ -146,7 +146,7 @@ const systemState = {
 // Log storage configuration
 const LOG_CONFIG = {
     MAX_LOGS: 100,          // Maximum logs to store in ESP32
-    DISPLAY_LOGS: 12,       // Number of logs to display on page
+    DISPLAY_LOGS: 10,       // Number of logs to display on page
     TIMESTAMP_FORMAT: "YY/MM/DD---HH:MM:SS"
 };
 
