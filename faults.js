@@ -262,11 +262,14 @@ function applyFaultsData(data) {
     updateFaultStats(data.faults);
 }
 
+const _barColors = ['transparent', '#2ecc71', '#f1c40f', '#e67e22', '#e74c3c', '#c0392b'];
+
 function updateFaultBox(componentId, status, count) {
     const box = document.querySelector('.fault-box[data-fault-id="' + componentId + '"]');
     if (!box) return;
     const statusEl = box.querySelector('.fault-status');
     const countEl  = box.querySelector('.fault-count-badge');
+    const fillEl   = box.querySelector('.fault-health-bar-fill');
     if (statusEl) {
         statusEl.textContent = status === 'fault' ? 'FAULT' : 'NORMAL';
         statusEl.className   = 'fault-status status-' + (status === 'fault' ? 'fault' : 'normal');
@@ -274,6 +277,10 @@ function updateFaultBox(componentId, status, count) {
     if (countEl) {
         countEl.textContent = count + '/5';
         countEl.className   = 'fault-count-badge' + (count >= 5 ? ' count-critical' : count > 0 ? ' count-warning' : '');
+    }
+    if (fillEl) {
+        fillEl.style.width           = Math.min(count / 5 * 100, 100) + '%';
+        fillEl.style.backgroundColor = _barColors[Math.min(count, 5)];
     }
 }
 

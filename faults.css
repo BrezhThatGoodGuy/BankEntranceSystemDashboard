@@ -19,8 +19,8 @@
     width: 100%;
     max-width: 700px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 142, 3, 0.65);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 142, 3, 0.28);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     flex: 1;
 }
@@ -32,8 +32,8 @@
     width: 100%;
     max-width: 320px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 142, 3, 0.65);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 142, 3, 0.28);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     flex: 0 0 320px;
 }
@@ -133,7 +133,7 @@
 }
 
 .card-header {
-    padding: 12px 20px;
+    padding: 8px 16px;
     border-bottom: 1px solid rgba(255, 142, 3, 0.3);
     display: flex;
     align-items: center;
@@ -151,7 +151,7 @@
 
 /* Fault Section */
 .fault-section {
-    padding: 12px 20px;
+    padding: 8px 16px;
     border-bottom: 1px solid rgba(255, 142, 3, 0.2);
 }
 
@@ -160,9 +160,9 @@
 }
 
 .section-title {
-    margin: 0 0 10px 0;
-    color: rgb(255, 142, 3);
-    font-size: 0.75rem;
+    margin: 0 0 5px 0;
+    color: #e4eaf6;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -171,7 +171,7 @@
 /* Fault Grid Layout */
 .fault-grid {
     display: grid;
-    gap: 10px;
+    gap: 6px;
 }
 
 .lock-grid, .mc-grid {
@@ -183,29 +183,54 @@
     max-width: 60%;
 }
 
-/* Fault Box */
+/* Fault Box — row 1: name | row 2: health bar + count | row 3: status + report */
 .fault-box {
     background: #1e2e50;
-    border: 1px solid rgba(100, 120, 180, 0.45);
+    border: 1px solid rgba(100, 120, 180, 0.18);
     border-radius: 6px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
+    padding: 10px 11px;
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 6px;
+    gap: 7px 8px;
     transition: 0.3s;
 }
 
 .fault-box:hover {
     background: #243660;
-    border-color: rgba(255, 142, 3, 0.7);
+    border-color: rgba(255, 142, 3, 0.3);
 }
 
 .fault-label {
+    grid-column: 1 / -1;
     color: #d8e0f0;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.5px;
+}
+
+/* Health bar row — spans both columns, flex inside */
+.fault-health-row {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.fault-health-bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(100, 120, 180, 0.07);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fault-health-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    background: transparent;
+    transition: width 0.4s ease, background-color 0.4s ease;
 }
 
 /* ==========================================================
@@ -556,19 +581,18 @@
 .fault-status {
     font-size: 0.6rem;
     font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 2px;
+    padding: 0;
     letter-spacing: 0.5px;
+    justify-self: start;
+    background: none;
 }
 
 .status-normal {
     color: rgb(46, 204, 113);
-    background: rgba(46, 204, 113, 0.25);
 }
 
 .status-fault {
     color: rgb(231, 76, 60);
-    background: rgba(231, 76, 60, 0.25);
 }
 
 /* Clear faults button */
@@ -593,39 +617,40 @@
 
 /* Fault occurrence count badge */
 .fault-count-badge {
-    font-size: 0.58rem;
+    font-size: 0.55rem;
     font-weight: 700;
-    padding: 1px 7px;
+    padding: 1px 6px;
     border-radius: 10px;
-    background: rgba(100, 120, 180, 0.15);
-    color: #9aaac8;
+    background: rgba(100, 120, 180, 0.09);
+    color: #7a8aaa;
     letter-spacing: 0.3px;
 }
 .fault-count-badge.count-warning {
-    background: rgba(241, 196, 15, 0.18);
-    color: rgb(241, 196, 15);
+    background: rgba(241, 196, 15, 0.1);
+    color: rgb(200, 162, 10);
 }
 .fault-count-badge.count-critical {
-    background: rgba(231, 76, 60, 0.18);
-    color: rgb(231, 76, 60);
+    background: rgba(231, 76, 60, 0.1);
+    color: rgb(200, 60, 46);
 }
 
 .report-btn {
-    background-color: transparent;
-    color: rgb(255, 142, 3);
-    border: 1px solid rgb(255, 142, 3);
-    border-radius: 2px;
+    background-color: rgb(162, 160, 164);
+    color: #111;
+    border: 1px solid rgb(45, 44, 44);
+    border-radius: 3px;
     padding: 3px 8px;
     font-size: 0.6rem;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.2s;
     letter-spacing: 0.5px;
 }
 
 .report-btn:hover {
-    background-color: rgb(255, 142, 3);
-    color: #1b1919;
+    background-color: rgb(204, 196, 196);
+    border-color: rgb(45, 44, 44);
+    color: #000;
 }
 
 /* =========================================

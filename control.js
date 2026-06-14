@@ -389,12 +389,15 @@ function initializeModeSyncListener() {
  */
 function initializeApiPolling() {
     if (typeof window.API !== 'undefined') {
+        // Fetch immediately so the UI reflects the current ESP32 state without waiting
+        window.API.fetchMode().then(data => { if (data) updateModeFromAPI(data); });
+
         // Poll mode every 5 seconds
         window.API.startPolling('MODE', updateModeFromAPI, 5000);
-        
+
         // Poll doors every 3 seconds
         window.API.startPolling('DOORS', updateDoorsFromAPI, 3000);
-        
+
         console.log('[Control] API polling initialized');
     } else {
         console.warn('[Control] API client not loaded');
