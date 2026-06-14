@@ -191,33 +191,33 @@
                     </div>
                     
                     <!-- Inference Results Section -->
-                    <div class="inference-results" style="margin-top: 15px; padding: 15px; background-color: #f5f5f5; border-radius: 4px; border-left: 4px solid #4fc1ff;">
+                    <div class="inference-results">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <h4 style="margin: 0;">Inference Results</h4>
-                            <span id="inferenceTime" style="font-size: 12px; color: #666;">--ms</span>
+                            <span id="inferenceTime" style="font-size: 12px; color: #1e2a38;">--ms</span>
                         </div>
                         
                         <div id="inferenceContent" style="font-size: 13px;">
-                            <div style="color: #999; padding: 10px; text-align: center;">Waiting for inference...</div>
+                            <div style="color: #2d3a4a; padding: 10px; text-align: center;">Waiting for inference...</div>
                         </div>
                         
                         <!-- Classification Results -->
                         <div id="classificationResults" style="display: none; margin-top: 10px;">
-                            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">Classification:</div>
-                            <div id="topLabel" style="padding: 8px; background-color: #e8f5e9; border-radius: 3px; margin-bottom: 5px;">
-                                <span style="font-weight: bold;" id="labelName">--</span>
-                                <span id="labelConfidence" style="float: right; color: #2e7d32; font-weight: bold;">0%</span>
+                            <div style="font-weight: bold; color: #1e2a38; margin-bottom: 8px;">Classification:</div>
+                            <div id="topLabel" style="padding: 8px; background-color: rgba(0,0,0,0.12); border-radius: 3px; margin-bottom: 5px;">
+                                <span style="font-weight: bold; color: #1e2a38;" id="labelName">--</span>
+                                <span id="labelConfidence" style="float: right; color: #145a1e; font-weight: bold;">0%</span>
                             </div>
                         </div>
                         
                         <!-- Object Detection Results -->
                         <div id="detectionResults" style="display: none; margin-top: 10px;">
-                            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">Detections:</div>
+                            <div style="font-weight: bold; color: #1e2a38; margin-bottom: 8px;">Detections:</div>
                             <div id="detectionList" style="max-height: 150px; overflow-y: auto;"></div>
                         </div>
                         
                         <!-- Timing Info -->
-                        <div id="timingInfo" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 11px; color: #666;">
+                        <div id="timingInfo" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.2); font-size: 11px; color: #1e2a38;">
                             <div>DSP: <span id="dspTime">--</span>ms</div>
                             <div>Classification: <span id="classTime">--</span>ms</div>
                             <div>Total: <span id="totalTime">--</span>ms</div>
@@ -239,6 +239,7 @@
 <script src="aicontrol-inference.js"></script>
 <script src="script.js"></script>
 <script src="logout.js"></script>
+
 
 </body>
 </html>

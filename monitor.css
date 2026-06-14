@@ -34,13 +34,14 @@ body {
     padding-top: 5px;
     margin-left: 30px;
     z-index: 10;
+    gap: 8px;
 }
 
 .monitor-page-link, .command-page-link, .faults-page-link, .ai-page-link {
-    padding: 5px 40px 5px 40px;
+    padding: 5px 18px 5px 18px;
     display: flex;
     justify-self: stretch;
-    width: 25%;
+    width: calc(25% - 6px);
     height: 35px;
     background-color: rgb(162, 160, 164);
     border-style: solid;
@@ -54,7 +55,7 @@ body {
 }
 
 .monitor-page-link:hover, .command-page-link:hover, .faults-page-link:hover, .ai-page-link:hover {
-    padding: 5px 42px 7px 42px;
+    padding: 5px 20px 7px 20px;
     height: 45px;
     background-color: rgb(204, 196, 196);
     border-style: solid;
@@ -440,27 +441,23 @@ body {
     width: 320px;
     height: 495px;
 
-    background: #05080d;
-    border: 1px solid rgba(0, 255, 120, 0.25);
-    border-radius: 8px;
+    background: #18243e;
+    border: 1px solid rgba(255, 142, 3, 0.35);
+    border-radius: 12px;
 
     display: flex;
     flex-direction: column;
 
     overflow: hidden;
 
-    box-shadow:
-        0 0 10px rgba(0,255,120,0.08),
-        inset 0 0 15px rgba(0,255,120,0.03);
-
-    font-family: "Courier New", monospace;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Header */
 
 .log-header {
-    background: #0d1117;
-    border-bottom: 1px solid rgba(0,255,120,0.18);
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 142, 3, 0.25);
 
     padding: 8px 10px;
 
@@ -502,11 +499,11 @@ body {
     width: 22px;
     height: 22px;
 
-    border: 1px solid rgba(0,255,120,0.4);
+    border: 1px solid rgba(255, 142, 3, 0.4);
     border-radius: 3px;
 
-    background: #0d1117;
-    color: rgba(249, 249, 249, 0.992);;
+    background: rgba(0, 0, 0, 0.2);
+    color: rgba(249, 249, 249, 0.992);
 
     cursor: pointer;
 
@@ -547,7 +544,7 @@ body {
 }
 
 #logContainer::-webkit-scrollbar-track {
-    background: #05080d;
+    background: #0f1c34;
 }
 
 #logContainer::-webkit-scrollbar-thumb {
@@ -843,4 +840,224 @@ body {
     #printableLogsArea p{
         color: black;
     }
+}
+
+/* ==========================================================
+   THEME SETTINGS PANEL  — minimal VSCode-style picker
+   ========================================================== */
+
+.theme-panel {
+    position: fixed;
+    left: 108px;
+    top: 150px;
+    background: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+    padding: 4px 0;
+    min-width: 140px;
+    z-index: 2000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    font-family: Inter, sans-serif;
+}
+
+.theme-panel-heading {
+    padding: 7px 14px 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #888;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 3px;
+}
+
+.theme-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    color: #cccccc;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 400;
+    transition: background 0.1s;
+}
+
+.theme-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.theme-tick-icon {
+    flex-shrink: 0;
+    opacity: 0;
+    color: #cccccc;
+}
+
+.theme-item.active .theme-tick-icon {
+    opacity: 1;
+}
+
+/* ==========================================================
+   LIGHT THEME — Monitor Page
+   Background: #f7f7f5 | Cards from: #90a6b0 / #d49f74 / #1061a3
+   ========================================================== */
+
+[data-theme="light"] body {
+    background-color: #d3e2e6;
+}
+
+[data-theme="light"] .simulation-background {
+    background: #d3e2e6;
+}
+
+[data-theme="light"] .navigation-menu {
+    color: rgba(30, 30, 30, 0.85);
+}
+
+[data-theme="light"] .main-navigation-bar {
+    border-top-color: #1061a3;
+}
+
+[data-theme="light"] .monitor-page-link,
+[data-theme="light"] .command-page-link,
+[data-theme="light"] .faults-page-link,
+[data-theme="light"] .ai-page-link {
+    background-color: #e6ecef;
+    border: none;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .hidden-side-navigation-bar {
+    border-color: #1061a3;
+}
+
+[data-theme="light"] .shown-side-navigation-bar div {
+    background-color: #e6ecef;
+    border: none;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .bank-booth-template {
+    background: #dce5e9;
+    border-color: #90a6b0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] .live-image-container {
+    background: #e6ecef;
+}
+
+[data-theme="light"] .booth-divider {
+    background-color: #90a6b0;
+}
+
+[data-theme="light"] .outside-door-lock-icons,
+[data-theme="light"] .inside-door-lock-icons {
+    color: #1061a3;
+}
+
+[data-theme="light"] .door-label {
+    color: #4e626e;
+}
+
+[data-theme="light"] .log-section {
+    background: #e6ecef;
+    border-color: #90a6b0;
+    box-shadow: none;
+}
+
+[data-theme="light"] .log-header {
+    background: #dce5e9;
+    border-bottom-color: #90a6b0;
+    color: #22303c;
+}
+
+[data-theme="light"] .log-header h3 {
+    color: #1061a3;
+}
+
+[data-theme="light"] .log-header-info {
+    color: #4e626e;
+}
+
+[data-theme="light"] #logContainer {
+    background: transparent;
+}
+
+[data-theme="light"] #logContainer::-webkit-scrollbar-track {
+    background: #e6ecef;
+}
+
+[data-theme="light"] #logContainer::-webkit-scrollbar-thumb {
+    background: #90a6b0;
+}
+
+[data-theme="light"] .refresh-btn {
+    background: #dce5e9;
+    border-color: #90a6b0;
+    color: #22303c;
+}
+
+[data-theme="light"] .refresh-btn:hover {
+    background: #c5d4da;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4 {
+    color: #1061a3;
+}
+
+[data-theme="light"] .log-entry {
+    color: #22303c;
+}
+
+[data-theme="light"] .log-entry:first-child {
+    color: #22303c;
+    text-shadow: none;
+}
+
+[data-theme="light"] .log-time {
+    color: #7a8e96;
+}
+
+[data-theme="light"] .log-clicked {
+    color: #1061a3;
+}
+
+[data-theme="light"] .log-client {
+    color: #4e626e;
+}
+
+[data-theme="light"] .log-message {
+    color: #1061a3;
+}
+
+[data-theme="light"] .empty-log {
+    color: #90a6b0;
+}
+
+/* Theme panel — light mode overrides */
+[data-theme="light"] .theme-panel {
+    background: #ffffff;
+    border-color: #d0d0d0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .theme-panel-heading {
+    color: #777;
+    border-bottom-color: #e8e8e8;
+}
+
+[data-theme="light"] .theme-item {
+    color: #333;
+}
+
+[data-theme="light"] .theme-item:hover {
+    background: #f0f0f0;
+}
+
+[data-theme="light"] .theme-tick-icon {
+    color: #333;
 }

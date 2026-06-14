@@ -204,6 +204,127 @@
     letter-spacing: 0.5px;
 }
 
+/* ==========================================================
+   LIGHT THEME — Faults Page
+   ========================================================== */
+
+[data-theme="light"] .simulation-background {
+    background: #d3e2e6;
+}
+
+[data-theme="light"] .faults-card {
+    background: #e6ecef;
+    border-color: #90a6b0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .logs-card {
+    background: #e6ecef;
+    border-color: #90a6b0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .logs-stats {
+    border-bottom-color: rgba(144, 166, 176, 0.4);
+}
+
+[data-theme="light"] .stat-box {
+    background: #dce5e9;
+}
+
+[data-theme="light"] .stat-value {
+    color: #d49f74;
+}
+
+[data-theme="light"] .stat-label {
+    color: #4e626e;
+}
+
+[data-theme="light"] .logs-table-header {
+    background: #c5d4da;
+    color: #1061a3;
+}
+
+[data-theme="light"] .log-row {
+    border-bottom-color: rgba(144, 166, 176, 0.3);
+}
+
+[data-theme="light"] .log-row:hover {
+    background: rgba(212, 159, 116, 0.07);
+}
+
+[data-theme="light"] .log-id {
+    color: #22303c;
+}
+
+[data-theme="light"] .log-time {
+    color: #4e626e;
+}
+
+[data-theme="light"] .card-header {
+    border-bottom-color: rgba(144, 166, 176, 0.5);
+}
+
+[data-theme="light"] .card-header h2 {
+    color: #1061a3;
+}
+
+[data-theme="light"] .fault-section {
+    border-bottom-color: rgba(144, 166, 176, 0.3);
+}
+
+[data-theme="light"] .section-title {
+    color: #1061a3;
+}
+
+[data-theme="light"] .fault-box {
+    background: #dce5e9;
+    border-color: rgba(144, 166, 176, 0.5);
+}
+
+[data-theme="light"] .fault-box:hover {
+    background: #c5d4da;
+    border-color: #d49f74;
+}
+
+[data-theme="light"] .fault-label {
+    color: #22303c;
+}
+
+[data-theme="light"] .navigation-menu {
+    color: rgba(30, 30, 30, 0.85);
+}
+
+[data-theme="light"] .main-navigation-bar {
+    border-top-color: #1061a3;
+}
+
+[data-theme="light"] .monitor-page-link,
+[data-theme="light"] .command-page-link,
+[data-theme="light"] .faults-page-link,
+[data-theme="light"] .ai-page-link {
+    background-color: #e6ecef;
+    border: none;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .hidden-side-navigation-bar {
+    border-color: #1061a3;
+}
+
+[data-theme="light"] .shown-side-navigation-bar div {
+    background-color: #e6ecef;
+    border: none;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4 {
+    color: #1061a3;
+}
+
 /* ========================================================
    PRINT DIALOG STYLES
    ======================================================== */

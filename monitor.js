@@ -576,8 +576,10 @@ function showSideNavigationBar() {
             <div>
                 <p>Help</p>
                 <a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp support">
-                    <svg class="phone-icon" width="40" height="40" viewBox="0 0 24 24" fill="#25D366" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" stroke="none">
+                        <circle cx="16" cy="16" r="16" fill="#25D366"/>
+                        <path fill="#FFFFFF" d="M16 6.5c-5.2 0-9.5 4-9.5 9c0 1.8.6 3.5 1.7 5L7 25.5l5.2-1.6c1.2.6 2.5.9 3.8.9 5.2 0 9.5-4 9.5-9s-4.3-9.3-9.5-9.3z"/>
+                        <path fill="#25D366" d="M13.3 11.2c-.3-.7-.6-.7-.9-.7h-.8c-.3 0-.7.1-.9.4-.3.3-1.1 1.1-1.1 2.6 0 1.5 1.1 3 1.3 3.2.2.2 2.2 3.4 5.4 4.7 2.7 1.1 3.2.9 3.8.8.6-.1 1.8-.8 2-1.5 .3-.7.3-1.3.2-1.5-.1-.2-.5-.3-1.1-.6-.6-.3-1.4-.7-1.6-.8-.2-.1-.5-.1-.7.2 -.2.3-.8.8-1 .9-.2.1-.4.1-.7 0-.3-.2-1.3-.5-2.5-1.6-.9-.8-1.5-1.8-1.7-2.1 -.2-.3 0-.5.1-.7.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2.1-.4 0-.6 -.1-.2-.7-1.7-.9-2.3z"/>
                     </svg>
                 </a>
             </div>
@@ -604,7 +606,7 @@ function applyTheme(name) {
 function toggleTheme(name) {
     localStorage.setItem('systemTheme', name);
     applyTheme(name);
-    document.querySelectorAll('.theme-option').forEach(el => {
+    document.querySelectorAll('.theme-item').forEach(el => {
         el.classList.toggle('active', el.dataset.theme === name);
     });
 }
@@ -612,31 +614,37 @@ function toggleTheme(name) {
 function showThemeSettings() {
     const current = localStorage.getItem('systemTheme') || 'dark';
     document.querySelector('.js-side-navigation-bar').innerHTML = `
-        <div class="theme-settings-overlay" onclick="closeThemeSettings(event)">
-            <div class="theme-settings-card" onclick="event.stopPropagation()">
-                <div class="theme-card-header">
-                    <h2>System Theme</h2>
-                    <button class="close-theme-btn" onclick="closeThemeSettings()">✕</button>
-                </div>
-                <div class="theme-card-body">
-                    <p class="theme-description">Choose your preferred theme</p>
-                    <div class="theme-options">
-                        <div class="theme-option ${current === 'dark' ? 'active' : ''}" data-theme="dark" onclick="toggleTheme('dark')">
-                            <div class="theme-preview dark-preview"></div><span>Dark</span>
-                        </div>
-                        <div class="theme-option ${current === 'light' ? 'active' : ''}" data-theme="light" onclick="toggleTheme('light')">
-                            <div class="theme-preview light-preview"></div><span>Light</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="theme-panel">
+            <div class="theme-panel-heading">Set Theme</div>
+            <div class="theme-item ${current === 'dark' ? 'active' : ''}" data-theme="dark" onclick="toggleTheme('dark')">
+                <svg class="theme-tick-icon" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 8.5 6 12 13.5 4"/></svg>
+                <span>Dark</span>
+            </div>
+            <div class="theme-item ${current === 'light' ? 'active' : ''}" data-theme="light" onclick="toggleTheme('light')">
+                <svg class="theme-tick-icon" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2.5 8.5 6 12 13.5 4"/></svg>
+                <span>Light</span>
             </div>
         </div>`;
+    setTimeout(() => document.addEventListener('click', _themePanelOutside), 0);
+}
+
+function _themePanelOutside(e) {
+    if (!document.querySelector('.theme-panel')?.contains(e.target)) {
+        document.removeEventListener('click', _themePanelOutside);
+        hideSideNavigationBar();
+    }
 }
 
 function closeThemeSettings() {
-    document.querySelector('.js-side-navigation-bar').innerHTML =
-        '<div class="hidden-side-navigation-bar"></div>';
+    document.removeEventListener('click', _themePanelOutside);
+    hideSideNavigationBar();
 }
+
+// Apply saved theme immediately on every page load
+(function () {
+    const saved = localStorage.getItem('systemTheme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+}());
 
 
 // ============================================================
