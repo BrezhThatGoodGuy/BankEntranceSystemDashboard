@@ -91,6 +91,9 @@ bool doorLockStates[4] = {true, true, true, true};
 bool boothOccupied[2]        = {false, false};
 int  lockFaultCount[4]        = {0, 0, 0, 0};
 bool lockFaultAcknowledged[4] = {false, false, false, false};
+const char* faultMCNames[4]  = {"ENT.D1 MC", "ENT.D2 MC", "EXT.D3 MC", "EXT.D4 MC"};
+int  mcFaultCount[4]         = {0, 0, 0, 0};
+bool mcFaultAcknowledged[4]  = {false, false, false, false};
 unsigned long lastDoorEventId = 0;
 
 // ===== Camera & Inference State =====
@@ -388,6 +391,8 @@ void processActionPost(const String &body) {
         for (int i = 0; i < 4; i++) {
             lockFaultCount[i]        = 0;
             lockFaultAcknowledged[i] = false;
+            mcFaultCount[i]          = 0;
+            mcFaultAcknowledged[i]   = false;
         }
         String byUser = user.length() > 0 ? " by '" + user + "'" : "";
         appendLogEntry(LOG_FAULTS, "All lock fault counts cleared" + byUser);
@@ -585,6 +590,24 @@ void processAtmegaLine(const String &line) {
             lastDoorEventId++;
             events.send(buildFaultsPayload().c_str(), "fault", lastDoorEventId);
         }
+    } else if (line.startsWith("FAULT_MC_")) {
+        int mcId   = line.charAt(9) - '0';
+        bool isClear = line.endsWith("_CLEAR");
+        if (mcId >= 1 && mcId <= 4) {
+            int idx = mcId - 1;
+            if (isClear) {
+                appendLogEntry(LOG_FAULTS, String(faultMCNames[idx]) + " — contact closed");
+            } else {
+                mcFaultCount[idx]++;
+                appendLogEntry(LOG_FAULTS, String(faultMCNames[idx]) + " — stuck open (" + String(mcFaultCount[idx]) + "/5)");
+                if (mcFaultCount[idx] >= 5 && !mcFaultAcknowledged[idx]) {
+                    mcFaultAcknowledged[idx] = true;
+                    appendLogEntry(LOG_FAULTS, String(faultMCNames[idx]) + " — FAULT ACKNOWLEDGED");
+                }
+            }
+            lastDoorEventId++;
+            events.send(buildFaultsPayload().c_str(), "fault", lastDoorEventId);
+        }
     } else if (line.startsWith("BOOTH_")) {
         int boothId = line.charAt(6) - '0';
         if (boothId >= 1 && boothId <= 2) {
@@ -674,10 +697,14 @@ String buildFaultsPayload() {
                 +  "\"lastChecked\":\"" + now + "\"}";
     }
     payload += "],\"motionControllers\":[";
-    const char* mcNames[4] = {"EXT.D4 MC", "ENT.D1 MC", "EXT.D3 MC", "ENT.D2 MC"};
     for (int i = 0; i < 4; i++) {
         if (i) payload += ",";
-        payload += "{\"id\":\"" + String(mcNames[i]) + "\",\"name\":\"" + String(mcNames[i]) + "\",\"status\":\"normal\",\"count\":0,\"lastChecked\":\"" + now + "\"}";
+        bool mcFault = mcFaultAcknowledged[i];
+        payload += "{\"id\":\""     + String(faultMCNames[i]) + "\","
+                +  "\"name\":\""   + String(faultMCNames[i]) + "\","
+                +  "\"status\":\"" + String(mcFault ? "fault" : "normal") + "\","
+                +  "\"count\":"    + String(mcFaultCount[i]) + ","
+                +  "\"lastChecked\":\"" + now + "\"}";
     }
     payload += "],\"pirSensors\":[";
     const char* pirNames[2] = {"BOOTH 1 PIR", "BOOTH 2 PIR"};

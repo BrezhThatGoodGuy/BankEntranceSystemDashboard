@@ -103,6 +103,12 @@ bool faultActive[4] = {false, false, false, false};
 unsigned long lastModeChangeTime  = 0;
 const unsigned long modeFaultGrace = 200;
 
+// MC fault detection — Method 3 progressive timer (thresholds in flash)
+const unsigned long MC_THRESHOLDS[] PROGMEM = {5000UL, 15000UL, 35000UL, 65000UL, 125000UL};
+unsigned long mcOpenTime[4]   = {0, 0, 0, 0};
+uint8_t       mcCheckStage[4] = {0, 0, 0, 0};
+bool          mcFaultSent[4]  = {false, false, false, false};
+
 const char* doorNames[4] = {"ENT.D1", "ENT.D2", "EXT.D3", "EXT.D4"};
 
 // Counters for monitor display
@@ -231,6 +237,18 @@ void processIncomingCommand(const String &command) {
         eventOneshotRevert[doorId - 1] = false;
         doorOverrideMode[doorId - 1] = ONESHOT_UNLOCKED;
       }
+    }
+  }
+}
+
+void checkMcFaults() {
+  unsigned long now = millis();
+  for (uint8_t i = 0; i < 4; i++) {
+    if (!mcOpenTime[i] || mcCheckStage[i] >= 5) continue;
+    if (now - mcOpenTime[i] >= pgm_read_dword(&MC_THRESHOLDS[mcCheckStage[i]])) {
+      Serial.print("FAULT_MC_"); Serial.println(i + 1);
+      mcCheckStage[i]++;
+      mcFaultSent[i] = true;
     }
   }
 }
@@ -394,61 +412,73 @@ void loop() {
   updateSystemLEDs();
 
   if (eventDoor1Open) {
+    unsigned long _t = millis();
     Serial.println("DOOR_1_OPENED");
-    if (lastRedState[0] && !faultActive[0] && (millis() - lastModeChangeTime > modeFaultGrace)) {
-      Serial.println("FAULT_LOCK_1");
-      faultActive[0] = true;
+    if (lastRedState[0] && !faultActive[0] && (_t - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_1"); faultActive[0] = true;
     }
+    mcOpenTime[0] = _t ? _t : 1; mcCheckStage[0] = 0; mcFaultSent[0] = false;
     eventDoor1Open = false;
   }
   if (eventDoor1Close) {
     Serial.println("DOOR_1_CLOSED");
     if (faultActive[0]) { Serial.println("FAULT_LOCK_1_CLEAR"); faultActive[0] = false; }
+    if (mcFaultSent[0]) { Serial.println("FAULT_MC_1_CLEAR");   mcFaultSent[0] = false; }
+    mcOpenTime[0] = 0;
     eventDoor1Close = false;
   }
 
   if (eventDoor2Open) {
+    unsigned long _t = millis();
     Serial.println("DOOR_2_OPENED");
-    if (lastRedState[1] && !faultActive[1] && (millis() - lastModeChangeTime > modeFaultGrace)) {
-      Serial.println("FAULT_LOCK_2");
-      faultActive[1] = true;
+    if (lastRedState[1] && !faultActive[1] && (_t - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_2"); faultActive[1] = true;
     }
+    mcOpenTime[1] = _t ? _t : 1; mcCheckStage[1] = 0; mcFaultSent[1] = false;
     eventDoor2Open = false;
   }
   if (eventDoor2Close) {
     totalEntries++;
     Serial.println("DOOR_2_CLOSED");
     if (faultActive[1]) { Serial.println("FAULT_LOCK_2_CLEAR"); faultActive[1] = false; }
+    if (mcFaultSent[1]) { Serial.println("FAULT_MC_2_CLEAR");   mcFaultSent[1] = false; }
+    mcOpenTime[1] = 0;
     sendStatusUpdate();
     eventDoor2Close = false;
   }
 
   if (eventDoor3Open) {
+    unsigned long _t = millis();
     Serial.println("DOOR_3_OPENED");
-    if (lastRedState[2] && !faultActive[2] && (millis() - lastModeChangeTime > modeFaultGrace)) {
-      Serial.println("FAULT_LOCK_3");
-      faultActive[2] = true;
+    if (lastRedState[2] && !faultActive[2] && (_t - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_3"); faultActive[2] = true;
     }
+    mcOpenTime[2] = _t ? _t : 1; mcCheckStage[2] = 0; mcFaultSent[2] = false;
     eventDoor3Open = false;
   }
   if (eventDoor3Close) {
     Serial.println("DOOR_3_CLOSED");
     if (faultActive[2]) { Serial.println("FAULT_LOCK_3_CLEAR"); faultActive[2] = false; }
+    if (mcFaultSent[2]) { Serial.println("FAULT_MC_3_CLEAR");   mcFaultSent[2] = false; }
+    mcOpenTime[2] = 0;
     eventDoor3Close = false;
   }
 
   if (eventDoor4Open) {
+    unsigned long _t = millis();
     Serial.println("DOOR_4_OPENED");
-    if (lastRedState[3] && !faultActive[3] && (millis() - lastModeChangeTime > modeFaultGrace)) {
-      Serial.println("FAULT_LOCK_4");
-      faultActive[3] = true;
+    if (lastRedState[3] && !faultActive[3] && (_t - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_4"); faultActive[3] = true;
     }
+    mcOpenTime[3] = _t ? _t : 1; mcCheckStage[3] = 0; mcFaultSent[3] = false;
     eventDoor4Open = false;
   }
   if (eventDoor4Close) {
     totalExits++;
     Serial.println("DOOR_4_CLOSED");
     if (faultActive[3]) { Serial.println("FAULT_LOCK_4_CLEAR"); faultActive[3] = false; }
+    if (mcFaultSent[3]) { Serial.println("FAULT_MC_4_CLEAR");   mcFaultSent[3] = false; }
+    mcOpenTime[3] = 0;
     sendStatusUpdate();
     eventDoor4Close = false;
   }
@@ -461,6 +491,8 @@ void loop() {
     Serial.println(pir2State ? "BOOTH_2_OCCUPIED" : "BOOTH_2_VACANT");
     eventPir2Change = false;
   }
+
+  checkMcFaults();
 
   // One-shot unlock: revert door to AUTO_MODE after it has been opened and closed once
   for (int i = 0; i < 4; i++) {

@@ -239,11 +239,13 @@ function renderFaultLogs(logs) {
 function updateFaultStats(faults) {
     const boxes = document.querySelectorAll('.logs-stats .stat-value');
     if (!boxes || boxes.length < 3) return;
-    const locks      = (faults && faults.locks) || [];
-    const active     = locks.filter(l => l.status === 'fault').length;
-    const totalCount = locks.reduce((s, l) => s + (l.count || 0), 0);
-    boxes[0].textContent = active;
-    boxes[1].textContent = totalCount;
+    const all = [
+        ...(faults && faults.locks              || []),
+        ...(faults && faults.motionControllers  || []),
+        ...(faults && faults.pirSensors         || [])
+    ];
+    boxes[0].textContent = all.filter(c => c.status === 'fault').length;
+    boxes[1].textContent = all.reduce((s, c) => s + (c.count || 0), 0);
     boxes[2].textContent = '0';
 }
 
