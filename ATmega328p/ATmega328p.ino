@@ -26,6 +26,11 @@
 #define door3 7
 #define door4 6
 
+#define pirBooth1 10
+#define pirBooth2 11
+
+#define modeSelector A2
+
 // ==================================================
 // DEBOUNCE TIME
 // ==================================================

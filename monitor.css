@@ -323,8 +323,8 @@ body {
 .bank-booth-template .inside-entrance-closed { position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: red; display: block; }
 
 /* Object Detection Indicators */
-.object-detected-entrance { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 100px; right: 10%; background-color: none; }
-.object-detected-exit { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 100px; left: 10%; background-color: none; }
+.object-detected-entrance { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 40px; right: 4%; top: 45%; white-space: nowrap; transform: rotate(90deg); }
+.object-detected-exit { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 40px; left: 4%; top: 45%; white-space: nowrap; transform: rotate(90deg); }
 
 /* ========== Dynamic State Classes for Bank Booth Template ========== */
 /* These classes are added to .bank-booth-template to show/hide appropriate door state divs */
