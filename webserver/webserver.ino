@@ -79,7 +79,8 @@ const char* logFileNames[LOG_TYPE_COUNT] = {
     "/ai.log"
 };
 
-const char* doorNames[4] = {"Door 1", "Door 2", "Door 3", "Door 4"};
+const char* doorNames[4]      = {"Door 1", "Door 2", "Door 3", "Door 4"};
+const char* faultLockNames[4] = {"ENT.D1 LOCK", "ENT.D2 LOCK", "EXT.D3 LOCK", "EXT.D4 LOCK"};
 const int MAX_LOG_LINES = 100;
 String logBuffers[LOG_TYPE_COUNT][MAX_LOG_LINES];
 int logCounts[LOG_TYPE_COUNT] = {0, 0, 0, 0};
@@ -87,6 +88,9 @@ int logCounts[LOG_TYPE_COUNT] = {0, 0, 0, 0};
 // ===== Live Door State =====
 String doorContactStates[4] = {"closed", "closed", "closed", "closed"};
 bool doorLockStates[4] = {true, true, true, true};
+bool boothOccupied[2]        = {false, false};
+int  lockFaultCount[4]        = {0, 0, 0, 0};
+bool lockFaultAcknowledged[4] = {false, false, false, false};
 unsigned long lastDoorEventId = 0;
 
 // ===== Camera & Inference State =====
@@ -380,6 +384,16 @@ void processActionPost(const String &body) {
         Serial.println("[AI] Door control enabled: " + String(ai_door_control_enabled ? "YES" : "NO"));
         appendLogEntry(LOG_AI, "AI Door Control turned " + state + byUser);
 
+    } else if (action.equalsIgnoreCase("CLEAR_FAULTS")) {
+        for (int i = 0; i < 4; i++) {
+            lockFaultCount[i]        = 0;
+            lockFaultAcknowledged[i] = false;
+        }
+        String byUser = user.length() > 0 ? " by '" + user + "'" : "";
+        appendLogEntry(LOG_FAULTS, "All lock fault counts cleared" + byUser);
+        lastDoorEventId++;
+        events.send(buildFaultsPayload().c_str(), "fault", lastDoorEventId);
+
     } else if (action.equalsIgnoreCase("AI_MODE") && mode.length() > 0) {
         if (type.equalsIgnoreCase("weapon")) {
             ai_weapon_operation_mode = mode;
@@ -552,6 +566,35 @@ void processAtmegaLine(const String &line) {
                 appendLogEntry(LOG_CONTROL, "Door " + String(doorId) + " auto-reverted to normal control");
             }
         }
+    } else if (line.startsWith("FAULT_LOCK_")) {
+        // Format: FAULT_LOCK_x  or  FAULT_LOCK_x_CLEAR  (x = 1-4)
+        int lockId  = line.charAt(11) - '0';
+        bool isClear = line.endsWith("_CLEAR");
+        if (lockId >= 1 && lockId <= 4) {
+            int idx = lockId - 1;
+            if (isClear) {
+                appendLogEntry(LOG_FAULTS, String(faultLockNames[idx]) + " — fault cleared (door closed)");
+            } else {
+                lockFaultCount[idx]++;
+                appendLogEntry(LOG_FAULTS, String(faultLockNames[idx]) + " — fault detected (occurrence " + String(lockFaultCount[idx]) + "/5)");
+                if (lockFaultCount[idx] >= 5 && !lockFaultAcknowledged[idx]) {
+                    lockFaultAcknowledged[idx] = true;
+                    appendLogEntry(LOG_FAULTS, String(faultLockNames[idx]) + " — FAULT ACKNOWLEDGED after 5 occurrences");
+                }
+            }
+            lastDoorEventId++;
+            events.send(buildFaultsPayload().c_str(), "fault", lastDoorEventId);
+        }
+    } else if (line.startsWith("BOOTH_")) {
+        int boothId = line.charAt(6) - '0';
+        if (boothId >= 1 && boothId <= 2) {
+            bool occupied = line.endsWith("OCCUPIED");
+            boothOccupied[boothId - 1] = occupied;
+            String payload = "{\"booth\":" + String(boothId) + ",\"occupied\":" + (occupied ? "true" : "false") + "}";
+            lastDoorEventId++;
+            events.send(payload.c_str(), "booth", lastDoorEventId);
+            appendLogEntry(LOG_MONITORING, "Booth " + String(boothId) + (occupied ? " occupied" : " vacant"));
+        }
     } else if (line.startsWith("STATS:")) {
         String entriesValue = parseStatValue(line, "ENTRIES");
         String exitsValue = parseStatValue(line, "EXITS");
@@ -585,6 +628,10 @@ String buildStatusPayload() {
         if (i) payload += ",";
         payload += "{\"id\":" + String(i + 1) + ",\"name\":\"" + String(doorNames[i]) + "\",\"state\":\"" + doorContactStates[i] + "\",\"locked\":" + String(doorLockStates[i] ? "true" : "false") + "}";
     }
+    payload += "],";
+    payload += "\"booths\":[";
+    payload += "{\"id\":1,\"occupied\":" + String(boothOccupied[0] ? "true" : "false") + "},";
+    payload += "{\"id\":2,\"occupied\":" + String(boothOccupied[1] ? "true" : "false") + "}";
     payload += "]}";
     return payload;
 }
@@ -616,25 +663,27 @@ String buildModePayload() {
 
 String buildFaultsPayload() {
     String now = formatTimestamp();
-    String payload = "{";
-    payload += "\"faults\":{";
-    payload += "\"locks\":[";
-    const char* lockNames[4] = {"EXT.D4 LOCK", "ENT.D1 LOCK", "EXT.D3 LOCK", "ENT.D2 LOCK"};
+    String payload = "{\"faults\":{\"locks\":[";
     for (int i = 0; i < 4; i++) {
         if (i) payload += ",";
-        payload += "{\"id\":\"" + String(lockNames[i]) + "\",\"name\":\"" + String(lockNames[i]) + "\",\"status\":\"normal\",\"lastChecked\":\"" + now + "\"}";
+        bool fault = lockFaultAcknowledged[i];
+        payload += "{\"id\":\""     + String(faultLockNames[i]) + "\","
+                +  "\"name\":\""   + String(faultLockNames[i]) + "\","
+                +  "\"status\":\"" + String(fault ? "fault" : "normal") + "\","
+                +  "\"count\":"    + String(lockFaultCount[i]) + ","
+                +  "\"lastChecked\":\"" + now + "\"}";
     }
     payload += "],\"motionControllers\":[";
     const char* mcNames[4] = {"EXT.D4 MC", "ENT.D1 MC", "EXT.D3 MC", "ENT.D2 MC"};
     for (int i = 0; i < 4; i++) {
         if (i) payload += ",";
-        payload += "{\"id\":\"" + String(mcNames[i]) + "\",\"name\":\"" + String(mcNames[i]) + "\",\"status\":\"normal\",\"lastChecked\":\"" + now + "\"}";
+        payload += "{\"id\":\"" + String(mcNames[i]) + "\",\"name\":\"" + String(mcNames[i]) + "\",\"status\":\"normal\",\"count\":0,\"lastChecked\":\"" + now + "\"}";
     }
     payload += "],\"pirSensors\":[";
     const char* pirNames[2] = {"BOOTH 1 PIR", "BOOTH 2 PIR"};
     for (int i = 0; i < 2; i++) {
         if (i) payload += ",";
-        payload += "{\"id\":\"" + String(pirNames[i]) + "\",\"name\":\"" + String(pirNames[i]) + "\",\"status\":\"normal\",\"lastChecked\":\"" + now + "\"}";
+        payload += "{\"id\":\"" + String(pirNames[i]) + "\",\"name\":\"" + String(pirNames[i]) + "\",\"status\":\"normal\",\"count\":0,\"lastChecked\":\"" + now + "\"}";
     }
     payload += "]},\"timestamp\":\"" + now + "\"}";
     return payload;

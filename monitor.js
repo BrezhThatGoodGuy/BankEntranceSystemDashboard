@@ -60,12 +60,16 @@ const DOOR_CONFIG = {
 };
 
 // ── In-memory door state cache ───────────────────────────────
+// ENT.D1 and EXT.D3 default unlocked (green); ENT.D2 and EXT.D4 default locked (red)
 const currentDoorStates = {
-    1: { state: 'closed', locked: true },
-    2: { state: 'closed', locked: true },
-    3: { state: 'closed', locked: true },
-    4: { state: 'closed', locked: true }
+    1: { state: 'closed', locked: false },
+    2: { state: 'closed', locked: true  },
+    3: { state: 'closed', locked: false },
+    4: { state: 'closed', locked: true  }
 };
+
+// ── Booth PIR occupancy ──────────────────────────────────────
+const boothOccupied = { 1: false, 2: false };
 
 const API_ENDPOINTS = window.API_ENDPOINTS || {};
 
@@ -223,12 +227,30 @@ function updateDoorLockIcon(doorId, locked) {
     if (!icon) return;
 
     const isLocked = locked === true;
-    icon.src = isLocked ? 'locked-padlock.png' : 'unlocked-padlock.png';
-    icon.alt = `${cfg.name} – ${isLocked ? 'Locked' : 'Unlocked'}`;
 
-    // CSS classes drive the glow effect defined in monitor.css
+    icon.setAttribute('aria-label', `${cfg.name} – ${isLocked ? 'Locked' : 'Unlocked'}`);
     icon.classList.toggle('locked',   isLocked);
     icon.classList.toggle('unlocked', !isLocked);
+
+    if (isLocked) {
+        icon.setAttribute('viewBox', '0 0 32 40');
+        icon.setAttribute('width',  '35');
+        icon.setAttribute('height', '44');
+        icon.innerHTML =
+            '<path d="M8,18 L8,11 C8,3 24,3 24,11 L24,18" stroke="#dc2626" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<rect x="2" y="17" width="28" height="21" rx="5" fill="#dc2626"/>' +
+            '<circle cx="16" cy="26" r="3.5" fill="rgba(0,0,0,0.3)"/>' +
+            '<rect x="14.5" y="26" width="3" height="6" rx="1.5" fill="rgba(0,0,0,0.3)"/>';
+    } else {
+        icon.setAttribute('viewBox', '0 0 64 64');
+        icon.setAttribute('width',  '35');
+        icon.setAttribute('height', '44');
+        icon.innerHTML =
+            '<path d="M24 28V20C24 14 29 9 35 9C41 9 46 14 46 20" fill="none" stroke="#00AA00" stroke-width="6" stroke-linecap="round" transform="rotate(-25 24 28)"/>' +
+            '<rect x="14" y="28" width="36" height="28" rx="4" fill="#00CC00" stroke="#008800" stroke-width="2"/>' +
+            '<circle cx="32" cy="40" r="4" fill="#FFFFFF"/>' +
+            '<rect x="30" y="40" width="4" height="8" fill="#FFFFFF"/>';
+    }
 }
 
 /**
@@ -248,6 +270,20 @@ function initializeDoorUI() {
         updateDoorUI(id, currentDoorStates[id]);
     }
     console.log('[Monitor] Door UI initialized');
+}
+
+/**
+ * Show or hide the booth occupancy indicator.
+ * boothId 1 → entrance (.object-detected-entrance)
+ * boothId 2 → exit     (.object-detected-exit)
+ * Transition driven by CSS: .occupied adds opacity 1 + full colour.
+ */
+function updateBoothOccupancy(boothId, occupied) {
+    boothOccupied[boothId] = occupied;
+    const selector = boothId === 1 ? '.object-detected-entrance' : '.object-detected-exit';
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.classList.toggle('occupied', occupied);
 }
 
 
@@ -325,6 +361,13 @@ function applyStatusEvent(data) {
 
             currentDoorStates[id] = { state, locked };
             updateDoorUI(id, currentDoorStates[id]);
+        });
+    }
+
+    // ── Booth PIR occupancy (GET fallback path) ───────────────
+    if (Array.isArray(data.booths)) {
+        data.booths.forEach(b => {
+            updateBoothOccupancy(Number(b.id), b.occupied === true);
         });
     }
 }
@@ -445,6 +488,17 @@ function startEventStream() {
             applyDoorEvent(JSON.parse(ev.data), { addLog: true });
         } catch (e) {
             console.warn('[Monitor] Bad door SSE payload', e, ev.data);
+        }
+    });
+
+    // "booth" events: PIR occupancy change from ATmega BOOTH_x_OCCUPIED/VACANT
+    // Payload: { booth: 1|2, occupied: true|false }
+    monitorEventSource.addEventListener('booth', ev => {
+        try {
+            const data = JSON.parse(ev.data);
+            updateBoothOccupancy(Number(data.booth), data.occupied === true);
+        } catch (e) {
+            console.warn('[Monitor] Bad booth SSE payload', e, ev.data);
         }
     });
 

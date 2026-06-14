@@ -206,7 +206,6 @@ function loadFaultLogs() {
                 throw new Error('Malformed fault logs payload');
             }
             renderFaultLogs(data.logs.slice(-12).reverse());
-            updateFaultStats(data.logs.length);
         })
         .catch(error => {
             console.warn('[Faults] Fault log fetch failed:', error);
@@ -237,30 +236,83 @@ function renderFaultLogs(logs) {
     }).join('');
 }
 
-function updateFaultStats(totalLogs) {
-    const statBoxes = document.querySelectorAll('.logs-stats .stat-value');
-    if (!statBoxes || statBoxes.length < 3) return;
-    statBoxes[0].textContent = totalLogs > 0 ? String(Math.min(3, totalLogs)) : '0';
-    statBoxes[1].textContent = String(totalLogs);
-    statBoxes[2].textContent = '0';
+function updateFaultStats(faults) {
+    const boxes = document.querySelectorAll('.logs-stats .stat-value');
+    if (!boxes || boxes.length < 3) return;
+    const locks      = (faults && faults.locks) || [];
+    const active     = locks.filter(l => l.status === 'fault').length;
+    const totalCount = locks.reduce((s, l) => s + (l.count || 0), 0);
+    boxes[0].textContent = active;
+    boxes[1].textContent = totalCount;
+    boxes[2].textContent = '0';
 }
 
-// ============================================
-// Fault Status Storage
-// ============================================
+// ── In-memory fault state ─────────────────────────────────────
+const _faultState   = {};
+let   _reportContext = { component: '--', count: 0, acknowledged: false };
 
-let currentFaults = {
-    locks: [],
-    motionControllers: [],
-    pirSensors: []
-};
+function applyFaultsData(data) {
+    if (!data || !data.faults) return;
+    [...(data.faults.locks || []), ...(data.faults.motionControllers || []), ...(data.faults.pirSensors || [])].forEach(comp => {
+        _faultState[comp.id] = { count: comp.count || 0, acknowledged: comp.status === 'fault' };
+        updateFaultBox(comp.id, comp.status, comp.count || 0);
+    });
+    updateFaultStats(data.faults);
+}
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    initializeEvacuateButton();
-    initializeApiPolling();
-    loadFaultLogs();
-});
+function updateFaultBox(componentId, status, count) {
+    const box = document.querySelector('.fault-box[data-fault-id="' + componentId + '"]');
+    if (!box) return;
+    const statusEl = box.querySelector('.fault-status');
+    const countEl  = box.querySelector('.fault-count-badge');
+    if (statusEl) {
+        statusEl.textContent = status === 'fault' ? 'FAULT' : 'NORMAL';
+        statusEl.className   = 'fault-status status-' + (status === 'fault' ? 'fault' : 'normal');
+    }
+    if (countEl) {
+        countEl.textContent = count + '/5';
+        countEl.className   = 'fault-count-badge' + (count >= 5 ? ' count-critical' : count > 0 ? ' count-warning' : '');
+    }
+}
+
+function clearAllFaults() {
+    fetch(ACTION_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'CLEAR_FAULTS', user: getActiveUser() })
+    })
+    .then(r => r.ok ? r.json().catch(() => ({})) : Promise.reject(r.status))
+    .then(() => { showNotification('All faults cleared', 'success'); pollFaults(); loadFaultLogs(); })
+    .catch(err => { console.warn('[Faults] Clear failed', err); showNotification('Clear failed — ESP32 not reachable', 'error'); });
+}
+
+// ── SSE + polling ─────────────────────────────────────────────
+let faultEventSource    = null;
+let faultFallbackActive = false;
+
+function startFaultSSE() {
+    if (!('EventSource' in window)) { startFaultFallback(); return; }
+    faultEventSource = new EventSource('/events');
+    faultEventSource.addEventListener('fault', ev => {
+        try { applyFaultsData(JSON.parse(ev.data)); } catch (e) { console.warn('[Faults] Bad fault SSE payload', e); }
+    });
+    faultEventSource.onerror = () => { startFaultFallback(); };
+}
+
+function startFaultFallback() {
+    if (faultFallbackActive) return;
+    faultFallbackActive = true;
+    console.warn('[Faults] SSE unavailable — polling every 3 s');
+    setInterval(pollFaults, 3000);
+}
+
+function pollFaults() {
+    const url = (API_ENDPOINTS.FAULTS_STATUS) || '/api/faults.json';
+    fetch(url, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(applyFaultsData)
+        .catch(err => console.warn('[Faults] Poll failed', err));
+}
 
 // ============================================
 // API Integration for Real-time Updates
@@ -387,185 +439,70 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-/**
- * Initialize API polling for fault status
- */
-function initializeApiPolling() {
-    if (typeof window.API !== 'undefined') {
-        // Poll faults every 5 seconds
-        window.API.startPolling('FAULTS', updateFaultsFromAPI, 5000);
-        
-        console.log('[Faults] API polling initialized');
-    } else {
-        console.warn('[Faults] API client not loaded, using fallback mode');
-        // Fallback: simulate fault updates
-        setInterval(simulateFaultUpdates, 5000);
-    }
-}
-
-/**
- * Update faults from API data
- * @param {object} data - Fault data from API
- */
-function updateFaultsFromAPI(data) {
-    if (!data || !data.faults) return;
-    
-    const previousFaults = JSON.stringify(currentFaults);
-    currentFaults = data.faults;
-    
-    // Update UI for each fault category
-    updateFaultCategoryUI('lock-grid', data.faults.locks);
-    updateFaultCategoryUI('mc-grid', data.faults.motionControllers);
-    updateFaultCategoryUI('pir-grid', data.faults.pirSensors);
-    
-    // Log new faults
-    if (previousFaults !== JSON.stringify(currentFaults)) {
-        checkForNewFaults(data.faults);
-    }
-}
-
-/**
- * Update a specific fault category in the UI
- * @param {string} gridClass - CSS class of the fault grid
- * @param {array} faults - Array of fault objects
- */
-function updateFaultCategoryUI(gridClass, faults) {
-    if (!faults) return;
-    
-    faults.forEach(fault => {
-        const faultBox = document.querySelector(`.fault-box[data-id="${fault.id}"]`);
-        if (faultBox) {
-            const statusEl = faultBox.querySelector('.fault-status');
-            if (statusEl) {
-                statusEl.textContent = fault.status.toUpperCase();
-                
-                // Update status class
-                statusEl.classList.remove('status-normal', 'status-warning', 'status-error');
-                statusEl.classList.add(`status-${fault.status}`);
-            }
-        }
-    });
-}
-
-/**
- * Check for new faults and log them
- * @param {object} faults - Current fault data
- */
-function checkForNewFaults(faults) {
-    // Check locks
-    if (faults.locks) {
-        faults.locks.forEach(fault => {
-            if (fault.status !== 'normal') {
-                console.log(`[FAULT] ${fault.name}: ${fault.status}`);
-                if (typeof window.API !== 'undefined') {
-                    window.API.addLogEntry(fault.name, 'FAULT', fault.status);
-                }
-            }
-        });
-    }
-    
-    // Check motion controllers
-    if (faults.motionControllers) {
-        faults.motionControllers.forEach(fault => {
-            if (fault.status !== 'normal') {
-                console.log(`[FAULT] ${fault.name}: ${fault.status}`);
-                if (typeof window.API !== 'undefined') {
-                    window.API.addLogEntry(fault.name, 'FAULT', fault.status);
-                }
-            }
-        });
-    }
-    
-    // Check PIR sensors
-    if (faults.pirSensors) {
-        faults.pirSensors.forEach(fault => {
-            if (fault.status !== 'normal') {
-                console.log(`[FAULT] ${fault.name}: ${fault.status}`);
-                if (typeof window.API !== 'undefined') {
-                    window.API.addLogEntry(fault.name, 'FAULT', fault.status);
-                }
-            }
-        });
-    }
-}
-
-// ============================================
-// Fallback: Simulated updates (when API unavailable)
-// ============================================
-
-function simulateFaultUpdates() {
-    // Simulate random fault status changes for testing
-    const statuses = ['normal', 'normal', 'normal', 'warning', 'error'];
-    const components = document.querySelectorAll('.fault-status');
-    
-    components.forEach(statusEl => {
-        // 5% chance of status change
-        if (Math.random() < 0.05) {
-            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-            statusEl.textContent = randomStatus.toUpperCase();
-            
-            statusEl.classList.remove('status-normal', 'status-warning', 'status-error');
-            statusEl.classList.add(`status-${randomStatus}`);
-        }
-    });
-}
-
-// ============================================
-// Fault Reporting Functions
-// ============================================
-
-// Function to open the modal and dynamically set the title
+// ── Report modal ──────────────────────────────────────────────
 function openReportModal(componentName) {
     const modal = document.getElementById('reportModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const faultDesc = document.getElementById('faultDesc');
-
-    // Set the title to show which component is being reported
-    modalTitle.innerText = `Report Fault: ${componentName}`;
-    
-    // Reset the default description text
-    faultDesc.value = "Type fault description...";
-
-    // Show the modal
+    document.getElementById('modalTitle').textContent     = 'Report Fault: ' + componentName;
+    document.getElementById('modalComponent').textContent = componentName;
+    document.getElementById('faultDesc').value            = '';
+    const info       = _faultState[componentName] || { count: 0, acknowledged: false };
+    const statusText = info.acknowledged
+        ? 'FAULT ACKNOWLEDGED (' + info.count + ' occurrences)'
+        : info.count > 0 ? 'PENDING — ' + info.count + '/5 occurrences' : 'NORMAL';
+    document.getElementById('modalStatus').textContent = statusText;
+    _reportContext = { component: componentName, count: info.count, acknowledged: info.acknowledged };
     modal.style.display = 'flex';
 }
 
-// Function to close the modal
 function closeModal() {
     const modal = document.getElementById('reportModal');
-    modal.style.display = 'none';
+    if (modal) modal.style.display = 'none';
 }
 
-// Function to simulate sending the report
-function sendReport() {
-    const email = document.getElementById('faultEmail').value;
-    const description = document.getElementById('faultDesc').value;
-    const title = document.getElementById('modalTitle').innerText;
+function openInGmail() {
+    const c     = _reportContext.component;
+    const count = _reportContext.count || 0;
+    const ack   = _reportContext.acknowledged;
+    const notes = (document.getElementById('faultDesc').value || '').trim();
+    const ts    = new Date().toLocaleString();
 
-    // Basic validation
-    if (!email || !description) {
-        alert("Please ensure both email and description are filled out.");
-        return;
-    }
+    const subject = 'FAULT REPORT: ' + c + ' — Bank Entrance System';
+    const body = [
+        'AUTOMATED FAULT REPORT — Bank Entrance System',
+        '',
+        'Component:   ' + c,
+        'Status:      ' + (ack ? 'FAULT ACKNOWLEDGED' : count > 0 ? 'PENDING (' + count + '/5)' : 'NORMAL'),
+        'Occurrences: ' + count,
+        'Reported At: ' + ts,
+        '',
+        notes ? 'Operator Notes:\n' + notes : 'No additional notes provided.',
+        '',
+        '---',
+        'This report was generated by the Bank Entrance System Dashboard.'
+    ].join('\n');
 
-    // Log the report
-    console.log(`Sending Report to ${email}: [${title}] - ${description}`);
-    
-    // Log to API
-    if (typeof window.API !== 'undefined') {
-        window.API.addLogEntry(title.replace('Report Fault: ', ''), 'REPORT', description.substring(0, 30));
-    }
-    
-    alert('Fault report successfully sent to administrator.');
-    
+    const to  = 'brezhnevndlovu02@gmail.com,s.nhema@nust.ac.zw,n02125285w@students.nust.ac.zw';
+    const url = 'https://mail.google.com/mail/?view=cm&fs=1'
+        + '&to='   + encodeURIComponent(to)
+        + '&su='   + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(body);
+
+    window.open(url, '_blank', 'noopener,noreferrer');
     closeModal();
 }
 
-// Optional: Close modal if user clicks anywhere outside of the modal content
-window.onclick = function(event) {
+window.addEventListener('click', ev => {
     const modal = document.getElementById('reportModal');
-    if (event.target == modal) {
-        closeModal();
-    }
-}
+    if (modal && ev.target === modal) closeModal();
+});
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    applyTheme(localStorage.getItem('systemTheme') || 'dark');
+    initializeEvacuateButton();
+    pollFaults();
+    loadFaultLogs();
+    startFaultSSE();
+});
+
 }

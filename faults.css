@@ -135,6 +135,10 @@
 .card-header {
     padding: 12px 20px;
     border-bottom: 1px solid rgba(255, 142, 3, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .card-header h2 {
@@ -567,6 +571,45 @@
     background: rgba(231, 76, 60, 0.25);
 }
 
+/* Clear faults button */
+.clear-faults-btn {
+    background: transparent;
+    color: rgb(231, 76, 60);
+    border: 1px solid rgb(231, 76, 60);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.clear-faults-btn:hover {
+    background: rgb(231, 76, 60);
+    color: #ffffff;
+}
+
+/* Fault occurrence count badge */
+.fault-count-badge {
+    font-size: 0.58rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: rgba(100, 120, 180, 0.15);
+    color: #9aaac8;
+    letter-spacing: 0.3px;
+}
+.fault-count-badge.count-warning {
+    background: rgba(241, 196, 15, 0.18);
+    color: rgb(241, 196, 15);
+}
+.fault-count-badge.count-critical {
+    background: rgba(231, 76, 60, 0.18);
+    color: rgb(231, 76, 60);
+}
+
 .report-btn {
     background-color: transparent;
     color: rgb(255, 142, 3);
@@ -625,6 +668,32 @@
     flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
+}
+
+/* Modal info rows (component name, status, recipients) */
+.modal-info-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.8rem;
+    padding: 4px 0;
+}
+.modal-info-label {
+    color: rgba(255, 142, 3, 0.85);
+    font-weight: 700;
+    min-width: 80px;
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.3px;
+}
+.modal-info-value {
+    color: #e4eaf6;
+    font-size: 0.78rem;
+}
+.modal-recipients {
+    font-size: 0.65rem;
+    color: #9aaac8;
+    line-height: 1.5;
 }
 
 .modal-body label {

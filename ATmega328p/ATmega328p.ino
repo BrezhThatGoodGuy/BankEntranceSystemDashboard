@@ -87,8 +87,21 @@ volatile bool eventDoor3Close = false;
 volatile bool eventDoor4Open  = false;
 volatile bool eventDoor4Close = false;
 
+// PIR booth occupancy — written in ISR, read in loop
+volatile bool pir1State       = false;
+volatile bool pir2State       = false;
+volatile bool eventPir1Change = false;
+volatile bool eventPir2Change = false;
+volatile unsigned long lastPir1Time = 0;
+volatile unsigned long lastPir2Time = 0;
+
 bool lastGreenState[4] = {false, false, false, false};
-bool lastRedState[4] = {false, false, false, false};
+bool lastRedState[4]   = {false, false, false, false};
+
+// Lock fault detection
+bool faultActive[4] = {false, false, false, false};
+unsigned long lastModeChangeTime  = 0;
+const unsigned long modeFaultGrace = 200;
 
 const char* doorNames[4] = {"ENT.D1", "ENT.D2", "EXT.D3", "EXT.D4"};
 
@@ -192,15 +205,15 @@ void updateSystemLEDs() {
 
 void processIncomingCommand(const String &command) {
   if (command == "SET_MODE_NORMAL") {
-    currentMode = MODE_NORMAL;
+    currentMode = MODE_NORMAL;           lastModeChangeTime = millis();
   } else if (command == "SET_MODE_EVAC") {
-    currentMode = MODE_EVACUATION;
+    currentMode = MODE_EVACUATION;       lastModeChangeTime = millis();
   } else if (command == "SET_MODE_LOCK") {
-    currentMode = MODE_LOCKDOWN;
+    currentMode = MODE_LOCKDOWN;         lastModeChangeTime = millis();
   } else if (command == "SET_MODE_CLOSED") {
-    currentMode = MODE_BANK_CLOSED;
+    currentMode = MODE_BANK_CLOSED;      lastModeChangeTime = millis();
   } else if (command == "SET_MODE_STAFF") {
-    currentMode = MODE_STAFF_ENTRY;
+    currentMode = MODE_STAFF_ENTRY;      lastModeChangeTime = millis();
   } else if (command.startsWith("DOOR_")) {
     int doorId = command.substring(5, 6).toInt();
     if (doorId >= 1 && doorId <= 4) {
@@ -218,6 +231,29 @@ void processIncomingCommand(const String &command) {
         eventOneshotRevert[doorId - 1] = false;
         doorOverrideMode[doorId - 1] = ONESHOT_UNLOCKED;
       }
+    }
+  }
+}
+
+// Handles PIR booth sensors on D10 (pirBooth1) and D11 (pirBooth2)
+ISR(PCINT0_vect) {
+  unsigned long currentTime = millis();
+
+  if ((currentTime - lastPir1Time) > debounceTime) {
+    bool reading = digitalRead(pirBooth1) == HIGH;
+    if (reading != pir1State) {
+      pir1State = reading;
+      eventPir1Change = true;
+      lastPir1Time = currentTime;
+    }
+  }
+
+  if ((currentTime - lastPir2Time) > debounceTime) {
+    bool reading = digitalRead(pirBooth2) == HIGH;
+    if (reading != pir2State) {
+      pir2State = reading;
+      eventPir2Change = true;
+      lastPir2Time = currentTime;
     }
   }
 }
@@ -328,8 +364,14 @@ void setup() {
 
   pinMode(door1, INPUT); pinMode(door2, INPUT);
   pinMode(door3, INPUT); pinMode(door4, INPUT);
+  pinMode(pirBooth1, INPUT);
+  pinMode(pirBooth2, INPUT);
 
   updateSystemLEDs();
+
+  PCICR  |= (1 << PCIE0);
+  PCMSK0 |= (1 << PCINT2);  // pirBooth1 = D10
+  PCMSK0 |= (1 << PCINT3);  // pirBooth2 = D11
 
   PCICR |= (1 << PCIE1);
   PCMSK1 |= (1 << PCINT10); PCMSK1 |= (1 << PCINT11);
@@ -351,23 +393,73 @@ void loop() {
 
   updateSystemLEDs();
 
-  if (eventDoor1Open)  { Serial.println("DOOR_1_OPENED"); eventDoor1Open = false; }
-  if (eventDoor1Close) { Serial.println("DOOR_1_CLOSED"); eventDoor1Close = false; }
-  if (eventDoor2Open)  { Serial.println("DOOR_2_OPENED"); eventDoor2Open = false; }
+  if (eventDoor1Open) {
+    Serial.println("DOOR_1_OPENED");
+    if (lastRedState[0] && !faultActive[0] && (millis() - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_1");
+      faultActive[0] = true;
+    }
+    eventDoor1Open = false;
+  }
+  if (eventDoor1Close) {
+    Serial.println("DOOR_1_CLOSED");
+    if (faultActive[0]) { Serial.println("FAULT_LOCK_1_CLEAR"); faultActive[0] = false; }
+    eventDoor1Close = false;
+  }
+
+  if (eventDoor2Open) {
+    Serial.println("DOOR_2_OPENED");
+    if (lastRedState[1] && !faultActive[1] && (millis() - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_2");
+      faultActive[1] = true;
+    }
+    eventDoor2Open = false;
+  }
   if (eventDoor2Close) {
     totalEntries++;
     Serial.println("DOOR_2_CLOSED");
+    if (faultActive[1]) { Serial.println("FAULT_LOCK_2_CLEAR"); faultActive[1] = false; }
     sendStatusUpdate();
     eventDoor2Close = false;
   }
-  if (eventDoor3Open)  { Serial.println("DOOR_3_OPENED"); eventDoor3Open = false; }
-  if (eventDoor3Close) { Serial.println("DOOR_3_CLOSED"); eventDoor3Close = false; }
-  if (eventDoor4Open)  { Serial.println("DOOR_4_OPENED"); eventDoor4Open = false; }
+
+  if (eventDoor3Open) {
+    Serial.println("DOOR_3_OPENED");
+    if (lastRedState[2] && !faultActive[2] && (millis() - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_3");
+      faultActive[2] = true;
+    }
+    eventDoor3Open = false;
+  }
+  if (eventDoor3Close) {
+    Serial.println("DOOR_3_CLOSED");
+    if (faultActive[2]) { Serial.println("FAULT_LOCK_3_CLEAR"); faultActive[2] = false; }
+    eventDoor3Close = false;
+  }
+
+  if (eventDoor4Open) {
+    Serial.println("DOOR_4_OPENED");
+    if (lastRedState[3] && !faultActive[3] && (millis() - lastModeChangeTime > modeFaultGrace)) {
+      Serial.println("FAULT_LOCK_4");
+      faultActive[3] = true;
+    }
+    eventDoor4Open = false;
+  }
   if (eventDoor4Close) {
     totalExits++;
     Serial.println("DOOR_4_CLOSED");
+    if (faultActive[3]) { Serial.println("FAULT_LOCK_4_CLEAR"); faultActive[3] = false; }
     sendStatusUpdate();
     eventDoor4Close = false;
+  }
+
+  if (eventPir1Change) {
+    Serial.println(pir1State ? "BOOTH_1_OCCUPIED" : "BOOTH_1_VACANT");
+    eventPir1Change = false;
+  }
+  if (eventPir2Change) {
+    Serial.println(pir2State ? "BOOTH_2_OCCUPIED" : "BOOTH_2_VACANT");
+    eventPir2Change = false;
   }
 
   // One-shot unlock: revert door to AUTO_MODE after it has been opened and closed once

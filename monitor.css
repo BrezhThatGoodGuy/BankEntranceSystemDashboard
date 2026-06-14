@@ -322,9 +322,44 @@ body {
 .bank-booth-template .inside-entrance-opened { transform: rotate(-10deg); transform-origin: top right; position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: rgb(6, 234, 33); display: none; }
 .bank-booth-template .inside-entrance-closed { position: absolute; right: 6%; bottom: 10%; width: 35%; height: 10px; background-color: red; display: block; }
 
-/* Object Detection Indicators */
-.object-detected-entrance { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 40px; right: 4%; top: 45%; white-space: nowrap; transform: rotate(90deg); }
-.object-detected-exit { position: absolute; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 900; font-size: 40px; left: 4%; top: 45%; white-space: nowrap; transform: rotate(90deg); }
+/* Object Detection Indicators — hidden by default, appear when .occupied is added */
+.object-detected-entrance {
+    position: absolute;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 900;
+    font-size: 40px;
+    right: 4%;
+    top: 45%;
+    white-space: nowrap;
+    transform: rotate(90deg);
+    pointer-events: none;
+    color: #888;
+    opacity: 0;
+    transition: color 1s ease, opacity 1s ease;
+}
+.object-detected-exit {
+    position: absolute;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 900;
+    font-size: 40px;
+    left: 4%;
+    top: 45%;
+    white-space: nowrap;
+    transform: rotate(90deg);
+    pointer-events: none;
+    color: #888;
+    opacity: 0;
+    transition: color 1s ease, opacity 1s ease;
+}
+.object-detected-entrance.occupied,
+.object-detected-exit.occupied {
+    color: #ffffff;
+    opacity: 1;
+}
+[data-theme="light"] .object-detected-entrance.occupied,
+[data-theme="light"] .object-detected-exit.occupied {
+    color: #1e2a38;
+}
 
 /* ========== Dynamic State Classes for Bank Booth Template ========== */
 /* These classes are added to .bank-booth-template to show/hide appropriate door state divs */
