@@ -9,7 +9,7 @@
     display: flex;
     justify-content: center;
     gap: 20px;
-    padding: 90px 20px 20px 20px;
+    padding: 110px 20px 20px 20px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -318,6 +318,64 @@
 
 [data-theme="light"] .fault-label {
     color: #22303c;
+}
+
+[data-theme="light"] .fault-health-bar-track {
+    background: rgba(100, 120, 180, 0.2);
+}
+
+[data-theme="light"] .fault-count-badge {
+    background: #c5d4da;
+    color: #22303c;
+}
+
+[data-theme="light"] .fault-count-badge.count-warning {
+    background: rgba(241, 196, 15, 0.25);
+    color: #7a5800;
+}
+
+[data-theme="light"] .fault-count-badge.count-critical {
+    background: rgba(231, 76, 60, 0.2);
+    color: #a02020;
+}
+
+[data-theme="light"] .modal-content {
+    background: #e6ecef;
+    border-color: #90a6b0;
+}
+
+[data-theme="light"] .modal-content h3 {
+    color: #1061a3;
+    border-bottom-color: rgba(144, 166, 176, 0.5);
+}
+
+[data-theme="light"] .modal-info-label {
+    color: #b8762a;
+}
+
+[data-theme="light"] .modal-info-value {
+    color: #22303c;
+}
+
+[data-theme="light"] .modal-recipients {
+    color: #4e626e;
+}
+
+[data-theme="light"] .modal-body label {
+    color: #22303c;
+}
+
+[data-theme="light"] .modal-body input,
+[data-theme="light"] .modal-body textarea {
+    background: #c5d4da;
+    border-color: #90a6b0;
+    color: #111;
+}
+
+[data-theme="light"] .modal-body input:focus,
+[data-theme="light"] .modal-body textarea:focus {
+    background: #b8cad2;
+    border-color: #1061a3;
 }
 
 [data-theme="light"] .navigation-menu {

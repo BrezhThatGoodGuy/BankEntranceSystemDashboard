@@ -242,7 +242,7 @@ function updateDoorLockIcon(doorId, locked) {
             '<circle cx="16" cy="26" r="3.5" fill="rgba(0,0,0,0.3)"/>' +
             '<rect x="14.5" y="26" width="3" height="6" rx="1.5" fill="rgba(0,0,0,0.3)"/>';
     } else {
-        icon.setAttribute('viewBox', '0 0 64 64');
+        icon.setAttribute('viewBox', '6 4 44 56');
         icon.setAttribute('width',  '35');
         icon.setAttribute('height', '44');
         icon.innerHTML =

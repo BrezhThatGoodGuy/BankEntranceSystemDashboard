@@ -9,27 +9,27 @@
 // ==================================================
 // OUTPUT PINS
 // ==================================================
-#define DOOR1G A0
-#define DOOR1R A4
-#define DOOR2G 9
-#define DOOR2R A1
-#define DOOR3G 8
-#define DOOR3R 4
-#define DOOR4G 3
-#define DOOR4R 2
+#define DOOR1G A0   // physical pin 23 (PC0)
+#define DOOR1R A4   // physical pin 27 (PC4)
+#define DOOR2G 9    // physical pin 15 (PB1)
+#define DOOR2R A1   // physical pin 24 (PC1)
+#define DOOR3G 8    // physical pin 14 (PB0)
+#define DOOR3R 4    // physical pin  6 (PD4)
+#define DOOR4G 3    // physical pin  5 (PD3)
+#define DOOR4R 2    // physical pin  4 (PD2)
 
 // ==================================================
 // INPUT PINS
 // ==================================================
-#define door1 A3
-#define door2 A2
-#define door3 7
-#define door4 6
+#define door1 A3    // physical pin 26 (PC3)
+#define door2 13    // physical pin 19 (PB5)
+#define door3 7     // physical pin 13 (PD7)
+#define door4 6     // physical pin 12 (PD6)
 
-#define pirBooth1 10
-#define pirBooth2 11
+#define pirBooth1 10  // physical pin 16 (PB2)
+#define pirBooth2 11  // physical pin 17 (PB3)
 
-#define modeSelector A2
+#define modeSelector A2  // physical pin 25 (PC2)
 
 // ==================================================
 // DEBOUNCE TIME
@@ -171,40 +171,58 @@ void updateSystemLEDs() {
 
     if (currentMode == MODE_BANK_CLOSED) {
       if (i == 0 || i == 1) {
-        setDoorOutput(i, false, true);
+        setDoorOutput(i, false, true);                              // Entry booth always locked
+      } else if (i == 2) {
+        // Exit booth entry door: green only while idle or door is physically open
+        if (booth2State == IDLE_FIRST_DOOR || booth2State == WAIT_FIRST_DOOR_CLOSE)
+          setDoorOutput(i, true, false);
+        else
+          setDoorOutput(i, false, true);
       } else {
-        if (booth2State == IDLE_FIRST_DOOR) setDoorOutput(i, true, false);
-        else if (booth2State == SECOND_DOOR_ENABLED) setDoorOutput(i, false, true);
-        else setDoorOutput(i, true, false);
+        // Exit booth outer door: green only when person is in vestibule
+        if (booth2State == SECOND_DOOR_ENABLED) setDoorOutput(i, true, false);
+        else                                     setDoorOutput(i, false, true);
       }
       continue;
     }
 
     if (currentMode == MODE_STAFF_ENTRY) {
       if (i == 2 || i == 3) {
-        setDoorOutput(i, false, true);
+        setDoorOutput(i, false, true);                              // Exit booth always locked
+      } else if (i == 0) {
+        // Entry booth outer door: green only while idle or door is physically open
+        if (booth1State == IDLE_FIRST_DOOR || booth1State == WAIT_FIRST_DOOR_CLOSE)
+          setDoorOutput(i, true, false);
+        else
+          setDoorOutput(i, false, true);
       } else {
-        if (booth1State == IDLE_FIRST_DOOR) setDoorOutput(i, true, false);
-        else if (booth1State == SECOND_DOOR_ENABLED) setDoorOutput(i, false, true);
-        else setDoorOutput(i, true, false);
+        // Entry booth inner door: green only when person is in vestibule
+        if (booth1State == SECOND_DOOR_ENABLED) setDoorOutput(i, true, false);
+        else                                     setDoorOutput(i, false, true);
       }
       continue;
     }
 
     if (i == 0) {
-      if (booth1State == IDLE_FIRST_DOOR) setDoorOutput(i, true, false);
-      else if (booth1State == SECOND_DOOR_ENABLED) setDoorOutput(i, false, true);
-      else setDoorOutput(i, true, false);
+      // Outer entry door: green only while idle or door is physically open;
+      // must stay red while someone is in the vestibule (incl. while door 2 is open)
+      if (booth1State == IDLE_FIRST_DOOR || booth1State == WAIT_FIRST_DOOR_CLOSE)
+        setDoorOutput(i, true, false);
+      else
+        setDoorOutput(i, false, true);
     } else if (i == 1) {
       if (booth1State == SECOND_DOOR_ENABLED) setDoorOutput(i, true, false);
-      else setDoorOutput(i, false, true);
+      else                                     setDoorOutput(i, false, true);
     } else if (i == 2) {
-      if (booth2State == IDLE_FIRST_DOOR) setDoorOutput(i, true, false);
-      else if (booth2State == SECOND_DOOR_ENABLED) setDoorOutput(i, false, true);
-      else setDoorOutput(i, true, false);
+      // Outer exit door: green only while idle or door is physically open;
+      // must stay red while someone is in the vestibule (incl. while door 4 is open)
+      if (booth2State == IDLE_FIRST_DOOR || booth2State == WAIT_FIRST_DOOR_CLOSE)
+        setDoorOutput(i, true, false);
+      else
+        setDoorOutput(i, false, true);
     } else if (i == 3) {
       if (booth2State == SECOND_DOOR_ENABLED) setDoorOutput(i, true, false);
-      else setDoorOutput(i, false, true);
+      else                                     setDoorOutput(i, false, true);
     }
   }
 }
@@ -257,6 +275,24 @@ void checkMcFaults() {
 ISR(PCINT0_vect) {
   unsigned long currentTime = millis();
 
+  // door2 = D13 (PB5/PCINT5)
+  if ((currentTime - lastInterruptTime2) > debounceTime) {
+    if (digitalRead(door2) == LOW) {
+      if (booth1State == SECOND_DOOR_ENABLED) booth1State = WAIT_SECOND_DOOR_CLOSE;
+      eventDoor2Open = true;
+      if (doorOverrideMode[1] == ONESHOT_UNLOCKED) oneshotDoorOpened[1] = true;
+    } else {
+      if (booth1State == WAIT_SECOND_DOOR_CLOSE) booth1State = IDLE_FIRST_DOOR;
+      eventDoor2Close = true;
+      if (doorOverrideMode[1] == ONESHOT_UNLOCKED && oneshotDoorOpened[1]) {
+        oneshotDoorOpened[1] = false;
+        eventOneshotRevert[1] = true;
+      }
+    }
+    lastInterruptTime2 = currentTime;
+  }
+
+  // pirBooth1 = D10 (PB2/PCINT2)
   if ((currentTime - lastPir1Time) > debounceTime) {
     bool reading = digitalRead(pirBooth1) == HIGH;
     if (reading != pir1State) {
@@ -266,6 +302,7 @@ ISR(PCINT0_vect) {
     }
   }
 
+  // pirBooth2 = D11 (PB3/PCINT3)
   if ((currentTime - lastPir2Time) > debounceTime) {
     bool reading = digitalRead(pirBooth2) == HIGH;
     if (reading != pir2State) {
@@ -281,46 +318,18 @@ ISR(PCINT1_vect) {
 
   if ((currentTime - lastInterruptTime1) > debounceTime) {
     if (digitalRead(door1) == LOW) {
-      if (booth1State == IDLE_FIRST_DOOR) {
-        booth1State = WAIT_FIRST_DOOR_CLOSE;
-        eventDoor1Open = true;
-      }
-      if (doorOverrideMode[0] == ONESHOT_UNLOCKED) {
-        oneshotDoorOpened[0] = true;
-      }
+      if (booth1State == IDLE_FIRST_DOOR) booth1State = WAIT_FIRST_DOOR_CLOSE;
+      eventDoor1Open = true;
+      if (doorOverrideMode[0] == ONESHOT_UNLOCKED) oneshotDoorOpened[0] = true;
     } else {
-      if (booth1State == WAIT_FIRST_DOOR_CLOSE) {
-        booth1State = SECOND_DOOR_ENABLED;
-        eventDoor1Close = true;
-      }
+      if (booth1State == WAIT_FIRST_DOOR_CLOSE) booth1State = SECOND_DOOR_ENABLED;
+      eventDoor1Close = true;
       if (doorOverrideMode[0] == ONESHOT_UNLOCKED && oneshotDoorOpened[0]) {
         oneshotDoorOpened[0] = false;
         eventOneshotRevert[0] = true;
       }
     }
     lastInterruptTime1 = currentTime;
-  }
-
-  if ((currentTime - lastInterruptTime2) > debounceTime) {
-    if (digitalRead(door2) == LOW) {
-      if (booth1State == SECOND_DOOR_ENABLED) {
-        booth1State = WAIT_SECOND_DOOR_CLOSE;
-        eventDoor2Open = true;
-      }
-      if (doorOverrideMode[1] == ONESHOT_UNLOCKED) {
-        oneshotDoorOpened[1] = true;
-      }
-    } else {
-      if (booth1State == WAIT_SECOND_DOOR_CLOSE) {
-        booth1State = IDLE_FIRST_DOOR;
-        eventDoor2Close = true;
-      }
-      if (doorOverrideMode[1] == ONESHOT_UNLOCKED && oneshotDoorOpened[1]) {
-        oneshotDoorOpened[1] = false;
-        eventOneshotRevert[1] = true;
-      }
-    }
-    lastInterruptTime2 = currentTime;
   }
 }
 
@@ -329,18 +338,12 @@ ISR(PCINT2_vect) {
 
   if ((currentTime - lastInterruptTime3) > debounceTime) {
     if (digitalRead(door3) == LOW) {
-      if (booth2State == IDLE_FIRST_DOOR) {
-        booth2State = WAIT_FIRST_DOOR_CLOSE;
-        eventDoor3Open = true;
-      }
-      if (doorOverrideMode[2] == ONESHOT_UNLOCKED) {
-        oneshotDoorOpened[2] = true;
-      }
+      if (booth2State == IDLE_FIRST_DOOR) booth2State = WAIT_FIRST_DOOR_CLOSE;
+      eventDoor3Open = true;
+      if (doorOverrideMode[2] == ONESHOT_UNLOCKED) oneshotDoorOpened[2] = true;
     } else {
-      if (booth2State == WAIT_FIRST_DOOR_CLOSE) {
-        booth2State = SECOND_DOOR_ENABLED;
-        eventDoor3Close = true;
-      }
+      if (booth2State == WAIT_FIRST_DOOR_CLOSE) booth2State = SECOND_DOOR_ENABLED;
+      eventDoor3Close = true;
       if (doorOverrideMode[2] == ONESHOT_UNLOCKED && oneshotDoorOpened[2]) {
         oneshotDoorOpened[2] = false;
         eventOneshotRevert[2] = true;
@@ -351,18 +354,12 @@ ISR(PCINT2_vect) {
 
   if ((currentTime - lastInterruptTime4) > debounceTime) {
     if (digitalRead(door4) == LOW) {
-      if (booth2State == SECOND_DOOR_ENABLED) {
-        booth2State = WAIT_SECOND_DOOR_CLOSE;
-        eventDoor4Open = true;
-      }
-      if (doorOverrideMode[3] == ONESHOT_UNLOCKED) {
-        oneshotDoorOpened[3] = true;
-      }
+      if (booth2State == SECOND_DOOR_ENABLED) booth2State = WAIT_SECOND_DOOR_CLOSE;
+      eventDoor4Open = true;
+      if (doorOverrideMode[3] == ONESHOT_UNLOCKED) oneshotDoorOpened[3] = true;
     } else {
-      if (booth2State == WAIT_SECOND_DOOR_CLOSE) {
-        booth2State = IDLE_FIRST_DOOR;
-        eventDoor4Close = true;
-      }
+      if (booth2State == WAIT_SECOND_DOOR_CLOSE) booth2State = IDLE_FIRST_DOOR;
+      eventDoor4Close = true;
       if (doorOverrideMode[3] == ONESHOT_UNLOCKED && oneshotDoorOpened[3]) {
         oneshotDoorOpened[3] = false;
         eventOneshotRevert[3] = true;
@@ -388,11 +385,12 @@ void setup() {
   updateSystemLEDs();
 
   PCICR  |= (1 << PCIE0);
-  PCMSK0 |= (1 << PCINT2);  // pirBooth1 = D10
-  PCMSK0 |= (1 << PCINT3);  // pirBooth2 = D11
+  PCMSK0 |= (1 << PCINT2);  // pirBooth1 = D10 (PB2)
+  PCMSK0 |= (1 << PCINT3);  // pirBooth2 = D11 (PB3)
+  PCMSK0 |= (1 << PCINT5);  // door2     = D13 (PB5)
 
   PCICR |= (1 << PCIE1);
-  PCMSK1 |= (1 << PCINT10); PCMSK1 |= (1 << PCINT11);
+  PCMSK1 |= (1 << PCINT11); // door1 = A3 (PC3)
 
   PCICR |= (1 << PCIE2);
   PCMSK2 |= (1 << PCINT22); PCMSK2 |= (1 << PCINT23);

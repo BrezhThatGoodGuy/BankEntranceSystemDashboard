@@ -27,14 +27,14 @@ function openAiPage(){
 function hideSideNavigationBar(){
     const hiddensidebar = '<div class = "hidden-side-navigation-bar"></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = hiddensidebar;
-    const clickedmenu = '<img class="navigation-menu" onclick="showSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
+    const clickedmenu = '<svg class="navigation-menu" onclick="showSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Open menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
     document.querySelector('.js-navigation-menu').innerHTML = clickedmenu;
 }
 
 function showSideNavigationBar(){
     const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" stroke="none"><circle cx="16" cy="16" r="16" fill="#25D366"/><path fill="#FFFFFF" d="M16 6.5c-5.2 0-9.5 4-9.5 9c0 1.8.6 3.5 1.7 5L7 25.5l5.2-1.6c1.2.6 2.5.9 3.8.9 5.2 0 9.5-4 9.5-9s-4.3-9.3-9.5-9.3z"/><path fill="#25D366" d="M13.3 11.2c-.3-.7-.6-.7-.9-.7h-.8c-.3 0-.7.1-.9.4-.3.3-1.1 1.1-1.1 2.6 0 1.5 1.1 3 1.3 3.2.2.2 2.2 3.4 5.4 4.7 2.7 1.1 3.2.9 3.8.8.6-.1 1.8-.8 2-1.5 .3-.7.3-1.3.2-1.5-.1-.2-.5-.3-1.1-.6-.6-.3-1.4-.7-1.6-.8-.2-.1-.5-.1-.7.2 -.2.3-.8.8-1 .9-.2.1-.4.1-.7 0-.3-.2-1.3-.5-2.5-1.6-.9-.8-1.5-1.8-1.7-2.1 -.2-.3 0-.5.1-.7.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2.1-.4 0-.6 -.1-.2-.7-1.7-.9-2.3z"/></svg></a></div><div onclick="showThemeSettings()"><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
-    const unclickedmenu = '<img class="navigation-menu" onclick="hideSideNavigationBar()" src="navigation-menu.png" alt="nav logo">';
+    const unclickedmenu = '<svg class="navigation-menu" onclick="hideSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Close menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
 }
 
@@ -97,6 +97,10 @@ const API_ENDPOINTS = window.API_ENDPOINTS || {};
 const ACTION_ENDPOINT = API_ENDPOINTS.ACTION || '/action';
 const LOG_ENDPOINT = API_ENDPOINTS.LOGS_BASE || '/log';
 
+function getActiveUser() {
+    return sessionStorage.getItem('username') || 'Unknown';
+}
+
 function getLogEndpoint(logType) {
     if (API_ENDPOINTS.LOGS_QUERY) return API_ENDPOINTS.LOGS_QUERY(logType);
     return `${LOG_ENDPOINT}?type=${encodeURIComponent(logType)}`;
@@ -135,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApiPolling();
     initializeRefreshButton();
     initializeControlSSE();
+    initCapacityCard();
     loadLogData();
 });
 
@@ -341,7 +346,8 @@ function setOperationMode(modeId) {
     const modeData = {
         action: 'MODE_CHANGE',
         mode: modeLabel,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        user: getActiveUser()
     };
     
     sendModeAction(modeData);
@@ -462,6 +468,14 @@ function initializeControlSSE() {
         }
     });
 
+    evtSource.addEventListener('status', function(e) {
+        try {
+            updateCapacityCard(JSON.parse(e.data));
+        } catch (err) {
+            console.warn('[ControlSSE] Failed to parse status event:', err);
+        }
+    });
+
     evtSource.onerror = function() {
         console.warn('[ControlSSE] SSE connection error — auto-revert notifications will not work until reconnected.');
     };
@@ -470,39 +484,101 @@ function initializeControlSSE() {
 }
 
 // ============================================
+// Capacity Control Card
+// ============================================
+
+function updateCapacityCard(data) {
+    const insideEl = document.getElementById('cap-inside');
+    const totalEl  = document.getElementById('cap-total');
+    const inputEl  = document.getElementById('max-inside-input');
+    const msgEl    = document.getElementById('cap-status-msg');
+
+    const inside = data.inside !== undefined ? data.inside : null;
+    const max    = data.max_inside !== undefined ? data.max_inside : 0;
+
+    if (insideEl && inside !== null) {
+        insideEl.textContent = inside;
+        insideEl.classList.remove('cap-at-limit', 'cap-near-limit');
+        if (max > 0) {
+            const pct = inside / max;
+            if (inside >= max)   insideEl.classList.add('cap-at-limit');
+            else if (pct >= 0.8) insideEl.classList.add('cap-near-limit');
+        }
+    }
+
+    if (totalEl && data.entries !== undefined) totalEl.textContent = data.entries;
+
+    if (inputEl && max > 0 && !inputEl.matches(':focus')) {
+        inputEl.value = max;
+    }
+
+    if (msgEl) {
+        if (max > 0 && inside !== null) {
+            const pct = Math.round((inside / max) * 100);
+            if (inside >= max) {
+                msgEl.textContent = `Capacity reached (${inside}/${max}) — Exit-Only mode enforced`;
+                msgEl.className = 'cap-status-msg cap-critical';
+            } else if (pct >= 80) {
+                msgEl.textContent = `${pct}% capacity — approaching limit (${inside}/${max})`;
+                msgEl.className = 'cap-status-msg cap-warning';
+            } else {
+                msgEl.textContent = '';
+                msgEl.className = 'cap-status-msg';
+            }
+        } else {
+            msgEl.textContent = '';
+            msgEl.className = 'cap-status-msg';
+        }
+    }
+}
+
+function initCapacityCard() {
+    const saveBtn = document.getElementById('max-inside-save');
+    const inputEl = document.getElementById('max-inside-input');
+    if (!saveBtn || !inputEl) return;
+
+    saveBtn.addEventListener('click', function() {
+        const val = parseInt(inputEl.value, 10);
+        if (isNaN(val) || val < 1) {
+            showNotification('Enter a valid number greater than 0', 'error');
+            return;
+        }
+        fetch(ACTION_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'SET_MAX_INSIDE', value: String(val), user: getActiveUser() })
+        })
+        .then(r => r.ok ? r.json().catch(() => ({})) : Promise.reject(r.status))
+        .then(() => showNotification(`Maximum inside set to ${val}`, 'success'))
+        .catch(() => showNotification('Failed to set maximum — ESP32 not reachable', 'error'));
+    });
+
+    // Fetch initial state from status endpoint
+    fetch('/api/status.json')
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => updateCapacityCard(data))
+        .catch(() => {});
+}
+
+// ============================================
 // Log Display Functions
 // ============================================
 
 function displayLog() {
     const container = document.getElementById('logContainer');
-    
     if (!container) return;
-    
     if (!doorActions || doorActions.length === 0) {
         container.innerHTML = '<p class="empty-log">No actions recorded yet.</p>';
         return;
     }
-    
-    let logHTML = '';
-    
-    for (let i = doorActions.length - 1; i >= 0; i--) {
-        const action = doorActions[i];
-        // Handle both ESP32 format and local API format
-        const time = action.timestamp || action.time || action.Time || '--:--:--';
-        const door = action.door || action.message || action.doorId || '-';
-        const actionType = action.type || action.action || action.actionType || '-';
-        const status = action.status || action.state || '-';
-        
-        logHTML += `
-            <div class="log-entry">
-                <div class="log-time">${formatTime(time)}</div>
-                <div class="log-clicked">Door: ${door}</div>
-                <div class="log-client">Action: ${actionType} - ${status}</div>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = logHTML;
+    const entries = doorActions.slice(-10).reverse();
+    container.innerHTML = entries.map(action => {
+        const time = formatTime(action.timestamp || action.time || action.Time || '');
+        const msg  = action.message ||
+            [action.door || action.doorId, action.type || action.action, action.status || action.state]
+            .filter(Boolean).join(' — ');
+        return `<div class="log-entry"><span class="log-time">${time}</span>  ${msg}</div>`;
+    }).join('');
 }
 
 function loadLogData() {

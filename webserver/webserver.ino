@@ -141,6 +141,7 @@ bool new_inference_available = false;
 int totalEntries = 0;
 int totalExits = 0;
 int clientsInside = 0;
+int maxClientsInside = 0;
 
 // ===== Camera Configuration Structure =====
 static camera_config_t camera_config = {
@@ -349,6 +350,7 @@ void processActionPost(const String &body) {
     String mode   = parseJsonString(body, "mode");
     String type   = parseJsonString(body, "type");
     String user   = parseJsonString(body, "user");
+    String value  = parseJsonString(body, "value");
 
     // Build the attribution suffix used in every log line.
     // Empty when the action was triggered by the AI (no human user).
@@ -407,6 +409,19 @@ void processActionPost(const String &body) {
         }
         Serial.println("[AI] " + type + " detection mode set to: " + mode);
         appendLogEntry(LOG_AI, "AI " + type + " detection mode set to " + mode + byUser);
+
+    } else if (action.equalsIgnoreCase("SET_MAX_INSIDE") && value.length() > 0) {
+        int newMax = value.toInt();
+        maxClientsInside = (newMax > 0) ? newMax : 0;
+        if (maxClientsInside > 0) {
+            Serial.println("[CAPACITY] Max inside set to: " + String(maxClientsInside));
+            appendLogEntry(LOG_CONTROL, "Maximum inside clients set to " + String(maxClientsInside) + byUser);
+        } else {
+            Serial.println("[CAPACITY] Max inside limit removed");
+            appendLogEntry(LOG_CONTROL, "Maximum inside clients limit removed" + byUser);
+        }
+        lastDoorEventId++;
+        events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
     }
 }
 
@@ -499,7 +514,7 @@ void applyInferenceOperationMode() {
         return;
     }
 
-    if (applyOperationMode(configured_mode, "AI")) {
+    if (applyOperationMode(configured_mode, "AI", "Automatically")) {
         appendLogEntry(
             LOG_AI,
             "AI " + detection_type + " detection applied mode " + configured_mode +
@@ -631,6 +646,11 @@ void processAtmegaLine(const String &line) {
         }
         if (insideValue.length() > 0) {
             clientsInside = insideValue.toInt();
+            if (maxClientsInside > 0 && clientsInside >= maxClientsInside &&
+                !current_operation_mode.equalsIgnoreCase("exit") &&
+                !current_operation_mode.equalsIgnoreCase("lock")) {
+                applyOperationMode("Exit-Only", "CAPACITY", "Automatically");
+            }
         }
 
         appendLogEntry(LOG_MONITORING, "Occupancy counts updated: Entries=" + String(totalEntries) + ", Exits=" + String(totalExits) + ", Inside=" + String(clientsInside));
@@ -646,6 +666,7 @@ String buildStatusPayload() {
     payload += "\"entries\":" + String(totalEntries) + ",";
     payload += "\"exits\":" + String(totalExits) + ",";
     payload += "\"inside\":" + String(clientsInside) + ",";
+    payload += "\"max_inside\":" + String(maxClientsInside) + ",";
     payload += "\"doors\":[";
     for (int i = 0; i < 4; i++) {
         if (i) payload += ",";
