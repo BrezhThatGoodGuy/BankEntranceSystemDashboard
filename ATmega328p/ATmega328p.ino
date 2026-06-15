@@ -42,6 +42,7 @@ const unsigned long debounceTime = 50;
 enum BoothState {
   IDLE_FIRST_DOOR,
   WAIT_FIRST_DOOR_CLOSE,
+  WAIT_PIR_CONFIRM,        // first door closed; waiting for PIR to confirm occupant
   SECOND_DOOR_ENABLED,
   WAIT_SECOND_DOOR_CLOSE
 };
@@ -94,6 +95,20 @@ volatile bool eventPir1Change = false;
 volatile bool eventPir2Change = false;
 volatile unsigned long lastPir1Time = 0;
 volatile unsigned long lastPir2Time = 0;
+
+// PIR confirmation timeout — if PIR never goes HIGH after first door closes, reset after 7 s
+volatile unsigned long booth1PirWaitStart = 0;
+volatile unsigned long booth2PirWaitStart = 0;
+const unsigned long pirWaitTimeout = 7000UL;
+
+// PIR health: count consecutive timeouts; 5 in a row without a successful detection = fault
+volatile bool eventPir1Success = false;   // set in ISR when PIR1 fires during WAIT_PIR_CONFIRM
+volatile bool eventPir2Success = false;
+uint8_t pir1TimeoutCount = 0;
+uint8_t pir2TimeoutCount = 0;
+bool    pir1FaultActive  = false;
+bool    pir2FaultActive  = false;
+const uint8_t PIR_FAULT_THRESHOLD = 5;
 
 bool lastGreenState[4] = {false, false, false, false};
 bool lastRedState[4]   = {false, false, false, false};
@@ -299,6 +314,10 @@ ISR(PCINT0_vect) {
       pir1State = reading;
       eventPir1Change = true;
       lastPir1Time = currentTime;
+      if (reading && booth1State == WAIT_PIR_CONFIRM) {
+        booth1State = SECOND_DOOR_ENABLED;
+        eventPir1Success = true;
+      }
     }
   }
 
@@ -309,6 +328,10 @@ ISR(PCINT0_vect) {
       pir2State = reading;
       eventPir2Change = true;
       lastPir2Time = currentTime;
+      if (reading && booth2State == WAIT_PIR_CONFIRM) {
+        booth2State = SECOND_DOOR_ENABLED;
+        eventPir2Success = true;
+      }
     }
   }
 }
@@ -322,7 +345,14 @@ ISR(PCINT1_vect) {
       eventDoor1Open = true;
       if (doorOverrideMode[0] == ONESHOT_UNLOCKED) oneshotDoorOpened[0] = true;
     } else {
-      if (booth1State == WAIT_FIRST_DOOR_CLOSE) booth1State = SECOND_DOOR_ENABLED;
+      if (booth1State == WAIT_FIRST_DOOR_CLOSE) {
+        if (pir1State) {
+          booth1State = SECOND_DOOR_ENABLED;
+        } else {
+          booth1State = WAIT_PIR_CONFIRM;
+          booth1PirWaitStart = currentTime;
+        }
+      }
       eventDoor1Close = true;
       if (doorOverrideMode[0] == ONESHOT_UNLOCKED && oneshotDoorOpened[0]) {
         oneshotDoorOpened[0] = false;
@@ -342,7 +372,14 @@ ISR(PCINT2_vect) {
       eventDoor3Open = true;
       if (doorOverrideMode[2] == ONESHOT_UNLOCKED) oneshotDoorOpened[2] = true;
     } else {
-      if (booth2State == WAIT_FIRST_DOOR_CLOSE) booth2State = SECOND_DOOR_ENABLED;
+      if (booth2State == WAIT_FIRST_DOOR_CLOSE) {
+        if (pir2State) {
+          booth2State = SECOND_DOOR_ENABLED;
+        } else {
+          booth2State = WAIT_PIR_CONFIRM;
+          booth2PirWaitStart = currentTime;
+        }
+      }
       eventDoor3Close = true;
       if (doorOverrideMode[2] == ONESHOT_UNLOCKED && oneshotDoorOpened[2]) {
         oneshotDoorOpened[2] = false;
@@ -491,6 +528,41 @@ void loop() {
   }
 
   checkMcFaults();
+
+  // PIR confirmation timeout: if nobody detected within 7 s of first door closing, reset booth
+  unsigned long _now = millis();
+  if (booth1State == WAIT_PIR_CONFIRM && (_now - booth1PirWaitStart) >= pirWaitTimeout) {
+    booth1State = IDLE_FIRST_DOOR;
+    if (!pir1FaultActive) {
+      pir1TimeoutCount++;
+      if (pir1TimeoutCount >= PIR_FAULT_THRESHOLD) {
+        pir1FaultActive = true;
+        Serial.println("FAULT_PIR_1");
+      }
+    }
+  }
+  if (booth2State == WAIT_PIR_CONFIRM && (_now - booth2PirWaitStart) >= pirWaitTimeout) {
+    booth2State = IDLE_FIRST_DOOR;
+    if (!pir2FaultActive) {
+      pir2TimeoutCount++;
+      if (pir2TimeoutCount >= PIR_FAULT_THRESHOLD) {
+        pir2FaultActive = true;
+        Serial.println("FAULT_PIR_2");
+      }
+    }
+  }
+
+  // PIR success: reset timeout counter; clear fault if previously raised
+  if (eventPir1Success) {
+    pir1TimeoutCount = 0;
+    if (pir1FaultActive) { pir1FaultActive = false; Serial.println("FAULT_PIR_1_CLEAR"); }
+    eventPir1Success = false;
+  }
+  if (eventPir2Success) {
+    pir2TimeoutCount = 0;
+    if (pir2FaultActive) { pir2FaultActive = false; Serial.println("FAULT_PIR_2_CLEAR"); }
+    eventPir2Success = false;
+  }
 
   // One-shot unlock: revert door to AUTO_MODE after it has been opened and closed once
   for (int i = 0; i < 4; i++) {

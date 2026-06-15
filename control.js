@@ -32,7 +32,7 @@ function hideSideNavigationBar(){
 }
 
 function showSideNavigationBar(){
-    const shownsidebar = '<div class = "shown-side-navigation-bar"><div><p>Print Info</p>  <svg class="print-icon" onclick="window.print()" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" stroke="none"><circle cx="16" cy="16" r="16" fill="#25D366"/><path fill="#FFFFFF" d="M16 6.5c-5.2 0-9.5 4-9.5 9c0 1.8.6 3.5 1.7 5L7 25.5l5.2-1.6c1.2.6 2.5.9 3.8.9 5.2 0 9.5-4 9.5-9s-4.3-9.3-9.5-9.3z"/><path fill="#25D366" d="M13.3 11.2c-.3-.7-.6-.7-.9-.7h-.8c-.3 0-.7.1-.9.4-.3.3-1.1 1.1-1.1 2.6 0 1.5 1.1 3 1.3 3.2.2.2 2.2 3.4 5.4 4.7 2.7 1.1 3.2.9 3.8.8.6-.1 1.8-.8 2-1.5 .3-.7.3-1.3.2-1.5-.1-.2-.5-.3-1.1-.6-.6-.3-1.4-.7-1.6-.8-.2-.1-.5-.1-.7.2 -.2.3-.8.8-1 .9-.2.1-.4.1-.7 0-.3-.2-1.3-.5-2.5-1.6-.9-.8-1.5-1.8-1.7-2.1 -.2-.3 0-.5.1-.7.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2.1-.4 0-.6 -.1-.2-.7-1.7-.9-2.3z"/></svg></a></div><div onclick="showThemeSettings()"><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
+    const shownsidebar = '<div class = "shown-side-navigation-bar"><div onclick="openPrintLogsDialog()"><p>Print Info</p>  <svg class="print-icon" aria-label="Print this page" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div><div><p>Help</p><a href="https://wa.me/263785780324" target="_blank" rel="noopener noreferrer" aria-label="Call Customer Support"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" stroke="none"><circle cx="16" cy="16" r="16" fill="#25D366"/><path fill="#FFFFFF" d="M16 6.5c-5.2 0-9.5 4-9.5 9c0 1.8.6 3.5 1.7 5L7 25.5l5.2-1.6c1.2.6 2.5.9 3.8.9 5.2 0 9.5-4 9.5-9s-4.3-9.3-9.5-9.3z"/><path fill="#25D366" d="M13.3 11.2c-.3-.7-.6-.7-.9-.7h-.8c-.3 0-.7.1-.9.4-.3.3-1.1 1.1-1.1 2.6 0 1.5 1.1 3 1.3 3.2.2.2 2.2 3.4 5.4 4.7 2.7 1.1 3.2.9 3.8.8.6-.1 1.8-.8 2-1.5 .3-.7.3-1.3.2-1.5-.1-.2-.5-.3-1.1-.6-.6-.3-1.4-.7-1.6-.8-.2-.1-.5-.1-.7.2 -.2.3-.8.8-1 .9-.2.1-.4.1-.7 0-.3-.2-1.3-.5-2.5-1.6-.9-.8-1.5-1.8-1.7-2.1 -.2-.3 0-.5.1-.7.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2.1-.4 0-.6 -.1-.2-.7-1.7-.9-2.3z"/></svg></a></div><div onclick="showThemeSettings()"><p>Settings</p><svg class="gear-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div><div><p>Log Out</p><svg class="logout-icon" onclick="logout()" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div></div>';
     document.querySelector('.js-side-navigation-bar').innerHTML = shownsidebar;
     const unclickedmenu = '<svg class="navigation-menu" onclick="hideSideNavigationBar()" viewBox="0 0 24 18" width="30" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" role="button" aria-label="Close menu"><line x1="0" y1="1" x2="24" y2="1"/><line x1="0" y1="9" x2="24" y2="9"/><line x1="0" y1="17" x2="24" y2="17"/></svg>';
     document.querySelector('.js-navigation-menu').innerHTML = unclickedmenu;
@@ -476,6 +476,17 @@ function initializeControlSSE() {
         }
     });
 
+    evtSource.addEventListener('mode', function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            if (data && data.mode) {
+                updateModeFromAPI(data);
+            }
+        } catch (err) {
+            console.warn('[ControlSSE] Failed to parse mode event:', err);
+        }
+    });
+
     evtSource.onerror = function() {
         console.warn('[ControlSSE] SSE connection error — auto-revert notifications will not work until reconnected.');
     };
@@ -682,17 +693,103 @@ function showNotification(message, type) {
 
 function formatTime(isoString) {
     if (!isoString) return '--:--:--';
-    
     try {
         const date = new Date(isoString);
-        return date.toLocaleTimeString('en-US', { 
-            hour12: false, 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
-        });
+        return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     } catch {
         return '--:--:--';
     }
 }
+
+// ============================================
+// Print Logs Dialog
+// ============================================
+
+const ESP_LOG_FILE_CONFIG = [
+    { key: 'monitoring', label: 'Monitoring Logs', url: '/logs/monitoring.txt' },
+    { key: 'control',    label: 'Control Logs',    url: '/logs/control.txt'    },
+    { key: 'faults',     label: 'Faults Logs',     url: '/logs/faults.txt'     },
+    { key: 'ai',         label: 'AI Logs',          url: '/logs/ai.txt'         }
+];
+
+function escapeHTML(v) {
+    return String(v ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function openPrintLogsDialog() {
+    closePrintLogsDialog();
+    const items = ESP_LOG_FILE_CONFIG.map(f =>
+        `<label class="print-checkbox-label">
+            <input type="checkbox" class="log-file-checkbox" value="${f.key}" checked>
+            <span>${f.label}</span>
+        </label>`
+    ).join('');
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="printSelectionModal" class="print-modal-overlay" onclick="closePrintLogsDialog(event)">
+            <div class="print-modal-card" onclick="event.stopPropagation()">
+                <div class="print-modal-header">
+                    <h3>Select logs to print</h3>
+                    <button type="button" class="close-modal-btn" onclick="closePrintLogsDialog()">X</button>
+                </div>
+                <div class="print-modal-body">
+                    <p>Select one or more log files then press PRINT.</p>
+                    <div class="print-checkbox-grid">${items}</div>
+                    <div id="printSelectionError" class="print-error-message"></div>
+                </div>
+                <div class="print-modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closePrintLogsDialog()">CANCEL</button>
+                    <button type="button" class="btn-print" onclick="printSelectedLogFiles()">PRINT</button>
+                </div>
+            </div>
+        </div>`);
+}
+
+function closePrintLogsDialog(event) {
+    if (event && event.target.id !== 'printSelectionModal') return;
+    ['printSelectionModal', 'printableLogsArea'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    });
+}
+
+function printSelectedLogFiles() {
+    const keys = [...document.querySelectorAll('.log-file-checkbox:checked')].map(el => el.value);
+    const errEl = document.getElementById('printSelectionError');
+    if (!keys.length) { if (errEl) errEl.textContent = 'Please select at least one log file.'; return; }
+    if (errEl) errEl.textContent = '';
+    const selected = ESP_LOG_FILE_CONFIG.filter(f => keys.includes(f.key));
+    Promise.all(selected.map(f =>
+        fetch(f.url, { cache: 'no-store', headers: { Accept: 'text/plain' } })
+            .then(r => r.ok ? r.text() : Promise.reject(`Cannot load ${f.label}`))
+            .then(text => ({ ...f, text }))
+    ))
+    .then(files => { closePrintLogsDialog(); buildAndPrintLogs(files); })
+    .catch(err => { if (errEl) errEl.textContent = String(err); });
+}
+
+function buildAndPrintLogs(files) {
+    const existing = document.getElementById('printableLogsArea');
+    if (existing) existing.remove();
+    const sections = files.map(f =>
+        `<section class="printable-log-file"><h2>${f.label}</h2><pre>${escapeHTML(f.text)}</pre></section>`
+    ).join('');
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="printableLogsArea" class="printable-log-area active">
+            <div class="printable-logs-header">
+                <h1>ESP Log Printout</h1>
+                <p>${files.map(f => f.label).join(', ')}</p>
+                <p>${new Date().toLocaleString()}</p>
+            </div>
+            ${sections}
+        </div>`);
+    window.addEventListener('afterprint', () => {
+        const el = document.getElementById('printableLogsArea');
+        if (el) el.remove();
+    }, { once: true });
+    window.print();
+}
+
 }

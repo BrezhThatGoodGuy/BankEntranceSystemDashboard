@@ -531,22 +531,22 @@ body {
     top: 10px;
     right: 10px;
 
-    width: 22px;
-    height: 22px;
-
     border: 1px solid rgba(255, 142, 3, 0.4);
-    border-radius: 3px;
+    border-radius: 4px;
 
     background: rgba(0, 0, 0, 0.2);
-    color: rgba(249, 249, 249, 0.992);
+    color: rgba(249, 249, 249, 0.9);
 
     cursor: pointer;
 
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    padding: 1px 7px;
+    line-height: 1.5;
+    transition: background 0.2s;
 }
 
 .refresh-btn:hover {
-    background: rgba(179, 175, 175, 0.992);;
+    background: rgba(255, 142, 3, 0.15);
 }
 
 /* =========================================================

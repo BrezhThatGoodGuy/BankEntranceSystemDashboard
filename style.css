@@ -909,20 +909,19 @@ input[type="radio"] { display: none; }
 }
 
 .refresh-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: 11px;
-    background: rgba(255, 142, 3, 0.15);
-    border: 1px solid rgb(255, 142, 3);
+    background: none;
+    border: 1px solid rgba(255, 142, 3, 0.4);
+    border-radius: 4px;
     color: rgb(255, 142, 3);
     cursor: pointer;
-    font-size: 0.7rem;
-    transition: 0.2s;
+    font-size: 0.8rem;
+    padding: 1px 7px;
+    line-height: 1.5;
+    transition: background 0.2s;
 }
 
 .refresh-btn:hover {
-    background: rgb(255, 142, 3);
-    color: #1b1919;
+    background: rgba(255, 142, 3, 0.12);
 }
 
 #logContainer {

@@ -459,9 +459,13 @@ function pollStatus() {
 function startFallbackPolling() {
     if (fallbackPollingActive) return;
     fallbackPollingActive = true;
-    console.warn('[Monitor] SSE unavailable – falling back to polling');
     setInterval(pollMonitoringLogs, 3000);
     setInterval(pollStatus,          3000);
+}
+
+function refreshMonitorLogs() {
+    pollMonitoringLogs();
+    pollStatus();
 }
 
 
@@ -726,7 +730,7 @@ function openPrintLogsDialog() {
             <div class="print-modal-card" onclick="event.stopPropagation()">
                 <div class="print-modal-header">
                     <h3>Select logs to print</h3>
-                    <button type="button" class="close-modal-btn" onclick="closePrintLogsDialog()">×</button>
+                    <button type="button" class="close-modal-btn" onclick="closePrintLogsDialog()">X</button>
                 </div>
                 <div class="print-modal-body">
                     <p>Select one or more log files then press PRINT.</p>
@@ -797,22 +801,20 @@ function buildAndPrintLogs(files) {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Restore saved theme
     applyTheme(localStorage.getItem('systemTheme') || 'dark');
 
-    // Wire evacuate button
     const evBtn = document.querySelector('.evacuate');
     if (evBtn) evBtn.addEventListener('click', () => setOperationMode('evacuate'));
 
-    // Paint doors to default closed/locked state
     initializeDoorUI();
 
-    // Do an immediate status + log fetch so the UI is not blank
+    // Fetch immediately so UI is not blank on load
     pollStatus();
     pollMonitoringLogs();
 
-    // Start SSE; fall back to polling if unavailable
-    if (!startEventStream()) {
-        startFallbackPolling();
-    }
+    // Always run polling so stats stay current even if SSE is slow or silent
+    startFallbackPolling();
+
+    // Also start SSE for instant door/booth events on top of polling
+    startEventStream();
 });

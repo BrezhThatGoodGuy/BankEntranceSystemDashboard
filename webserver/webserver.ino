@@ -94,6 +94,9 @@ bool lockFaultAcknowledged[4] = {false, false, false, false};
 const char* faultMCNames[4]  = {"ENT.D1 MC", "ENT.D2 MC", "EXT.D3 MC", "EXT.D4 MC"};
 int  mcFaultCount[4]         = {0, 0, 0, 0};
 bool mcFaultAcknowledged[4]  = {false, false, false, false};
+const char* faultPIRNames[2] = {"BOOTH 1 PIR", "BOOTH 2 PIR"};
+int  pirFaultCount[2]        = {0, 0};
+bool pirFaultActive[2]       = {false, false};
 unsigned long lastDoorEventId = 0;
 
 // ===== Camera & Inference State =====
@@ -396,6 +399,10 @@ void processActionPost(const String &body) {
             mcFaultCount[i]          = 0;
             mcFaultAcknowledged[i]   = false;
         }
+        for (int i = 0; i < 2; i++) {
+            pirFaultCount[i]  = 0;
+            pirFaultActive[i] = false;
+        }
         String byUser = user.length() > 0 ? " by '" + user + "'" : "";
         appendLogEntry(LOG_FAULTS, "All lock fault counts cleared" + byUser);
         lastDoorEventId++;
@@ -472,6 +479,9 @@ bool applyOperationMode(const String &mode, const String &source, const String &
     Serial1.println(command);
     Serial.println("[" + source + "] MODE_CHANGE: " + next_label + " -> " + command);
     appendLogEntry(LOG_CONTROL, "Operation mode changed to " + next_label + byUser);
+
+    lastDoorEventId++;
+    events.send(buildModePayload().c_str(), "mode", lastDoorEventId);
 
     return true;
 }
@@ -623,6 +633,24 @@ void processAtmegaLine(const String &line) {
             lastDoorEventId++;
             events.send(buildFaultsPayload().c_str(), "fault", lastDoorEventId);
         }
+    } else if (line.startsWith("FAULT_PIR_")) {
+        // Format: FAULT_PIR_x  or  FAULT_PIR_x_CLEAR  (x = 1-2)
+        int pirId  = line.charAt(10) - '0';
+        bool isClear = line.endsWith("_CLEAR");
+        if (pirId >= 1 && pirId <= 2) {
+            int idx = pirId - 1;
+            if (isClear) {
+                pirFaultCount[idx] = 0;
+                pirFaultActive[idx] = false;
+                appendLogEntry(LOG_FAULTS, String(faultPIRNames[idx]) + " — fault cleared (sensor responding)");
+            } else {
+                pirFaultActive[idx] = true;
+                pirFaultCount[idx]++;
+                appendLogEntry(LOG_FAULTS, String(faultPIRNames[idx]) + " — no detection after 5 consecutive timeouts");
+            }
+            lastDoorEventId++;
+            events.send(buildFaultsPayload().c_str(), "fault", lastDoorEventId);
+        }
     } else if (line.startsWith("BOOTH_")) {
         int boothId = line.charAt(6) - '0';
         if (boothId >= 1 && boothId <= 2) {
@@ -728,10 +756,13 @@ String buildFaultsPayload() {
                 +  "\"lastChecked\":\"" + now + "\"}";
     }
     payload += "],\"pirSensors\":[";
-    const char* pirNames[2] = {"BOOTH 1 PIR", "BOOTH 2 PIR"};
     for (int i = 0; i < 2; i++) {
         if (i) payload += ",";
-        payload += "{\"id\":\"" + String(pirNames[i]) + "\",\"name\":\"" + String(pirNames[i]) + "\",\"status\":\"normal\",\"count\":0,\"lastChecked\":\"" + now + "\"}";
+        payload += "{\"id\":\""     + String(faultPIRNames[i]) + "\","
+                +  "\"name\":\""   + String(faultPIRNames[i]) + "\","
+                +  "\"status\":\"" + String(pirFaultActive[i] ? "fault" : "normal") + "\","
+                +  "\"count\":"    + String(pirFaultCount[i]) + ","
+                +  "\"lastChecked\":\"" + now + "\"}";
     }
     payload += "]},\"timestamp\":\"" + now + "\"}";
     return payload;
