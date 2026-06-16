@@ -241,7 +241,7 @@ function updateFaultStats(faults) {
     if (!boxes || boxes.length < 3) return;
     const all = [
         ...(faults && faults.locks              || []),
-        ...(faults && faults.motionControllers  || []),
+        ...(faults && faults.magneticContacts  || []),
         ...(faults && faults.pirSensors         || [])
     ];
     boxes[0].textContent = all.filter(c => c.status === 'fault').length;
@@ -255,7 +255,7 @@ let   _reportContext = { component: '--', count: 0, acknowledged: false };
 
 function applyFaultsData(data) {
     if (!data || !data.faults) return;
-    [...(data.faults.locks || []), ...(data.faults.motionControllers || []), ...(data.faults.pirSensors || [])].forEach(comp => {
+    [...(data.faults.locks || []), ...(data.faults.magneticContacts || []), ...(data.faults.pirSensors || [])].forEach(comp => {
         _faultState[comp.id] = { count: comp.count || 0, acknowledged: comp.status === 'fault' };
         updateFaultBox(comp.id, comp.status, comp.count || 0);
     });

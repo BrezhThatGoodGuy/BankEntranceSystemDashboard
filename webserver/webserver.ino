@@ -745,7 +745,7 @@ String buildFaultsPayload() {
                 +  "\"count\":"    + String(lockFaultCount[i]) + ","
                 +  "\"lastChecked\":\"" + now + "\"}";
     }
-    payload += "],\"motionControllers\":[";
+    payload += "],\"magneticContacts\":[";
     for (int i = 0; i < 4; i++) {
         if (i) payload += ",";
         bool mcFault = mcFaultAcknowledged[i];

@@ -6,7 +6,7 @@
       { "id": "EXT.D3 LOCK", "name": "EXT.D3 LOCK", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
       { "id": "ENT.D2 LOCK", "name": "ENT.D2 LOCK", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" }
     ],
-    "motionControllers": [
+    "magneticContacts": [
       { "id": "EXT.D4 MC", "name": "EXT.D4 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
       { "id": "ENT.D1 MC", "name": "ENT.D1 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
       { "id": "EXT.D3 MC", "name": "EXT.D3 MC", "status": "normal", "lastChecked": "2026-04-24T08:00:00Z" },
