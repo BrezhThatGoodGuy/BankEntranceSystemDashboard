@@ -12,14 +12,10 @@ Optimized for Memory & Performance - Int8 Quantized Model (EON Compiler)
 #include <FS.h>
 #include <LittleFS.h>
 #include <time.h>
-#include <eloquent_esp32cam.h>
 #include <Threat_Detector_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
 #include "esp_camera.h"
 #include "mbedtls/base64.h"
-
-
-using namespace eloq;
 
 // ===== WiFi Configuration =====
 const char* ssid = "@verydemure";
@@ -37,7 +33,6 @@ const char* password = "44936051";
 #define ATMEGA_BAUD   9600
 
 // ===== Camera Configuration =====
-#define CAMERA_MODEL_AI_THINKER
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
 #define XCLK_GPIO_NUM      0
@@ -806,7 +801,7 @@ bool ei_camera_init(void) {
     }
 
     sensor_t * s = esp_camera_sensor_get();
-    if (s->id.PID == OV3660_PID) {
+    if (s) {
         s->set_vflip(s, 1);
         s->set_brightness(s, 1);
         s->set_saturation(s, 0);
