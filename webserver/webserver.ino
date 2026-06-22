@@ -802,40 +802,6 @@ String buildAllLogsPayload() {
 }
 
 // ===== CAMERA FUNCTIONS =====
-bool ei_camera_init(void) {
-    if (is_camera_initialised) return true;
-        pinMode(PWDN_GPIO_NUM, OUTPUT);
-    digitalWrite(PWDN_GPIO_NUM, HIGH);  // Power down
-    delay(100);
-    digitalWrite(PWDN_GPIO_NUM, LOW);   // Power up
-    delay(100);
-
-    esp_err_t err = esp_camera_init(&camera_config);
-    if (err != ESP_OK) {
-        Serial.printf("Camera init failed with error 0x%x\n", err);
-        return false;
-    }
-
-    sensor_t * s = esp_camera_sensor_get();
-    if (s) {
-        s->set_vflip(s, 1);
-        s->set_brightness(s, 1);
-        s->set_saturation(s, 0);
-    }
-
-    is_camera_initialised = true;
-    return true;
-}
-
-void ei_camera_deinit(void) {
-    esp_err_t err = esp_camera_deinit();
-    if (err != ESP_OK) {
-        ei_printf("Camera deinit failed\n");
-        return;
-    }
-    is_camera_initialised = false;
-}
-
 bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf) {
     bool do_resize = false;
 
@@ -1265,11 +1231,26 @@ void setup() {
     Serial.println("LittleFS Mounted Successfully");
     delay(1000);
 
-    // Initialize Camera
-    if (!ei_camera_init()) {
-        Serial.println("Camera initialization failed!");
+    // Initialize Camera (OV3660)
+    pinMode(PWDN_GPIO_NUM, OUTPUT);
+    digitalWrite(PWDN_GPIO_NUM, HIGH);
+    delay(100);
+    digitalWrite(PWDN_GPIO_NUM, LOW);
+    delay(100);
+
+    esp_err_t cam_err = esp_camera_init(&camera_config);
+    if (cam_err != ESP_OK) {
+        Serial.printf("Camera init failed: 0x%x\n", cam_err);
     } else {
-        Serial.println("Camera initialized successfully");
+        sensor_t *s = esp_camera_sensor_get();
+        if (s) {
+            s->set_vflip(s, 0);
+            s->set_hmirror(s, 0);
+            s->set_brightness(s, 1);
+            s->set_saturation(s, 0);
+        }
+        is_camera_initialised = true;
+        Serial.println("Camera initialized (OV3660)");
     }
 
     // Connect to WiFi
