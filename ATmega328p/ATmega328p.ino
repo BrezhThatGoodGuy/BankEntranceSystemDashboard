@@ -78,7 +78,9 @@ volatile unsigned long lastInterruptTime1 = 0;
 volatile unsigned long lastInterruptTime2 = 0;
 volatile unsigned long lastInterruptTime3 = 0;
 volatile unsigned long lastInterruptTime4 = 0;
+volatile unsigned long lastModeSelectorTime = 0;
 
+volatile bool eventModeSelectorChange = false;
 volatile bool eventDoor1Open  = false;
 volatile bool eventDoor1Close = false;
 volatile bool eventDoor2Open  = false;
@@ -339,6 +341,12 @@ ISR(PCINT0_vect) {
 ISR(PCINT1_vect) {
   unsigned long currentTime = millis();
 
+  // modeSelector = A2 (PC2/PCINT10)
+  if ((currentTime - lastModeSelectorTime) > debounceTime) {
+    eventModeSelectorChange = true;
+    lastModeSelectorTime = currentTime;
+  }
+
   if ((currentTime - lastInterruptTime1) > debounceTime) {
     if (digitalRead(door1) == LOW) {
       if (booth1State == IDLE_FIRST_DOOR) booth1State = WAIT_FIRST_DOOR_CLOSE;
@@ -418,6 +426,7 @@ void setup() {
   pinMode(door3, INPUT); pinMode(door4, INPUT);
   pinMode(pirBooth1, INPUT);
   pinMode(pirBooth2, INPUT);
+  pinMode(modeSelector, INPUT);
 
   updateSystemLEDs();
 
@@ -427,6 +436,7 @@ void setup() {
   PCMSK0 |= (1 << PCINT5);  // door2     = D13 (PB5)
 
   PCICR |= (1 << PCIE1);
+  PCMSK1 |= (1 << PCINT10); // modeSelector = A2 (PC2)
   PCMSK1 |= (1 << PCINT11); // door1 = A3 (PC3)
 
   PCICR |= (1 << PCIE2);
@@ -571,5 +581,15 @@ void loop() {
       doorOverrideMode[i] = AUTO_MODE;
       Serial.println(String("DOOR_") + (i + 1) + "_AUTO");
     }
+  }
+
+  if (eventModeSelectorChange) {
+    currentMode = (OperationMode)((currentMode + 1) % 5);
+    lastModeChangeTime = millis();
+    static const char* const modeNames[] = {"NORMAL", "EVACUATION", "LOCKDOWN", "BANK_CLOSED", "STAFF_ENTRY"};
+    Serial.print("MODE_SELECTOR:");
+    Serial.println(modeNames[currentMode]);
+    updateSystemLEDs();
+    eventModeSelectorChange = false;
   }
 }

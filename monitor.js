@@ -517,6 +517,24 @@ function startEventStream() {
         }
     });
 
+    // "mode" events: operation mode change (web UI, AI, or hardware selector)
+    // Only display a log entry when the event carries a message (hardware selector sets one)
+    monitorEventSource.addEventListener('mode', ev => {
+        try {
+            const data = JSON.parse(ev.data);
+            if (data.message) {
+                addLogEntryToUI({
+                    time:   data.timestamp,
+                    door:   'System',
+                    action: data.message,
+                    status: data.label || ''
+                });
+            }
+        } catch (e) {
+            console.warn('[Monitor] Bad mode SSE payload', e, ev.data);
+        }
+    });
+
     monitorEventSource.onerror = () => {
         console.warn('[Monitor] SSE disconnected; browser will auto-retry');
         startFallbackPolling();

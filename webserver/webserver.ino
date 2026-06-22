@@ -182,13 +182,13 @@ void processActionPost(const String &body);
 String buildDoorEventPayload(int doorId, const String &state, const String &rawLine);
 String buildStatusPayload();
 String buildAiConfigPayload();
-String buildModePayload();
+String buildModePayload(const String &message = "");
 String buildFaultsPayload();
 String buildAllLogsPayload();
 void publishDoorEvent(int doorId, const String &state, const String &rawLine);
 void releasePendingInferenceFrame();
 void promotePendingInferenceFrame();
-bool applyOperationMode(const String &mode, const String &source, const String &user = "");
+bool applyOperationMode(const String &mode, const String &source, const String &user = "", bool sendToAtmega = true, const String &modeMsg = "");
 String resolveInferenceDetectionType(const char *label);
 void applyInferenceOperationMode();
 void broadcastInferenceSSE();
@@ -427,7 +427,7 @@ void processActionPost(const String &body) {
     }
 }
 
-bool applyOperationMode(const String &mode, const String &source, const String &user) {
+bool applyOperationMode(const String &mode, const String &source, const String &user, bool sendToAtmega, const String &modeMsg) {
     if (mode.length() == 0) {
         return false;
     }
@@ -471,12 +471,12 @@ bool applyOperationMode(const String &mode, const String &source, const String &
     current_operation_label = next_label;
 
     String byUser = user.length() > 0 ? " by '" + user + "'" : "";
-    Serial1.println(command);
+    if (sendToAtmega) Serial1.println(command);
     Serial.println("[" + source + "] MODE_CHANGE: " + next_label + " -> " + command);
     appendLogEntry(LOG_CONTROL, "Operation mode changed to " + next_label + byUser);
 
     lastDoorEventId++;
-    events.send(buildModePayload().c_str(), "mode", lastDoorEventId);
+    events.send(buildModePayload(modeMsg).c_str(), "mode", lastDoorEventId);
 
     return true;
 }
@@ -679,6 +679,19 @@ void processAtmegaLine(const String &line) {
         appendLogEntry(LOG_MONITORING, "Occupancy counts updated: Entries=" + String(totalEntries) + ", Exits=" + String(totalExits) + ", Inside=" + String(clientsInside));
         lastDoorEventId++;
         events.send(buildStatusPayload().c_str(), "status", lastDoorEventId);
+    } else if (line.startsWith("MODE_SELECTOR:")) {
+        // Hardware mode selector relay toggled — ATmega has already applied the new mode
+        String atmegaMode = line.substring(14);
+        String espMode;
+        if      (atmegaMode.equalsIgnoreCase("NORMAL"))      espMode = "Normal";
+        else if (atmegaMode.equalsIgnoreCase("EVACUATION"))  espMode = "Evacuation";
+        else if (atmegaMode.equalsIgnoreCase("LOCKDOWN"))    espMode = "Lock-All";
+        else if (atmegaMode.equalsIgnoreCase("BANK_CLOSED")) espMode = "Exit-Only";
+        else if (atmegaMode.equalsIgnoreCase("STAFF_ENTRY")) espMode = "Entrance-Only";
+        else                                                  espMode = atmegaMode;
+        // sendToAtmega=false: ATmega already changed its own mode via the interrupt
+        applyOperationMode(espMode, "SELECTOR", "", false, "Mode changed manually");
+        appendLogEntry(LOG_CONTROL, "Mode changed manually");
     }
 }
 
@@ -719,10 +732,13 @@ String buildAiConfigPayload() {
     return payload;
 }
 
-String buildModePayload() {
+String buildModePayload(const String &message) {
     String payload = "{";
     payload += "\"mode\":\"" + jsonEscape(current_operation_mode) + "\",";
     payload += "\"label\":\"" + jsonEscape(current_operation_label) + "\",";
+    if (message.length() > 0) {
+        payload += "\"message\":\"" + jsonEscape(message) + "\",";
+    }
     payload += "\"timestamp\":\"" + formatTimestamp() + "\"";
     payload += "}";
     return payload;
